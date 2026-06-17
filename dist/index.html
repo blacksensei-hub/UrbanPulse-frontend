@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#F8F6F2" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#12100E" media="(prefers-color-scheme: dark)" />
+    <title>UrbanPulse — Premium Streetwear</title>
+    <meta name="description" content="UrbanPulse — Premium streetwear and accessories built to outlast trends." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+    <!-- Clash Display via Fontshare -->
+    <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&display=swap" />
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <!-- No-FOUC: applies stored theme BEFORE React mounts. Default = light. -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('urbanpulse-theme') || 'light';
+          if (t === 'dark') document.documentElement.classList.add('dark');
+          document.documentElement.style.colorScheme = t;
+        } catch (e) {}
+      })();
+    </script>
+    <style>
+      #splash{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#F8F6F2;z-index:9999;pointer-events:none;}
+      html.dark #splash{background:#12100E;}
+      .sp-wm{display:flex;font-family:'Clash Display',ui-sans-serif,sans-serif;font-size:clamp(2rem,8vw,3.5rem);font-weight:700;letter-spacing:-0.03em;}
+      @keyframes sp-up{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+      .sp-l{color:#1A1A1A;opacity:0;animation:sp-up .4s cubic-bezier(.16,1,.3,1) forwards;animation-delay:calc(var(--i)*35ms);}
+      html.dark .sp-l{color:#F2EFE8;}
+      .sp-a{color:#D85A30;opacity:0;animation:sp-up .4s cubic-bezier(.16,1,.3,1) forwards;animation-delay:calc(var(--i)*35ms);}
+      html.dark .sp-a{color:#E87A4F;}
+      @media(prefers-reduced-motion:reduce){.sp-l,.sp-a{opacity:1;animation:none;}}
+    </style>
+    <script type="module" crossorigin src="/assets/index-CIUkLKXv.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/react-feOCaMQ1.js">
+    <link rel="modulepreload" crossorigin href="/assets/motion-DqGon92P.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-Dy5cEhqv.css">
+  <link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
+  <body>
+    <div id="root">
+      <div id="splash" aria-hidden="true">
+        <div class="sp-wm">
+          <span class="sp-l" style="--i:0">u</span><span class="sp-l" style="--i:1">r</span><span class="sp-l" style="--i:2">b</span><span class="sp-l" style="--i:3">a</span><span class="sp-l" style="--i:4">n</span><span class="sp-a" style="--i:5">p</span><span class="sp-a" style="--i:6">u</span><span class="sp-a" style="--i:7">l</span><span class="sp-a" style="--i:8">s</span><span class="sp-a" style="--i:9">e</span>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

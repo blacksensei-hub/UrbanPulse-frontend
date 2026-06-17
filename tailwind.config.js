@@ -1,0 +1,68 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./index.html', './src/**/*.{js,jsx}'],
+  darkMode: 'class',
+  theme: {
+    screens: {
+      xs: '375px',
+      sm: '480px',
+      md: '640px',
+      lg: '768px',
+      xl: '1024px',
+      '2xl': '1280px',
+      '3xl': '1440px',
+      '4xl': '1920px',
+    },
+    extend: {
+      colors: {
+        bg: 'var(--color-bg)',
+        surface: 'var(--color-surface)',
+        text: 'var(--color-text)',
+        muted: 'var(--color-muted)',
+        accent: 'var(--color-accent)',
+        'accent-hover': 'var(--color-accent-hover)',
+        secondary: 'var(--color-secondary)',
+        highlight: 'var(--color-highlight)',
+        border: 'var(--color-border)',
+        success: 'var(--color-success)',
+        error: 'var(--color-error)',
+        warning: 'var(--color-warning)',
+        info: 'var(--color-info)',
+      },
+      fontFamily: {
+        display: ['"Clash Display"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+      },
+      fontSize: {
+        hero:    'clamp(2.5rem, 8vw, 4rem)',
+        display: ['clamp(3rem, 10vw, 5.5rem)',    { lineHeight: '1.02', letterSpacing: '-0.02em' }],
+        h1:      ['clamp(2rem, 6vw, 3rem)',        { lineHeight: '1.08', letterSpacing: '-0.015em' }],
+        h2:      ['clamp(1.6rem, 5vw, 2.25rem)',   { lineHeight: '1.15' }],
+        h3:      ['clamp(1.25rem, 3vw, 1.5rem)',   { lineHeight: '1.25' }],
+        body:    ['1rem',                           { lineHeight: '1.5' }],
+        small:   ['0.875rem',                       { lineHeight: '1.45' }],
+        eyebrow: ['0.75rem',                        { letterSpacing: '0.14em' }],
+      },
+      borderRadius: {
+        sm:   'var(--radius-sm)',
+        md:   'var(--radius-md)',
+        lg:   'var(--radius-lg)',
+        xl:   'var(--radius-xl)',
+        pill: 'var(--radius-pill)',
+      },
+      boxShadow: {
+        sm:       'var(--shadow-sm)',
+        md:       'var(--shadow-md)',
+        lg:       'var(--shadow-lg)',
+        float:    'var(--shadow-float)',
+        soft:     '0 4px 24px -8px rgba(26,26,26,0.10)',
+        elevated: '0 12px 40px -16px rgba(26,26,26,0.20)',
+      },
+      maxWidth: {
+        site: '1400px',
+      },
+    },
+  },
+  plugins: [],
+};

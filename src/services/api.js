@@ -1,0 +1,52 @@
+import axios from 'axios';
+
+const baseURL = import.meta.env.VITE_API_URL || '/api';
+
+export const api = axios.create({
+  baseURL,
+  withCredentials: true,
+  timeout: 15000,
+});
+
+// Attach a guest session id to anonymous cart requests
+function getSessionId() {
+  let id = localStorage.getItem('urbanpulse-sid');
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem('urbanpulse-sid', id);
+  }
+  return id;
+}
+
+api.interceptors.request.use((config) => {
+  config.headers['X-Session-Id'] = getSessionId();
+  const viewAsToken = localStorage.getItem('urbanpulse-view-as-token');
+  if (viewAsToken) config.headers['X-View-As-Token'] = viewAsToken;
+  return config;
+});
+
+let refreshing = null;
+
+api.interceptors.response.use(
+  (r) => r,
+  async (error) => {
+    const original = error.config;
+    if (
+      error.response?.status === 401 &&
+      original &&
+      !original._retry &&
+      !original.url.includes('/auth/')
+    ) {
+      original._retry = true;
+      try {
+        refreshing = refreshing || api.post('/auth/refresh');
+        await refreshing;
+        refreshing = null;
+        return api(original);
+      } catch {
+        refreshing = null;
+      }
+    }
+    return Promise.reject(error);
+  }
+);
