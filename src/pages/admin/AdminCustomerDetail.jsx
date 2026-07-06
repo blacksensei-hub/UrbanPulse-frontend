@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   MoreVertical, Ban, Shield, Mail, Phone, Pin, Pencil, Trash2,
   ShoppingBag, RotateCcw, Star, Heart, CreditCard, Plus, Check,
-  X, ChevronRight, Eye, Flag, Send, RefreshCw, Key, MessageSquare,
+  X, ChevronRight, Eye, Flag, Send, RefreshCw, Key, MessageSquare, Award,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -36,12 +36,15 @@ const RETURN_STATUS_STYLES = {
   refunded:  'bg-success/15 text-success',
 };
 
+const TIER_LABELS = { bronze: 'Bronze', silver: 'Silver', gold: 'Gold', platinum: 'Platinum' };
+
 const TABS = [
   { id: 'orders',   label: 'Orders',       icon: ShoppingBag },
   { id: 'returns',  label: 'Returns',      icon: RotateCcw },
   { id: 'reviews',  label: 'Reviews',      icon: Star },
   { id: 'wishlist', label: 'Wishlist',     icon: Heart },
   { id: 'credit',   label: 'Store Credit', icon: CreditCard },
+  { id: 'loyalty',  label: 'Loyalty',      icon: Award },
   { id: 'messages', label: 'Messages',     icon: Mail },
 ];
 
@@ -131,6 +134,99 @@ function AdjustCreditModal({ open, onClose, customerId, currentBalance, onSucces
             )}
             {actualDelta === 0 && parsed !== 0 && (
               <p className="mt-1.5 text-xs text-muted">No change (balance is already GH₵ 0).</p>
+            )}
+          </div>
+        )}
+
+        <div className="flex justify-end gap-2 pt-1">
+          <Button variant="ghost" type="button" onClick={onClose}>Cancel</Button>
+          <Button onClick={submit} loading={saving} disabled={!amount || actualDelta === 0}>
+            Confirm
+          </Button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+// ── Adjust Loyalty Points Modal ──────────────────────────────────
+
+function AdjustLoyaltyModal({ open, onClose, customerId, currentBalance, onSuccess }) {
+  const [amount, setAmount] = useState('');
+  const [reason, setReason] = useState('Manual adjustment');
+  const [note, setNote] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const parsed = parseInt(amount, 10) || 0;
+  const newBalance = Math.max(0, currentBalance + parsed);
+  const actualDelta = newBalance - currentBalance;
+  const willFloor = parsed < 0 && newBalance === 0 && parsed + currentBalance < 0;
+
+  async function submit() {
+    if (!amount) return;
+    setSaving(true);
+    try {
+      await adminService.customer.adjustLoyalty(customerId, { delta: parsed, reason, note });
+      toast.success('Points adjusted');
+      onSuccess();
+      onClose();
+      setAmount(''); setNote('');
+    } catch (err) {
+      toast.error(err?.response?.data?.message ?? 'Adjustment failed');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Modal open={open} onClose={onClose} title="Adjust loyalty points">
+      <div className="space-y-4">
+        <div className="flex items-center justify-between rounded-lg bg-highlight px-4 py-3">
+          <span className="text-sm text-muted">Current balance</span>
+          <span className="font-display text-lg font-bold tabular-nums">{currentBalance} pts</span>
+        </div>
+
+        <Input
+          label="Amount (points, positive or negative)"
+          floating
+          type="number"
+          step="1"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+        />
+
+        <label className="block">
+          <span className="text-eyebrow text-muted mb-1.5 block">Reason</span>
+          <select
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            className="select w-full"
+          >
+            <option>Manual adjustment</option>
+            <option>Goodwill</option>
+            <option>Correction</option>
+            <option>Other</option>
+          </select>
+        </label>
+
+        <Input
+          label="Note (optional)"
+          floating
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+        />
+
+        {amount !== '' && (
+          <div className="rounded-lg border border-border px-4 py-3 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-muted">New balance</span>
+              <span className="font-display font-bold tabular-nums">{newBalance} pts</span>
+            </div>
+            {willFloor && (
+              <p className="mt-1.5 text-xs text-warning">Balance cannot go below 0. Will be capped.</p>
+            )}
+            {actualDelta === 0 && parsed !== 0 && (
+              <p className="mt-1.5 text-xs text-muted">No change (balance is already 0).</p>
             )}
           </div>
         )}
@@ -380,13 +476,14 @@ export default function AdminCustomerDetail() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const [tabData, setTabData] = useState({ orders: null, returns: null, reviews: null, wishlist: null, credit: null, messages: null });
+  const [tabData, setTabData] = useState({ orders: null, returns: null, reviews: null, wishlist: null, credit: null, loyalty: null, messages: null });
   const [tabLoading, setTabLoading] = useState({});
   const [activeTab, setActiveTab] = useState('orders');
 
   const [actionsOpen, setActionsOpen] = useState(false);
   const actionsRef = useRef(null);
   const [creditModalOpen, setCreditModalOpen] = useState(false);
+  const [loyaltyModalOpen, setLoyaltyModalOpen] = useState(false);
   const [apologyOpen, setApologyOpen]         = useState(false);
   const [msgComposerOpen, setMsgComposerOpen] = useState(false);
 
@@ -431,6 +528,7 @@ export default function AdminCustomerDetail() {
       if (tab === 'reviews')  data = await adminService.customer.reviews(id);
       if (tab === 'wishlist') data = await adminService.customer.wishlist(id);
       if (tab === 'credit')   data = await adminService.customer.creditLedger(id);
+      if (tab === 'loyalty')  data = await adminService.customer.loyaltyLedger(id);
       if (tab === 'messages') data = await adminService.customer.messages(id);
       setTabData(p => ({ ...p, [tab]: data }));
     } catch { toast.error(`Could not load ${tab}`); }
@@ -513,6 +611,7 @@ export default function AdminCustomerDetail() {
     { label: 'Total spent',   value: formatCurrency(stats.total_spent_ghs),   sub: `${stats.paid_orders} paid orders`,           tab: 'orders' },
     { label: 'Orders',        value: stats.total_orders,                       sub: `Avg ${formatCurrency(stats.average_order_ghs)}`, tab: 'orders' },
     { label: 'Store credit',  value: formatCurrency(stats.store_credit_balance_ghs), sub: 'Tap to adjust',                       tab: 'credit' },
+    { label: 'Loyalty points', value: user.loyalty_points ?? 0,                sub: `${TIER_LABELS[user.loyalty_tier] ?? 'Bronze'} tier`, tab: 'loyalty' },
     { label: 'Returns',       value: stats.returns_count,                      sub: '',                                           tab: 'returns' },
     { label: 'Reviews',       value: stats.reviews_count,                      sub: '',                                           tab: 'reviews' },
     { label: 'Member since',  value: formatDate(user.created_at),              sub: user.last_login ? `Last login ${formatRelativeDate(user.last_login)}` : 'Never logged in', tab: null },
@@ -569,6 +668,7 @@ export default function AdminCustomerDetail() {
       },
     },
     { label: 'Adjust store credit', icon: CreditCard, onClick: () => { setCreditModalOpen(true); setActionsOpen(false); } },
+    { label: 'Adjust loyalty points', icon: Award, onClick: () => { setLoyaltyModalOpen(true); setActionsOpen(false); } },
     {
       label: 'View as customer',
       icon: Eye,
@@ -728,7 +828,15 @@ export default function AdminCustomerDetail() {
       {TABS.map((t) => (
         <div key={t.id} id={`tab-section-${t.id}`}>
           {activeTab === t.id && (
-            <TabSection tab={t.id} data={tabData[t.id]} loading={!!tabLoading[t.id]} stats={stats} onAdjustCredit={() => setCreditModalOpen(true)} />
+            <TabSection
+              tab={t.id}
+              data={tabData[t.id]}
+              loading={!!tabLoading[t.id]}
+              stats={stats}
+              user={user}
+              onAdjustCredit={() => setCreditModalOpen(true)}
+              onAdjustLoyalty={() => setLoyaltyModalOpen(true)}
+            />
           )}
         </div>
       ))}
@@ -743,6 +851,19 @@ export default function AdminCustomerDetail() {
           loadProfile();
           setTabData(p => ({ ...p, credit: null }));
           loadTab('credit');
+        }}
+      />
+
+      {/* Adjust loyalty points modal */}
+      <AdjustLoyaltyModal
+        open={loyaltyModalOpen}
+        onClose={() => setLoyaltyModalOpen(false)}
+        customerId={id}
+        currentBalance={user.loyalty_points ?? 0}
+        onSuccess={() => {
+          loadProfile();
+          setTabData(p => ({ ...p, loyalty: null }));
+          loadTab('loyalty');
         }}
       />
 
@@ -823,7 +944,7 @@ export default function AdminCustomerDetail() {
 
 // ── Tab Section ──────────────────────────────────────────────────
 
-function TabSection({ tab, data, loading, stats, onAdjustCredit }) {
+function TabSection({ tab, data, loading, stats, user, onAdjustCredit, onAdjustLoyalty }) {
   if (loading || data === null) {
     return (
       <div className="space-y-3">
@@ -842,6 +963,7 @@ function TabSection({ tab, data, loading, stats, onAdjustCredit }) {
   if (tab === 'reviews')  return <ReviewsTab reviews={data} />;
   if (tab === 'wishlist') return <WishlistTab items={data} />;
   if (tab === 'credit')   return <CreditTab entries={data} balance={stats.store_credit_balance_ghs} onAdjust={onAdjustCredit} />;
+  if (tab === 'loyalty')  return <LoyaltyTab entries={data} user={user} onAdjust={onAdjustLoyalty} />;
   if (tab === 'messages') return <MessagesTab data={data} />;
   return null;
 }
@@ -1023,6 +1145,76 @@ function CreditTab({ entries, balance, onAdjust }) {
                     {parseFloat(e.amount_ghs) >= 0 ? '+' : ''}{formatCurrency(e.amount_ghs)}
                   </td>
                   <td className="px-5 py-3 text-right tabular-nums text-muted">{formatCurrency(e.running)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const LOYALTY_REASON_LABELS = {
+  earned_purchase:   'Earned from order',
+  redeemed_credit:   'Redeemed on order',
+  refund_clawback:   'Refund adjustment',
+  expired:           'Expired',
+  manual_adjustment: 'Manual adjustment',
+};
+
+function LoyaltyTab({ entries, user, onAdjust }) {
+  // Compute running balance: process oldest-first, accumulate
+  const sorted = [...(entries || [])].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+  let running = 0;
+  const withRunning = sorted.map(e => {
+    running += Number(e.delta) || 0;
+    return { ...e, running };
+  }).reverse(); // back to newest-first for display
+
+  return (
+    <div className="space-y-4">
+      <div className="card p-5 flex items-center justify-between">
+        <div>
+          <div className="text-eyebrow text-muted mb-1">Current balance</div>
+          <div className="flex items-baseline gap-2">
+            <div className="font-display text-3xl font-bold tabular-nums">{user?.loyalty_points ?? 0} pts</div>
+            <span className="rounded-pill bg-accent/15 px-2.5 py-0.5 text-eyebrow text-accent">
+              {TIER_LABELS[user?.loyalty_tier] ?? 'Bronze'}
+            </span>
+          </div>
+          <div className="mt-1 text-xs text-muted">{user?.loyalty_lifetime_points ?? 0} lifetime points</div>
+        </div>
+        <Button size="sm" onClick={onAdjust}>Adjust points</Button>
+      </div>
+
+      {withRunning.length === 0 ? (
+        <EmptyState icon={Award} label="No loyalty history" />
+      ) : (
+        <div className="card overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="sticky top-0 z-10 border-b border-border bg-surface text-xs uppercase tracking-wider text-muted">
+              <tr>
+                <th className="px-5 py-3 font-medium">Date</th>
+                <th className="px-5 py-3 font-medium">Reason</th>
+                <th className="px-5 py-3 font-medium text-right">Points</th>
+                <th className="px-5 py-3 font-medium text-right">Balance</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {withRunning.map(e => (
+                <tr key={e.id} className="hover:bg-highlight transition-colors">
+                  <td className="px-5 py-3 text-xs text-muted">{formatDate(e.created_at)}</td>
+                  <td className="px-5 py-3 text-muted">
+                    {LOYALTY_REASON_LABELS[e.reason] ?? e.reason}
+                    {e.related_id && ['earned_purchase', 'redeemed_credit', 'refund_clawback'].includes(e.reason) && (
+                      <span className="text-xs"> · order #{e.related_id}</span>
+                    )}
+                  </td>
+                  <td className={`px-5 py-3 text-right tabular-nums font-semibold ${e.delta >= 0 ? 'text-success' : 'text-error'}`}>
+                    {e.delta >= 0 ? '+' : ''}{e.delta}
+                  </td>
+                  <td className="px-5 py-3 text-right tabular-nums text-muted">{e.running}</td>
                 </tr>
               ))}
             </tbody>

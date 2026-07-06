@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Helmet } from 'react-helmet-async';
+import SEO from '../../components/SEO.jsx';
 
 function Section({ title, children }) {
   return (
@@ -23,10 +23,11 @@ export default function ShippingInfo() {
 
   return (
     <>
-      <Helmet>
-        <title>Shipping Info — UrbanPulse</title>
-        <meta name="description" content="Shipping methods, costs, and delivery timelines for UrbanPulse orders in Ghana." />
-      </Helmet>
+      <SEO
+        title="Shipping Info"
+        description="Shipping methods, costs, and delivery timelines for UrbanPulse orders in Ghana."
+        url="/shipping"
+      />
 
       <div className="container-site" style={{ maxWidth: '48rem' }}>
         <div style={{ paddingBlock: 'var(--space-section)' }}>

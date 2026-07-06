@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Check, Package, Download, Loader2 } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
 import toast from 'react-hot-toast';
 import { Button } from '../components/ui/index.jsx';
+import SEO from '../components/SEO.jsx';
 import { orderService } from '../services/index.js';
 import { useCartStore } from '../stores/cartStore.js';
 import { useAuthStore } from '../stores/authStore.js';
@@ -71,9 +71,7 @@ export default function OrderSuccess() {
   return (
     <>
       <Confetti trigger={confetti && !prefersReduced} />
-      <Helmet>
-        <title>Order confirmed — UrbanPulse</title>
-      </Helmet>
+      <SEO title="Order confirmed" noindex />
 
       <div className="container-site grid place-items-center py-16 md:py-24">
         <motion.div
@@ -126,11 +124,24 @@ export default function OrderSuccess() {
                   <dt className="text-muted">Items</dt>
                   <dd>{order.items?.length ?? 0}</dd>
                 </div>
+                {order.loyalty?.points_redeemed > 0 && (
+                  <div className="flex justify-between text-success">
+                    <dt className="text-muted">Points used</dt>
+                    <dd className="font-mono font-medium">
+                      {order.loyalty.points_redeemed} pts − {formatCurrency(order.loyalty.points_redeemed_ghs)} off
+                    </dd>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <dt className="text-muted">Total</dt>
                   <dd className="font-mono text-base font-bold">{formatCurrency(order.total)}</dd>
                 </div>
               </dl>
+              {order.loyalty?.points_earned > 0 && (
+                <p className="mt-3 text-xs text-muted">
+                  You earned {order.loyalty.points_earned} points · {formatCurrency(order.loyalty.points_earned_ghs)} in rewards
+                </p>
+              )}
               <div className="mt-4 border-t border-border pt-4">
                 {(() => {
                   const isPaid  = order.payment_status === 'paid';

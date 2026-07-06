@@ -2,10 +2,11 @@ import { useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
 
 import ProductCard from '../components/product/ProductCard.jsx';
 import Divider from '../components/ui/Divider.jsx';
+import SEO from '../components/SEO.jsx';
+import { buildArticleSchema, SITE_URL } from '../lib/seoSchema.js';
 
 // ─── Lookbook content ────────────────────────────────────────────────────────
 // TODO: Replace productSlugs with real product slugs from your DB once you
@@ -109,7 +110,7 @@ const LOOKBOOKS = {
 
 // ─── Parallax image block ─────────────────────────────────────────────────────
 
-function ParallaxImage({ src, alt, caption, className = '' }) {
+function ParallaxImage({ src, alt, caption, className = '', width = 1400, height = 933 }) {
   const ref = useRef(null);
   const prefersReduced = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
@@ -125,6 +126,8 @@ function ParallaxImage({ src, alt, caption, className = '' }) {
         <img
           src={src}
           alt={alt || ''}
+          width={width}
+          height={height}
           className="w-full object-cover"
           style={{ transform: 'scale(1.14)', transformOrigin: 'center' }}
           loading="lazy"
@@ -159,10 +162,11 @@ export function LookbookIndex() {
 
   return (
     <>
-      <Helmet>
-        <title>Lookbook — UrbanPulse</title>
-        <meta name="description" content="Editorial lookbooks and campaign stories from UrbanPulse." />
-      </Helmet>
+      <SEO
+        title="Lookbook"
+        description="Editorial lookbooks and campaign stories from UrbanPulse."
+        url="/lookbook"
+      />
 
       <div className="container-site py-12 md:py-20">
         <Reveal>
@@ -184,6 +188,8 @@ export function LookbookIndex() {
                     src={lb.hero}
                     alt={lb.title}
                     loading="lazy"
+                    width={900}
+                    height={600}
                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -225,11 +231,15 @@ export function LookbookDetail() {
 
   return (
     <>
-      <Helmet>
-        <title>{lb.title} — UrbanPulse Lookbook</title>
-        <meta name="description" content={lb.intro.slice(0, 155)} />
-        <meta property="og:image" content={lb.hero} />
-      </Helmet>
+      <SEO
+        title={`${lb.title} — UrbanPulse Lookbook`}
+        suffix={false}
+        description={lb.intro.slice(0, 155)}
+        image={lb.hero}
+        url={`/lookbook/${slug}`}
+        type="article"
+        jsonLd={[buildArticleSchema(lb, `${SITE_URL}/lookbook/${slug}`)]}
+      />
 
       {/* Hero */}
       <section
@@ -242,6 +252,8 @@ export function LookbookDetail() {
             alt={lb.title}
             className="h-full w-full object-cover"
             loading="eager"
+            width={1600}
+            height={900}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-black/30 to-black/75" />
         </div>
@@ -301,11 +313,15 @@ export function LookbookDetail() {
                   <ParallaxImage
                     src={block.left}
                     alt=""
+                    width={900}
+                    height={1200}
                     className="aspect-[3/4] rounded-2xl overflow-hidden"
                   />
                   <ParallaxImage
                     src={block.right}
                     alt=""
+                    width={900}
+                    height={1200}
                     className="aspect-[3/4] rounded-2xl overflow-hidden sm:mt-12"
                   />
                 </div>

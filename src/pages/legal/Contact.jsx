@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Helmet } from 'react-helmet-async';
 import { Mail, Phone, MessageSquare, MapPin, CheckCircle, Instagram } from 'lucide-react';
 import { Button } from '../../components/ui/index.jsx';
+import SEO from '../../components/SEO.jsx';
 
 const SUBJECTS = [
   'Order question',
@@ -70,10 +70,11 @@ export default function Contact() {
 
   return (
     <>
-      <Helmet>
-        <title>Contact — UrbanPulse</title>
-        <meta name="description" content="Get in touch with the UrbanPulse team — order questions, returns, or anything else." />
-      </Helmet>
+      <SEO
+        title="Contact"
+        description="Get in touch with the UrbanPulse team — order questions, returns, or anything else."
+        url="/contact"
+      />
 
       <div className="container-site" style={{ paddingBlock: 'var(--space-section)' }}>
         <div className="grid gap-16 lg:grid-cols-2">

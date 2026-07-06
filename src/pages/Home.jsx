@@ -2,17 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, ArrowDown, Truck, ShieldCheck, RotateCcw, Sparkles } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
 import toast from 'react-hot-toast';
 
 import ProductCard from '../components/product/ProductCard.jsx';
 import Divider from '../components/ui/Divider.jsx';
 import { Button } from '../components/ui/index.jsx';
+import SEO from '../components/SEO.jsx';
+import { buildOrganizationSchema, buildWebsiteSchema } from '../lib/seoSchema.js';
 import { productService, referralService } from '../services/index.js';
 import RecentlyViewed from '../components/product/RecentlyViewed.jsx';
 import { getStoredRefCode } from '../utils/referral.js';
-
-const SITE_URL = import.meta.env.VITE_APP_URL || 'https://urbanpulse.com';
 
 // TODO: Replace with real asset paths before launch
 const HERO = {
@@ -150,16 +149,14 @@ export default function Home() {
 
   return (
     <>
-      <Helmet>
-        <title>UrbanPulse — Premium streetwear & accessories</title>
-        <meta name="description" content="Shop premium streetwear, accessories, and basics. Curated drops. Fast delivery across Ghana." />
-        <link rel="canonical" href={SITE_URL} />
-        <meta property="og:type"        content="website" />
-        <meta property="og:title"       content="UrbanPulse — Premium streetwear & accessories" />
-        <meta property="og:description" content="Shop premium streetwear, accessories, and basics. Curated drops. Fast delivery across Ghana." />
-        <meta property="og:url"         content={SITE_URL} />
-        <meta name="twitter:card"       content="summary_large_image" />
-      </Helmet>
+      <SEO
+        title="UrbanPulse — Premium streetwear & accessories"
+        suffix={false}
+        description="Shop premium streetwear, accessories, and basics. Curated drops. Fast delivery across Ghana."
+        image={HERO.fallback}
+        url=""
+        jsonLd={[buildOrganizationSchema(), buildWebsiteSchema()]}
+      />
 
       {/* Referral banner — shown only when the visitor arrived via a referral link */}
       {referrerName && (
@@ -186,6 +183,8 @@ export default function Home() {
               autoPlay muted loop playsInline
               poster={HERO.poster || HERO.fallback}
               src={HERO.video}
+              width={1600}
+              height={900}
               className="h-full w-full object-cover"
               aria-hidden="true"
             />
@@ -193,6 +192,8 @@ export default function Home() {
             <img
               src={HERO.poster || HERO.fallback}
               alt=""
+              width={1600}
+              height={900}
               className="h-full w-full object-cover"
               aria-hidden="true"
             />
@@ -310,6 +311,8 @@ export default function Home() {
                 src={DROP_ITEMS[0].image}
                 alt={DROP_ITEMS[0].name}
                 loading="lazy"
+                width={1200}
+                height={900}
                 className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
@@ -336,6 +339,8 @@ export default function Home() {
                     src={item.image}
                     alt={item.name}
                     loading="lazy"
+                    width={1200}
+                    height={900}
                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/5 to-transparent" />
@@ -368,6 +373,8 @@ export default function Home() {
                     src={story.image}
                     alt={story.title}
                     loading="lazy"
+                    width={900}
+                    height={600}
                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-black/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
@@ -483,6 +490,8 @@ export default function Home() {
                 src={src}
                 alt=""
                 loading="lazy"
+                width={600}
+                height={600}
                 className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
               />
             </motion.div>

@@ -19,11 +19,13 @@ const FLAG_DEFS = [
   { key: 'feature_preorders', label: 'Pre-orders',        desc: 'Allow customers to place pre-orders for upcoming products' },
   { key: 'feature_cod',       label: 'Cash on Delivery',  desc: 'Offer Cash on Delivery as a payment option' },
   { key: 'feature_paystack',  label: 'Paystack Payments', desc: 'Offer Mobile Money and Card payments via Paystack' },
+  { key: 'feature_loyalty',   label: 'Loyalty Points',    desc: 'Allow customers to earn and redeem loyalty points' },
 ];
 
 const JOB_DEFS = [
   { id: 'abandoned-cart',       label: 'Abandoned cart recovery',  desc: 'Finds idle carts and sends recovery emails' },
   { id: 'preorder-stock-check', label: 'Preorder stock check',     desc: 'Flags pre-orders whose ship date has passed' },
+  { id: 'loyalty-expiry',       label: 'Loyalty points expiry',    desc: 'Expires points past their expiry date' },
   { id: 'backups',              label: 'Database backup',          desc: 'Creates a DB snapshot (not yet implemented)' },
 ];
 
@@ -57,6 +59,15 @@ export default function AdminSettings() {
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [maintenanceMsg, setMaintenanceMsg] = useState('');
 
+  // Loyalty section
+  const [earnRate, setEarnRate] = useState('');
+  const [redeemRateGhs, setRedeemRateGhs] = useState('');
+  const [minRedeemPoints, setMinRedeemPoints] = useState('');
+  const [expireDays, setExpireDays] = useState('');
+  const [silverThreshold, setSilverThreshold] = useState('');
+  const [goldThreshold, setGoldThreshold] = useState('');
+  const [platinumThreshold, setPlatinumThreshold] = useState('');
+
   useEffect(() => {
     settingsService.getAll()
       .then(data => {
@@ -71,6 +82,13 @@ export default function AdminSettings() {
         setFreeThresh(data.free_shipping_threshold_ghs ?? '1000');
         setMaintenanceMode(data.maintenance_mode === 'true');
         setMaintenanceMsg(data.maintenance_message ?? '');
+        setEarnRate(data.loyalty_earn_rate ?? '1');
+        setRedeemRateGhs(data.loyalty_redeem_rate_ghs ?? '0.1');
+        setMinRedeemPoints(data.loyalty_min_redeem_points ?? '100');
+        setExpireDays(data.loyalty_points_expire_days ?? '365');
+        setSilverThreshold(data.loyalty_tier_silver_threshold ?? '500');
+        setGoldThreshold(data.loyalty_tier_gold_threshold ?? '2000');
+        setPlatinumThreshold(data.loyalty_tier_platinum_threshold ?? '5000');
       })
       .catch(() => toast.error('Failed to load settings'))
       .finally(() => setLoading(false));
@@ -177,6 +195,31 @@ export default function AdminSettings() {
         </div>
       </section>
 
+      {/* ── Loyalty ── */}
+      <section className="card p-6">
+        <SectionLabel>Loyalty</SectionLabel>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Input label="Earn rate (points per GH₵10 spent)" floating type="number" step="1" value={earnRate} onChange={e => setEarnRate(e.target.value)} />
+          <Input label="Redeem rate (GH₵ per point)" floating type="number" step="0.01" value={redeemRateGhs} onChange={e => setRedeemRateGhs(e.target.value)} />
+          <Input label="Minimum redemption (points)" floating type="number" step="1" value={minRedeemPoints} onChange={e => setMinRedeemPoints(e.target.value)} />
+          <Input label="Points expire after (days)" floating type="number" step="1" value={expireDays} onChange={e => setExpireDays(e.target.value)} />
+          <Input label="Silver tier threshold (lifetime points)" floating type="number" step="1" value={silverThreshold} onChange={e => setSilverThreshold(e.target.value)} />
+          <Input label="Gold tier threshold (lifetime points)" floating type="number" step="1" value={goldThreshold} onChange={e => setGoldThreshold(e.target.value)} />
+          <Input label="Platinum tier threshold (lifetime points)" floating type="number" step="1" value={platinumThreshold} onChange={e => setPlatinumThreshold(e.target.value)} />
+        </div>
+        <div className="flex justify-end mt-4">
+          <Button size="sm" loading={saving['Loyalty']} onClick={() => savePairs([
+            ['loyalty_earn_rate', earnRate],
+            ['loyalty_redeem_rate_ghs', redeemRateGhs],
+            ['loyalty_min_redeem_points', minRedeemPoints],
+            ['loyalty_points_expire_days', expireDays],
+            ['loyalty_tier_silver_threshold', silverThreshold],
+            ['loyalty_tier_gold_threshold', goldThreshold],
+            ['loyalty_tier_platinum_threshold', platinumThreshold],
+          ], 'Loyalty')}>Save</Button>
+        </div>
+      </section>
+
       {/* ── Feature Flags ── */}
       <section className="card p-6">
         <SectionLabel>Feature Flags</SectionLabel>
@@ -268,7 +311,9 @@ export default function AdminSettings() {
                           ? `Processed ${result.processed} carts, ${result.emails_sent} emails sent`
                           : result.found !== undefined
                             ? `Found ${result.found} preorder item(s) ready to ship`
-                            : 'Done'}
+                            : result.totalPointsExpired !== undefined
+                              ? `Checked ${result.usersChecked} users, expired ${result.totalPointsExpired} points across ${result.usersExpired} accounts`
+                              : 'Done'}
                     </div>
                   )}
                 </div>

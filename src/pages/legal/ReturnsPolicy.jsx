@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Helmet } from 'react-helmet-async';
+import SEO from '../../components/SEO.jsx';
 
 function Section({ title, children }) {
   return (
@@ -23,10 +23,11 @@ export default function ReturnsPolicy() {
 
   return (
     <>
-      <Helmet>
-        <title>Returns Policy — UrbanPulse</title>
-        <meta name="description" content="How to return an UrbanPulse order, what's eligible, and how refunds are processed." />
-      </Helmet>
+      <SEO
+        title="Returns Policy"
+        description="How to return an UrbanPulse order, what's eligible, and how refunds are processed."
+        url="/returns-policy"
+      />
 
       <div className="container-site" style={{ maxWidth: '48rem' }}>
         <div style={{ paddingBlock: 'var(--space-section)' }}>

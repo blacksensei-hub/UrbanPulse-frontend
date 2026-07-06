@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion, useMotionValue } from 'framer-motion';
 import { Minus, Plus, ChevronRight, Star, Heart, Truck, RotateCcw, ShieldCheck, Lock } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
 import toast from 'react-hot-toast';
 
 import { Button, Input, Spinner } from '../components/ui/index.jsx';
@@ -22,8 +21,10 @@ import { recordView } from '../utils/recentlyViewed.js';
 import RecentlyViewed from '../components/product/RecentlyViewed.jsx';
 import ProductCard from '../components/product/ProductCard.jsx';
 import ProductDetailEditorial from './ProductDetailEditorial.jsx';
+import SEO from '../components/SEO.jsx';
+import ShareButtons from '../components/product/ShareButtons.jsx';
+import { SITE_URL, buildProductSchema, buildBreadcrumbSchema } from '../lib/seoSchema.js';
 
-const SITE_URL = import.meta.env.VITE_APP_URL || 'https://urbanpulse.com';
 const EDITORIAL_SLUGS = ['pulse-hoodie-bone-white'];
 
 function StarPicker({ value, onChange }) {
@@ -270,9 +271,26 @@ export default function ProductDetail() {
     : null;
   const wishlisted = isWishlisted(product.id);
   const isEditorial = EDITORIAL_SLUGS.includes(product.slug);
+  const canonicalUrl = `${SITE_URL}/products/${product.slug}`;
 
   return (
     <>
+      <SEO
+        title={product.name}
+        description={product.description?.slice(0, 155) || `${product.name} — ${product.category}`}
+        image={product.images?.[0]}
+        url={`/products/${product.slug}`}
+        type="product"
+        jsonLd={[
+          buildProductSchema(product, canonicalUrl),
+          buildBreadcrumbSchema([
+            { name: 'Home', url: SITE_URL },
+            { name: product.category, url: `${SITE_URL}/shop?category=${product.category}` },
+            { name: product.name, url: canonicalUrl },
+          ]),
+        ]}
+      />
+
       {/* Shared: flyaway thumbnail */}
       <AnimatePresence>
         {flyState && (
@@ -307,7 +325,14 @@ export default function ProductDetail() {
             style={{ bottom: 'calc(56px + env(safe-area-inset-bottom, 0px))', paddingBottom: 'env(safe-area-inset-bottom, 12px)' }}
           >
             {product.images?.[0] && (
-              <img src={product.images[0]} className="h-10 w-10 rounded-lg object-cover shrink-0" alt="" />
+              <img
+                src={product.images[0]}
+                className="h-10 w-10 rounded-lg object-cover shrink-0"
+                alt=""
+                loading="lazy"
+                width={200}
+                height={200}
+              />
             )}
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold truncate">{product.name}</p>
@@ -360,41 +385,6 @@ export default function ProductDetail() {
         />
       ) : (
     <div className="container-site py-6 md:py-10 pb-20 lg:pb-10">
-      <Helmet>
-        <title>{product.name} — UrbanPulse</title>
-        <meta name="description"
-          content={product.description?.slice(0, 155) || `${product.name} — ${product.category}`} />
-        <link rel="canonical" href={`${SITE_URL}/products/${product.slug}`} />
-        <meta property="og:type"        content="product" />
-        <meta property="og:title"       content={`${product.name} — UrbanPulse`} />
-        <meta property="og:description"
-          content={product.description?.slice(0, 155) || `${product.name} — ${product.category}`} />
-        <meta property="og:image"       content={product.images?.[0] || ''} />
-        <meta property="og:url"         content={`${SITE_URL}/products/${product.slug}`} />
-        <meta name="twitter:card"        content="summary_large_image" />
-        <meta name="twitter:title"       content={`${product.name} — UrbanPulse`} />
-        <meta name="twitter:description"
-          content={product.description?.slice(0, 155) || `${product.name} — ${product.category}`} />
-        <meta name="twitter:image"       content={product.images?.[0] || ''} />
-        <script type="application/ld+json">{JSON.stringify({
-          '@context': 'https://schema.org',
-          '@type': 'Product',
-          name: product.name,
-          image: product.images || [],
-          description: product.description || '',
-          brand: { '@type': 'Brand', name: 'UrbanPulse' },
-          offers: {
-            '@type': 'Offer',
-            url: `${SITE_URL}/products/${product.slug}`,
-            priceCurrency: 'GHS',
-            price: String(product.price),
-            availability: (variant?.stock ?? 1) > 0
-              ? 'https://schema.org/InStock'
-              : 'https://schema.org/OutOfStock',
-          },
-        })}</script>
-      </Helmet>
-
       {/* Breadcrumb */}
       <nav className="mb-6 flex items-center gap-1 text-xs text-muted">
         <Link to="/" className="hover:text-accent transition-colors">Home</Link>
@@ -426,6 +416,8 @@ export default function ProductDetail() {
                 style={zoomStyle}
                 className="aspect-[4/5] w-full object-cover"
                 loading="eager"
+                width={800}
+                height={1000}
                 decoding="async"
               />
             </AnimatePresence>
@@ -497,6 +489,8 @@ export default function ProductDetail() {
                     alt=""
                     className="h-16 w-16 object-cover sm:h-20 sm:w-20 lg:h-24 lg:w-24"
                     loading="lazy"
+                    width={200}
+                    height={200}
                   />
                 </button>
               ))}
@@ -730,6 +724,13 @@ export default function ProductDetail() {
               <ShieldCheck className="h-4 w-4 text-accent" /> Secure checkout
             </li>
           </ul>
+
+          <div className="mt-6">
+            <ShareButtons
+              url={canonicalUrl}
+              text={`Check this out from UrbanPulse: ${product.name} — ${canonicalUrl}`}
+            />
+          </div>
         </motion.div>
       </div>
 

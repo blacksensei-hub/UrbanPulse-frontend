@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Helmet } from 'react-helmet-async';
+import SEO from '../../components/SEO.jsx';
 
 function Section({ title, children }) {
   return (
@@ -24,11 +24,12 @@ export default function Terms() {
 
   return (
     <>
-      <Helmet>
-        <title>Terms of Service — UrbanPulse</title>
-        <meta name="description" content="Terms and conditions governing use of UrbanPulse, a Ghanaian online streetwear retailer." />
-        <meta name="robots" content="noindex" />
-      </Helmet>
+      <SEO
+        title="Terms of Service"
+        description="Terms and conditions governing use of UrbanPulse, a Ghanaian online streetwear retailer."
+        url="/terms"
+        noindex
+      />
 
       <div className="container-site" style={{ maxWidth: '48rem' }}>
         <div style={{ paddingBlock: 'var(--space-section)' }}>

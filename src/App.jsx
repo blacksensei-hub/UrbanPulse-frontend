@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect } from 'react';
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import ViewAsBanner from './components/ViewAsBanner.jsx';
 import LoadingBar from './components/layout/LoadingBar.jsx';
+import CookieConsent from './components/CookieConsent.jsx';
 import { AnimatePresence } from 'framer-motion';
 
 import MainLayout from './layouts/MainLayout.jsx';
@@ -45,6 +46,7 @@ const AdminOrders      = lazy(() => import('./pages/admin/AdminOrders.jsx'));
 const AdminUsers       = lazy(() => import('./pages/admin/AdminUsers.jsx'));
 const AdminCoupons     = lazy(() => import('./pages/admin/AdminCoupons.jsx'));
 const AdminAnalytics   = lazy(() => import('./pages/admin/AdminAnalytics.jsx'));
+const AdminLoyalty     = lazy(() => import('./pages/admin/AdminLoyalty.jsx'));
 const AdminLogs        = lazy(() => import('./pages/admin/AdminLogs.jsx'));
 const AdminSettings    = lazy(() => import('./pages/admin/AdminSettings.jsx'));
 const AdminReturns        = lazy(() => import('./pages/admin/AdminReturns.jsx'));
@@ -97,6 +99,7 @@ export default function App() {
     <>
     <LoadingBar />
     <ViewAsBanner />
+    <CookieConsent />
     <Suspense fallback={<PageSkeleton />}>
       <AnimatePresence mode="wait" initial={false}>
         <Routes location={location} key={location.pathname}>
@@ -144,6 +147,7 @@ export default function App() {
             <Route path="users" element={<AdminUsers />} />
             <Route path="coupons" element={<AdminCoupons />} />
             <Route path="analytics" element={<AdminAnalytics />} />
+            <Route path="loyalty" element={<AdminLoyalty />} />
             <Route path="logs" element={<AdminLogs />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="settings/templates" element={<AdminTemplates />} />

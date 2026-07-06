@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
 
 import ProductCard from '../components/product/ProductCard.jsx';
+import SEO from '../components/SEO.jsx';
 import { productService } from '../services/index.js';
 import { staggerContainer } from '../lib/motion.js';
 
@@ -30,10 +30,7 @@ export default function SearchResults() {
 
   return (
     <>
-      <Helmet>
-        <title>Search \u2014 UrbanPulse</title>
-        <meta name="robots" content="noindex" />
-      </Helmet>
+      <SEO title="Search" noindex />
 
       <div className="container-site py-8 md:py-12">
         <h1 className="font-display text-h1 font-bold">

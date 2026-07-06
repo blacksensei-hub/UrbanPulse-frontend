@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
 
 import Divider from '../components/ui/Divider.jsx';
 import { Button } from '../components/ui/index.jsx';
+import SEO from '../components/SEO.jsx';
 
-const SITE_URL = import.meta.env.VITE_APP_URL || 'https://urbanpulse.com';
+const ABOUT_HERO_IMAGE = 'https://images.unsplash.com/photo-1516826957135-700dedea698c?auto=format&fit=crop&w=1800&q=80';
 
 const VALUES = [
   {
@@ -51,20 +51,12 @@ function Reveal({ children, delay = 0, className = '' }) {
 export default function About() {
   return (
     <>
-      <Helmet>
-        <title>Our Story — UrbanPulse</title>
-        <meta
-          name="description"
-          content="UrbanPulse is a Ghana-first premium streetwear brand built on craft, small batches, and the cities that shaped street culture."
-        />
-        <link rel="canonical" href={`${SITE_URL}/about`} />
-        <meta property="og:title" content="Our Story — UrbanPulse" />
-        <meta
-          property="og:description"
-          content="How UrbanPulse went from a question to a brand: why does premium streetwear ignore the cities that shaped it?"
-        />
-        <meta property="og:url" content={`${SITE_URL}/about`} />
-      </Helmet>
+      <SEO
+        title="Our Story"
+        description="UrbanPulse is a Ghana-first premium streetwear brand built on craft, small batches, and the cities that shaped street culture."
+        image={ABOUT_HERO_IMAGE}
+        url="/about"
+      />
 
       {/* Hero */}
       <section
@@ -73,10 +65,12 @@ export default function About() {
       >
         {/* TODO: Replace with an actual brand hero image */}
         <img
-          src="https://images.unsplash.com/photo-1516826957135-700dedea698c?auto=format&fit=crop&w=1800&q=80"
+          src={ABOUT_HERO_IMAGE}
           alt="UrbanPulse team"
           className="absolute inset-0 h-full w-full object-cover"
           loading="eager"
+          width={1600}
+          height={900}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/80" />
         <div className="relative z-10 container-site flex h-full flex-col justify-end pb-14 md:pb-20">
@@ -161,6 +155,8 @@ export default function About() {
                   alt={member.name}
                   className="h-full w-full object-cover"
                   loading="lazy"
+                  width={800}
+                  height={1000}
                 />
               </Reveal>
 

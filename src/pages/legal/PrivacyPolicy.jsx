@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Helmet } from 'react-helmet-async';
+import SEO from '../../components/SEO.jsx';
 
 function Section({ title, children }) {
   return (
@@ -24,11 +24,12 @@ export default function PrivacyPolicy() {
 
   return (
     <>
-      <Helmet>
-        <title>Privacy Policy — UrbanPulse</title>
-        <meta name="description" content="How UrbanPulse collects, uses, and protects your personal data under Ghana's Data Protection Act." />
-        <meta name="robots" content="noindex" />
-      </Helmet>
+      <SEO
+        title="Privacy Policy"
+        description="How UrbanPulse collects, uses, and protects your personal data under Ghana's Data Protection Act."
+        url="/privacy"
+        noindex
+      />
 
       <div className="container-site" style={{ maxWidth: '48rem' }}>
         <div style={{ paddingBlock: 'var(--space-section)' }}>

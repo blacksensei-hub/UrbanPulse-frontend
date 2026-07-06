@@ -2,10 +2,10 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { SlidersHorizontal, X, ChevronDown } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
 
 import ProductCard from '../components/product/ProductCard.jsx';
 import { Button } from '../components/ui/index.jsx';
+import SEO from '../components/SEO.jsx';
 import { productService } from '../services/index.js';
 import { staggerContainer, bottomSheetVariants } from '../lib/motion.js';
 import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
@@ -192,16 +192,11 @@ export default function Shop() {
   return (
     <>
       <PullToRefreshIndicator pulling={pulling} pullProgress={pullProgress} refreshing={refreshing} />
-      <Helmet>
-        <title>Shop — UrbanPulse</title>
-        <meta name="description" content="Browse all UrbanPulse products — clothing, accessories, and more. Filter by category, size, and colour." />
-        <link rel="canonical" href={`${import.meta.env.VITE_APP_URL || 'https://urbanpulse.com'}/shop`} />
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content="Shop — UrbanPulse" />
-        <meta property="og:description" content="Browse all UrbanPulse products — clothing, accessories, and more." />
-        <meta property="og:url" content={`${import.meta.env.VITE_APP_URL || 'https://urbanpulse.com'}/shop`} />
-        <meta name="twitter:card" content="summary" />
-      </Helmet>
+      <SEO
+        title={filters.category ? `Shop ${filters.category}` : 'Shop'}
+        description="Browse all UrbanPulse products — clothing, accessories, and more. Filter by category, size, and colour."
+        url="/shop"
+      />
 
       <div className="container-site py-8 md:py-12">
         {/* Page header */}

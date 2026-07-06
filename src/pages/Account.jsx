@@ -4,7 +4,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   User, Package, MapPin, LogOut, ShieldCheck, ChevronDown, Heart,
   Gift, Copy, Check, RotateCcw, X, Lock, Smartphone, AlertTriangle,
-  Download, Loader2, KeyRound,
+  Download, Loader2, KeyRound, Award, Fingerprint,
 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import toast from 'react-hot-toast';
@@ -15,7 +15,7 @@ import GoogleSignInButton from '../components/auth/GoogleSignInButton.jsx';
 import { useAuthStore } from '../stores/authStore.js';
 import { useCartStore } from '../stores/cartStore.js';
 import { useWishlistStore } from '../stores/wishlistStore.js';
-import { orderService, authService, referralService, returnService } from '../services/index.js';
+import { orderService, authService, referralService, returnService, loyaltyService } from '../services/index.js';
 import { useFeature } from '../stores/settingsStore.js';
 import { formatCurrency, formatDate } from '../utils/format.js';
 import { cn } from '../utils/format.js';
@@ -37,6 +37,21 @@ const STATUS_COLORS = {
   rejected:  'bg-red-500/15 text-red-600 dark:text-red-400',
   received:  'bg-purple-500/15 text-purple-700 dark:text-purple-400',
   refunded:  'bg-green-500/15 text-green-700 dark:text-green-400',
+};
+
+const TIER_LABELS = { bronze: 'Bronze', silver: 'Silver', gold: 'Gold', platinum: 'Platinum' };
+const TIER_COLORS = {
+  bronze:   'bg-amber-700/15 text-amber-800 dark:text-amber-500',
+  silver:   'bg-slate-400/20 text-slate-600 dark:text-slate-300',
+  gold:     'bg-yellow-500/15 text-yellow-700 dark:text-yellow-400',
+  platinum: 'bg-cyan-500/15 text-cyan-700 dark:text-cyan-400',
+};
+// TODO: real tier benefits beyond points still need to be designed — these are aspirational copy for now.
+const TIER_BENEFITS = {
+  bronze:   'Earn points on every order, right from your first purchase.',
+  silver:   'Everything in Bronze, plus priority customer support.',
+  gold:     'Everything in Silver, plus early access to new drops.',
+  platinum: 'Everything in Gold, plus first pick on limited releases.',
 };
 
 function isEligibleForReturn(order) {
@@ -251,15 +266,19 @@ function AccountLayout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
 
+  const loyaltyEnabled = useFeature('loyalty');
+
   const NAV = [
     { to: '', label: 'Dashboard', icon: User, end: true },
     { to: 'orders', label: 'Orders', icon: Package },
     { to: 'wishlist', label: 'Wishlist', icon: Heart },
     { to: 'referrals', label: 'Referrals', icon: Gift },
+    ...(loyaltyEnabled ? [{ to: 'rewards', label: 'Rewards', icon: Award }] : []),
     { to: 'returns', label: 'Returns', icon: RotateCcw },
     { to: 'security', label: 'Security', icon: Lock },
     { to: 'profile', label: 'Profile', icon: ShieldCheck },
     { to: 'addresses', label: 'Addresses', icon: MapPin },
+    { to: 'privacy', label: 'Privacy', icon: Fingerprint },
   ];
 
   return (
@@ -279,9 +298,26 @@ function AccountLayout() {
         ) : null}
         <div>
           <p className="eyebrow mb-1">Your account</p>
-          <h1 className="font-display text-h1 font-bold">
-            {user?.name ? `Hey, ${user.name.split(' ')[0]}.` : 'Account'}
-          </h1>
+          <div className="flex items-center gap-2.5">
+            <h1 className="font-display text-h1 font-bold">
+              {user?.name ? `Hey, ${user.name.split(' ')[0]}.` : 'Account'}
+            </h1>
+            {loyaltyEnabled && user?.loyalty_tier && (
+              <span className="group relative inline-flex">
+                <span
+                  className={cn(
+                    'cursor-default rounded-full px-2.5 py-0.5 text-xs font-semibold',
+                    TIER_COLORS[user.loyalty_tier] ?? TIER_COLORS.bronze,
+                  )}
+                >
+                  {TIER_LABELS[user.loyalty_tier] ?? user.loyalty_tier}
+                </span>
+                <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-56 -translate-x-1/2 rounded-lg border border-border bg-surface p-3 text-xs text-text opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+                  {TIER_BENEFITS[user.loyalty_tier] ?? 'You earn rewards on every order.'}
+                </span>
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
@@ -333,6 +369,7 @@ function AccountLayout() {
 
 function Dashboard() {
   const { user } = useAuthStore();
+  const loyaltyEnabled = useFeature('loyalty');
   const [orders, setOrders] = useState([]);
   const [ledger, setLedger] = useState([]);
 
@@ -345,7 +382,7 @@ function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className={cn('grid gap-4 sm:grid-cols-2', loyaltyEnabled ? 'lg:grid-cols-5' : 'lg:grid-cols-4')}>
         <div className="card p-5">
           <p className="eyebrow">Orders</p>
           <div className="mt-2 font-display text-2xl font-bold">{orders.length}</div>
@@ -362,6 +399,12 @@ function Dashboard() {
             {formatCurrency(credit)}
           </div>
         </div>
+        {loyaltyEnabled && (
+          <Link to="rewards" className="card p-5 transition-colors hover:border-accent">
+            <p className="eyebrow">Loyalty points</p>
+            <div className="mt-2 font-mono text-2xl font-bold">{user?.loyalty_points ?? 0}</div>
+          </Link>
+        )}
         <div className="card p-5">
           <p className="eyebrow">Status</p>
           <div className="mt-2 font-display text-2xl font-bold">Active</div>
@@ -939,6 +982,127 @@ function Referrals() {
   );
 }
 
+// ─── Rewards ─────────────────────────────────────────────────────────────────
+
+function Rewards() {
+  const loyaltyEnabled = useFeature('loyalty');
+  const [data, setData] = useState(null);
+  const [entries, setEntries] = useState([]);
+  const [nextBefore, setNextBefore] = useState(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  useEffect(() => {
+    if (!loyaltyEnabled) return;
+    loyaltyService.me().then(setData).catch(() => {});
+    loyaltyService.ledger({ limit: 10 }).then((d) => {
+      setEntries(d.entries);
+      setNextBefore(d.next_before);
+    }).catch(() => {});
+  }, [loyaltyEnabled]);
+
+  async function loadMore() {
+    if (!nextBefore) return;
+    setLoadingMore(true);
+    try {
+      const d = await loyaltyService.ledger({ limit: 10, before: nextBefore });
+      setEntries((prev) => [...prev, ...d.entries]);
+      setNextBefore(d.next_before);
+    } finally {
+      setLoadingMore(false);
+    }
+  }
+
+  if (!loyaltyEnabled) {
+    return (
+      <div className="card p-10 text-center text-sm text-muted">
+        Rewards is currently paused.
+      </div>
+    );
+  }
+
+  if (!data) return <div className="text-sm text-muted">Loading…</div>;
+
+  const tierColor = TIER_COLORS[data.tier] ?? TIER_COLORS.bronze;
+  const cediValue = (data.balance * data.redeem_rate_ghs).toFixed(2);
+
+  return (
+    <div className="space-y-6">
+      <div className="card p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <span className={cn('rounded-full px-2.5 py-0.5 text-xs font-semibold', tierColor)}>
+              {TIER_LABELS[data.tier] ?? data.tier}
+            </span>
+            <span className="text-sm text-muted">{data.lifetime} lifetime points</span>
+          </div>
+          {data.next_tier && (
+            <span className="text-xs text-muted">
+              {data.next_tier_points_needed} more points to {TIER_LABELS[data.next_tier]}
+            </span>
+          )}
+        </div>
+        {data.next_tier && (
+          <div className="mt-3 h-2 overflow-hidden rounded-full bg-border">
+            <div
+              className="h-full rounded-full bg-accent transition-all"
+              style={{ width: `${data.next_tier_progress_pct}%` }}
+            />
+          </div>
+        )}
+
+        <div className="mt-6">
+          <p className="eyebrow">Your balance</p>
+          <p className="mt-1 font-display text-2xl font-bold">
+            {data.balance} points <span className="text-muted font-normal">= GH₵ {cediValue} in rewards</span>
+          </p>
+        </div>
+
+        {data.expiring_soon.points > 0 && (
+          <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-800 dark:text-amber-400">
+            {data.expiring_soon.points} points expire on {formatDate(data.expiring_soon.expires_at)}. Use them before they&apos;re gone.
+          </div>
+        )}
+
+        <details className="mt-6 rounded-lg border border-border">
+          <summary className="cursor-pointer select-none px-4 py-3 text-sm font-medium">How it works</summary>
+          <div className="space-y-1.5 border-t border-border px-4 py-3 text-sm text-muted">
+            <p>Earn {data.settings_snapshot.earn_rate} point per GH₵10 spent on paid orders.</p>
+            <p>Redeem {data.min_redeem_points}+ points at checkout — each point is worth GH₵{data.redeem_rate_ghs.toFixed(2)}.</p>
+            <p>Points expire {data.settings_snapshot.points_expire_days} days after they're earned.</p>
+          </div>
+        </details>
+      </div>
+
+      <div className="card p-6">
+        <h2 className="font-display text-lg font-semibold">Activity</h2>
+        {entries.length === 0 ? (
+          <p className="mt-4 text-sm text-muted">No activity yet.</p>
+        ) : (
+          <>
+            <ul className="mt-4 divide-y divide-border">
+              {entries.map((entry) => (
+                <li key={entry.id} className="flex items-center justify-between py-3 text-sm">
+                  <span className="font-medium">{entry.label}</span>
+                  <span className="text-xs text-muted">{formatDate(entry.created_at)}</span>
+                </li>
+              ))}
+            </ul>
+            {nextBefore && (
+              <button
+                onClick={loadMore}
+                disabled={loadingMore}
+                className="mt-4 text-sm text-accent disabled:opacity-50"
+              >
+                {loadingMore ? 'Loading…' : 'Load more'}
+              </button>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Profile / Addresses / Wishlist ──────────────────────────────────────────
 
 function Profile() {
@@ -968,6 +1132,213 @@ function Addresses() {
       <MapPin className="mx-auto h-10 w-10 text-muted" />
       <h2 className="mt-4 font-display text-lg font-semibold">No addresses yet</h2>
       <p className="mt-2 text-sm text-muted">Addresses you use at checkout will appear here.</p>
+    </div>
+  );
+}
+
+// ─── Privacy ─────────────────────────────────────────────────────────────────
+
+const MARKETING_PREFS_KEY = 'urbanpulse-marketing-prefs';
+
+function readMarketingPrefs() {
+  try {
+    const raw = localStorage.getItem(MARKETING_PREFS_KEY);
+    return raw ? { email_marketing: true, ...JSON.parse(raw) } : { email_marketing: true };
+  } catch {
+    return { email_marketing: true };
+  }
+}
+
+function writeMarketingPrefs(next) {
+  try {
+    localStorage.setItem(MARKETING_PREFS_KEY, JSON.stringify({ ...next, updated_at: new Date().toISOString() }));
+  } catch {}
+}
+
+const PRIVACY_EVENT_LABELS = {
+  'user.data_export': 'Downloaded a copy of your data',
+  'user.account_deleted': 'Account deleted',
+  'user.consent_updated': 'Updated cookie/marketing preferences',
+  'user.marketing_unsubscribed': 'Unsubscribed from marketing emails',
+  'user.google_linked': 'Linked Google sign-in',
+  'user.google_unlinked': 'Removed Google sign-in',
+  'user.password_set': 'Password set or changed',
+  'user.password_set_via_reset': 'Password reset',
+};
+
+function Privacy() {
+  const { user, setUser } = useAuthStore();
+  const navigate = useNavigate();
+
+  const [exporting, setExporting] = useState(false);
+
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deleting, setDeleting] = useState(false);
+
+  const [marketingPrefs, setMarketingPrefs] = useState(() => readMarketingPrefs());
+  const [unsubscribing, setUnsubscribing] = useState(false);
+
+  const [events, setEvents] = useState(null);
+
+  useEffect(() => {
+    authService.privacyEvents().then(setEvents).catch(() => setEvents([]));
+  }, []);
+
+  async function handleExport() {
+    setExporting(true);
+    try {
+      await authService.dataExport();
+      toast.success('Your data export has started downloading.');
+    } catch (err) {
+      toast.error(err?.response?.data?.error ?? 'Could not export your data — try again in an hour.');
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  async function handleDelete() {
+    setDeleting(true);
+    try {
+      await authService.deleteAccount(deletePassword);
+      setUser(null);
+      navigate('/');
+      toast.success('Your account has been deleted.');
+    } catch (err) {
+      toast.error(err?.response?.data?.message ?? 'Could not delete account');
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  function toggleMarketing() {
+    const next = { ...marketingPrefs, email_marketing: !marketingPrefs.email_marketing };
+    setMarketingPrefs(next);
+    writeMarketingPrefs(next);
+    authService.logConsentUpdate({ marketing: next.email_marketing }).catch(() => {});
+  }
+
+  async function handleUnsubscribe() {
+    setUnsubscribing(true);
+    try {
+      const { url } = await authService.unsubscribeLink();
+      window.open(url, '_blank');
+    } catch {
+      toast.error('Could not generate an unsubscribe link');
+    } finally {
+      setUnsubscribing(false);
+    }
+  }
+
+  return (
+    <div className="space-y-8 max-w-2xl">
+      <div className="card p-6">
+        <h2 className="font-display text-lg font-semibold">Download my data</h2>
+        <p className="mt-1 text-sm text-muted">
+          A complete export of the data we have about you, as required by Ghana&rsquo;s Data Protection Act.
+        </p>
+        <Button className="mt-4" loading={exporting} onClick={handleExport}>
+          <Download className="h-4 w-4 mr-1.5" /> Download my data (JSON)
+        </Button>
+      </div>
+
+      <div className="card p-6">
+        <h2 className="font-display text-lg font-semibold">Communication preferences</h2>
+        <p className="mt-1 text-sm text-muted">Order updates are always sent — they&rsquo;re required to keep you informed about your purchase.</p>
+        <label className="mt-4 flex items-center justify-between gap-3">
+          <span className="text-sm">Marketing emails (offers, new drops)</span>
+          <input
+            type="checkbox"
+            checked={!!marketingPrefs.email_marketing}
+            onChange={toggleMarketing}
+            className="h-5 w-5 accent-accent"
+          />
+        </label>
+        <button
+          type="button"
+          onClick={handleUnsubscribe}
+          disabled={unsubscribing}
+          className="mt-3 text-xs text-muted underline hover:text-accent disabled:opacity-50"
+        >
+          Unsubscribe from marketing emails
+        </button>
+        <p className="mt-1 text-xs text-muted">
+          This preference is stored on this device and doesn&rsquo;t yet stop every automated email
+          (e.g. abandoned-cart reminders) — full server-side enforcement is on the way.
+        </p>
+      </div>
+
+      <div className="card p-6">
+        <h2 className="font-display text-lg font-semibold">Recent privacy events</h2>
+        {events === null ? (
+          <p className="mt-3 text-sm text-muted">Loading…</p>
+        ) : events.length === 0 ? (
+          <p className="mt-3 text-sm text-muted">No privacy events in the last 90 days.</p>
+        ) : (
+          <ul className="mt-3 divide-y divide-border">
+            {events.map((e, i) => (
+              <li key={i} className="flex items-center justify-between py-3 text-sm">
+                <span>{PRIVACY_EVENT_LABELS[e.action] ?? e.action}</span>
+                <span className="text-xs text-muted">{formatDate(e.created_at)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="card p-6">
+        <h2 className="font-display text-lg font-semibold text-error">Delete my account</h2>
+        <p className="mt-1 text-sm text-muted">
+          Permanently deletes your profile data. Your orders will remain for tax and accounting purposes but will be anonymized.
+        </p>
+        {!user?.has_password ? (
+          <p className="mt-4 text-sm">
+            Your account uses Google sign-in only.{' '}
+            <Link to="/account/security" className="text-accent hover:text-accent-hover">Set a password first</Link> to enable account deletion.
+          </p>
+        ) : (
+          <Button variant="danger" className="mt-4" onClick={() => setDeleteModal(true)}>
+            Delete my account
+          </Button>
+        )}
+      </div>
+
+      <Modal
+        open={deleteModal}
+        onClose={() => { setDeleteModal(false); setDeletePassword(''); setDeleteConfirmText(''); }}
+        title="Delete your account"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-muted">
+            This will anonymize your profile, sign you out everywhere, and cannot be undone.
+            Orders and returns are kept for accounting purposes but are no longer linked to your name.
+          </p>
+          <Input
+            floating
+            label="Password"
+            type="password"
+            value={deletePassword}
+            onChange={(e) => setDeletePassword(e.target.value)}
+          />
+          <Input
+            label='Type "DELETE MY ACCOUNT" to confirm'
+            value={deleteConfirmText}
+            onChange={(e) => setDeleteConfirmText(e.target.value)}
+          />
+          <div className="flex justify-end gap-3">
+            <Button variant="ghost" onClick={() => { setDeleteModal(false); setDeletePassword(''); setDeleteConfirmText(''); }}>Cancel</Button>
+            <Button
+              variant="danger"
+              loading={deleting}
+              onClick={handleDelete}
+              disabled={!deletePassword || deleteConfirmText !== 'DELETE MY ACCOUNT'}
+            >
+              Delete account
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
@@ -1493,11 +1864,13 @@ export default function Account() {
           <Route path="orders" element={<Orders />} />
           <Route path="wishlist" element={<Wishlist />} />
           <Route path="referrals" element={<Referrals />} />
+          <Route path="rewards" element={<Rewards />} />
           <Route path="returns" element={<ReturnsList />} />
           <Route path="returns/:id" element={<ReturnDetail />} />
           <Route path="security" element={<Security />} />
           <Route path="profile" element={<Profile />} />
           <Route path="addresses" element={<Addresses />} />
+          <Route path="privacy" element={<Privacy />} />
         </Route>
       </Routes>
     </>

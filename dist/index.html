@@ -8,8 +8,18 @@
     <meta name="theme-color" content="#12100E" media="(prefers-color-scheme: dark)" />
     <title>UrbanPulse — Premium Streetwear</title>
     <meta name="description" content="UrbanPulse — Premium streetwear and accessories built to outlast trends." />
+    <!-- LCP preload: Home hero fallback image. Home.jsx's HERO.video/poster point at
+         /hero/spring-26.mp4 and /hero/spring-26.jpg, which don't exist yet (public/ only
+         has offline.html) — for most non-reduced-motion users the <video> branch 404s
+         silently today. This Unsplash URL is the one real, currently-working image
+         (shown to prefers-reduced-motion users via Home.jsx's <img> fallback), so it's
+         the best available real LCP candidate. TODO: once /hero/spring-26.jpg is added,
+         replace this with <link rel="preload" as="image" href="/hero/spring-26.jpg">. -->
+    <link rel="preload" as="image" fetchpriority="high"
+      href="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1800&q=80" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://api.fontshare.com" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
     <!-- Clash Display via Fontshare -->
     <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&display=swap" />
@@ -36,10 +46,10 @@
       html.dark .sp-a{color:#E87A4F;}
       @media(prefers-reduced-motion:reduce){.sp-l,.sp-a{opacity:1;animation:none;}}
     </style>
-    <script type="module" crossorigin src="/assets/index-CIUkLKXv.js"></script>
+    <script type="module" crossorigin src="/assets/index-DTwL0Ogf.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/react-feOCaMQ1.js">
     <link rel="modulepreload" crossorigin href="/assets/motion-DqGon92P.js">
-    <link rel="stylesheet" crossorigin href="/assets/index-Dy5cEhqv.css">
+    <link rel="stylesheet" crossorigin href="/assets/index-CaoCGpMZ.css">
   <link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
   <body>
     <div id="root">
@@ -48,6 +58,6 @@
           <span class="sp-l" style="--i:0">u</span><span class="sp-l" style="--i:1">r</span><span class="sp-l" style="--i:2">b</span><span class="sp-l" style="--i:3">a</span><span class="sp-l" style="--i:4">n</span><span class="sp-a" style="--i:5">p</span><span class="sp-a" style="--i:6">u</span><span class="sp-a" style="--i:7">l</span><span class="sp-a" style="--i:8">s</span><span class="sp-a" style="--i:9">e</span>
         </div>
       </div>
-    </div>
+    </div>
   </body>
 </html>

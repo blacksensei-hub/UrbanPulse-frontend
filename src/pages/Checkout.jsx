@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 import { Button, Input } from '../components/ui/index.jsx';
 import { useCartStore } from '../stores/cartStore.js';
 import { useAuthStore } from '../stores/authStore.js';
-import { orderService } from '../services/index.js';
+import { orderService, loyaltyService } from '../services/index.js';
 import { useViewAs } from '../hooks/useViewAs.js';
 import { formatCurrency, cn } from '../utils/format.js';
 import { fadeInUp } from '../lib/motion.js';
@@ -25,6 +25,7 @@ export default function Checkout() {
   const { isViewAs } = useViewAs();
   const codEnabled      = useFeature('cod');
   const paystackEnabled = useFeature('paystack');
+  const loyaltyEnabled  = useFeature('loyalty');
   const stdRate    = Number(useSetting('shipping_standard_ghs', '30'));
   const expRate    = Number(useSetting('shipping_express_ghs', '80'));
   const freeThresh = Number(useSetting('free_shipping_threshold_ghs', '1000'));
@@ -38,6 +39,9 @@ export default function Checkout() {
   const [couponError, setCouponError]   = useState('');
   const [applyCredit, setApplyCredit]   = useState(false);
   const [creditInput, setCreditInput]   = useState(0);
+  const [loyalty, setLoyalty]           = useState(null);
+  const [applyPoints, setApplyPoints]   = useState(false);
+  const [pointsInput, setPointsInput]   = useState(0);
   const [form, setForm] = useState({
     email:         user?.email ?? '',
     firstName:     '',
@@ -63,7 +67,17 @@ export default function Checkout() {
   const creditUsed       = applyCredit
     ? Math.min(creditInput || availableCredit, availableCredit, preCreditTotal)
     : 0;
-  const total = preCreditTotal - creditUsed;
+  // Stacking precedence: coupon → store credit → loyalty points (points applied last).
+  const preLoyaltyTotal  = preCreditTotal - creditUsed;
+  const redeemRate       = Number(loyalty?.redeem_rate_ghs ?? 0.1);
+  const minRedeemPoints  = Number(loyalty?.min_redeem_points ?? 100);
+  const pointsBalance    = Number(loyalty?.balance ?? 0);
+  const maxEligiblePoints = Math.max(0, Math.min(pointsBalance, Math.floor(preLoyaltyTotal / redeemRate)));
+  const pointsUsed        = applyPoints
+    ? Math.min(pointsInput || maxEligiblePoints, maxEligiblePoints)
+    : 0;
+  const pointsCediUsed    = +(pointsUsed * redeemRate).toFixed(2);
+  const total = preLoyaltyTotal - pointsCediUsed;
 
   function setField(k, v) { setForm((f) => ({ ...f, [k]: v })); }
 
@@ -83,6 +97,10 @@ export default function Checkout() {
   useEffect(() => {
     if (!form.coupon) { setCouponPreview(null); setCouponError(''); }
   }, [form.coupon]);
+
+  useEffect(() => {
+    if (user && loyaltyEnabled) loyaltyService.me().then(setLoyalty).catch(() => {});
+  }, [user, loyaltyEnabled]);
 
   useEffect(() => {
     if (step > prevStepRef.current) {
@@ -128,6 +146,7 @@ export default function Checkout() {
         coupon_code:              form.coupon || undefined,
         payment_method:           isCOD ? 'cod' : 'paystack',
         apply_store_credit_ghs:   creditUsed > 0 ? creditUsed : undefined,
+        apply_loyalty_points:     pointsUsed > 0 ? pointsUsed : undefined,
       });
       if (isCOD) { navigate(`/order-success?id=${order.id}&cod=1`); return; }
       const session = await orderService.checkout(order.id, form.paymentMethod);
@@ -372,6 +391,36 @@ export default function Checkout() {
                       </div>
                     )}
 
+                    {/* Loyalty points */}
+                    {loyaltyEnabled && loyalty && loyalty.balance >= minRedeemPoints && (
+                      <div className="rounded-lg border border-border p-4">
+                        <label className="flex cursor-pointer items-center justify-between gap-3">
+                          <div>
+                            <div className="text-sm font-medium">
+                              Redeem loyalty points — <span className="font-mono">{loyalty.balance}</span> pts available
+                            </div>
+                            {applyPoints && (
+                              <>
+                                <div className="mt-2">
+                                  <input type="number" min={minRedeemPoints} max={maxEligiblePoints} step={1}
+                                    value={pointsInput || maxEligiblePoints}
+                                    onChange={(e) => setPointsInput(Math.min(Math.max(0, Math.floor(Number(e.target.value))), maxEligiblePoints))}
+                                    className="w-32 rounded-lg border border-border bg-bg px-3 py-1.5 text-sm font-mono"
+                                  />
+                                </div>
+                                <p className="mt-1.5 text-xs text-muted">
+                                  Use {pointsUsed} points → {formatCurrency(pointsCediUsed)} off
+                                </p>
+                              </>
+                            )}
+                          </div>
+                          <input type="checkbox" checked={applyPoints}
+                            onChange={(e) => setApplyPoints(e.target.checked)}
+                            className="accent-accent h-4 w-4" />
+                        </label>
+                      </div>
+                    )}
+
                     {/* Promo code */}
                     <div>
                       <Input label="Promo code (optional)" placeholder="WELCOME10"
@@ -472,6 +521,12 @@ export default function Checkout() {
                   <div className="flex justify-between text-success">
                     <dt className="text-muted">Store credit</dt>
                     <dd className="font-medium font-mono">− {formatCurrency(creditUsed)}</dd>
+                  </div>
+                )}
+                {pointsCediUsed > 0 && (
+                  <div className="flex justify-between text-success">
+                    <dt className="text-muted">Points redeemed</dt>
+                    <dd className="font-medium font-mono">− {formatCurrency(pointsCediUsed)}</dd>
                   </div>
                 )}
                 <div className="flex justify-between border-t border-border pt-3 text-base">

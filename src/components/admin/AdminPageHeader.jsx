@@ -12,6 +12,7 @@ const LABEL_MAP = {
   dashboard: 'Dashboard',
   coupons: 'Coupons',
   analytics: 'Analytics',
+  loyalty: 'Loyalty',
   logs: 'Logs',
   activity: 'Activity',
   settings: 'Settings',

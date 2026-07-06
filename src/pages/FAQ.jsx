@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Minus } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
+import SEO from '../components/SEO.jsx';
+import { buildFAQPageSchema } from '../lib/seoSchema.js';
 
 const FAQS = [
   {
@@ -38,9 +39,12 @@ export default function FAQ() {
   const [open, setOpen] = useState(0);
   return (
     <>
-      <Helmet>
-        <title>FAQ \u2014 UrbanPulse</title>
-      </Helmet>
+      <SEO
+        title="FAQ"
+        description="Answers to common questions about shipping, returns, sizing, and order tracking at UrbanPulse."
+        url="/faq"
+        jsonLd={[buildFAQPageSchema(FAQS)]}
+      />
 
       <div className="container-site max-w-3xl py-12 md:py-20">
         <p className="eyebrow">Support</p>

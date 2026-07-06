@@ -100,6 +100,8 @@ export default function ProductCard({ product }) {
               src={primarySrc}
               alt={product.name}
               loading="lazy"
+              width={900}
+              height={1200}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           )}
@@ -110,6 +112,8 @@ export default function ProductCard({ product }) {
               src={hoverSrc}
               alt=""
               loading="lazy"
+              width={900}
+              height={1200}
               className="absolute inset-0 w-full h-full object-cover"
               initial={{ opacity: 0 }}
               animate={{ opacity: isHovered ? 1 : 0 }}

@@ -9,6 +9,7 @@ import * as Sentry from '@sentry/react';
 import App from './App.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import { ThemeProvider } from './lib/ThemeContext.jsx';
+import { CookieConsentProvider } from './lib/CookieConsentContext.jsx';
 import './styles/globals.css';
 
 if (import.meta.env.VITE_SENTRY_DSN) {
@@ -35,7 +36,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
             <BrowserRouter>
-              <App />
+              <CookieConsentProvider>
+                <App />
+              </CookieConsentProvider>
               <Toaster
                 position="top-right"
                 toastOptions={{

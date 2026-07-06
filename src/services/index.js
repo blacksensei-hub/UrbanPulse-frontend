@@ -44,6 +44,12 @@ export const referralService = {
   ledger: ()     => api.get('/referrals/ledger').then(r => r.data),
 };
 
+export const loyaltyService = {
+  me:            ()       => api.get('/loyalty/me').then(r => r.data),
+  ledger:        (params) => api.get('/loyalty/ledger', { params }).then(r => r.data),
+  previewRedeem: (points) => api.get('/loyalty/preview-redeem', { params: { points } }).then(r => r.data),
+};
+
 export const authService = {
   me:       () => api.get('/auth/me').then(r => r.data),
   login:    (email, password) => api.post('/auth/login', { email, password }).then(r => r.data),
@@ -75,6 +81,23 @@ export const authService = {
     api.delete('/auth/google/link', { data: { password } }).then(r => r.data),
   setPassword:   (password) =>
     api.post('/auth/password/set', { password }).then(r => r.data),
+  // Privacy (Ghana DPA)
+  dataExport: async () => {
+    const response = await api.get('/auth/me/data-export', { responseType: 'blob' });
+    const match = /filename="([^"]+)"/.exec(response.headers['content-disposition'] || '');
+    const url = URL.createObjectURL(new Blob([response.data], { type: 'application/json' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = match?.[1] || 'urbanpulse-data-export.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  },
+  deleteAccount:    (password) => api.post('/auth/me/delete-account', { password }).then(r => r.data),
+  privacyEvents:    () => api.get('/auth/me/privacy-events').then(r => r.data),
+  logConsentUpdate: (consent) => api.post('/auth/me/consent-updated', consent).then(r => r.data),
+  unsubscribeLink:  () => api.get('/auth/me/unsubscribe-link').then(r => r.data),
 };
 
 export const wishlistService = {
@@ -137,6 +160,7 @@ export const adminService = {
   salesAnalytics: () => api.get('/admin/analytics/sales').then(r => r.data),
   topProducts:    () => api.get('/admin/analytics/top-products').then(r => r.data),
   customerLTV:    () => api.get('/admin/analytics/customer-ltv').then(r => r.data),
+  loyaltyOverview: () => api.get('/admin/loyalty/overview').then(r => r.data),
 
   logs: (params) => api.get('/admin/logs', { params }).then(r => r.data),
 
@@ -185,11 +209,13 @@ export const adminService = {
     reviews:            (id)            => api.get(`/admin/customers/${id}/reviews`).then(r => r.data),
     wishlist:           (id)            => api.get(`/admin/customers/${id}/wishlist`).then(r => r.data),
     creditLedger:       (id)            => api.get(`/admin/customers/${id}/credit-ledger`).then(r => r.data),
+    loyaltyLedger:      (id)            => api.get(`/admin/customers/${id}/loyalty-ledger`).then(r => r.data),
     notes:              (id)            => api.get(`/admin/customers/${id}/notes`).then(r => r.data),
     addNote:            (id, body)      => api.post(`/admin/customers/${id}/notes`, body).then(r => r.data),
     updateNote:         (id, nid, body) => api.put(`/admin/customers/${id}/notes/${nid}`, body).then(r => r.data),
     deleteNote:         (id, nid)       => api.delete(`/admin/customers/${id}/notes/${nid}`).then(r => r.data),
     adjustCredit:       (id, body)      => api.post(`/admin/customers/${id}/adjust-credit`, body).then(r => r.data),
+    adjustLoyalty:      (id, body)      => api.post(`/admin/customers/${id}/loyalty/adjust`, body).then(r => r.data),
     block:              (id)            => api.put(`/admin/users/${id}/block`, { is_blocked: true }).then(r => r.data),
     unblock:            (id)            => api.put(`/admin/users/${id}/block`, { is_blocked: false }).then(r => r.data),
     setRole:            (id, role)      => api.put(`/admin/users/${id}/role`, { role }).then(r => r.data),

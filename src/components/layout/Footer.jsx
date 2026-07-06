@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Instagram, Twitter, Youtube } from 'lucide-react';
 import { Button } from '../ui/index.jsx';
+import { useCookieConsent } from '../../lib/CookieConsentContext.jsx';
 import toast from 'react-hot-toast';
 
 const COLUMNS = [
@@ -71,6 +72,7 @@ function MobileColumn({ col }) {
 }
 
 export default function Footer() {
+  const { openCustomize } = useCookieConsent();
   return (
     <footer className="mt-24 border-t border-border bg-surface">
       <div className="container-site py-[var(--space-section)]">
@@ -141,6 +143,7 @@ export default function Footer() {
             <Link to="/returns-policy" className="hover:text-accent transition-colors">Returns</Link>
             <Link to="/shipping"       className="hover:text-accent transition-colors">Shipping</Link>
             <Link to="/contact"        className="hover:text-accent transition-colors">Contact</Link>
+            <button type="button" onClick={openCustomize} className="hover:text-accent transition-colors">Cookie settings</button>
           </div>
         </div>
       </div>

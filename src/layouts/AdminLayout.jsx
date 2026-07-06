@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Package, ShoppingBag, Users, TicketPercent,
   BarChart3, ScrollText, Settings, Menu, X, LogOut, Store,
-  RotateCcw, UserCog, ChevronLeft, ChevronRight, Search, Activity,
+  RotateCcw, UserCog, ChevronLeft, ChevronRight, Search, Activity, Award,
 } from 'lucide-react';
 import { adminService } from '../services/index.js';
 import AdminThemeToggle from '../components/admin/AdminThemeToggle.jsx';
@@ -23,6 +23,7 @@ const PAGE_TITLES = {
   '/admin/users': 'Customers',
   '/admin/coupons': 'Coupons',
   '/admin/analytics': 'Analytics',
+  '/admin/loyalty': 'Loyalty',
   '/admin/logs': 'Logs',
   '/admin/settings': 'Settings',
 };
@@ -64,6 +65,7 @@ const NAV_GROUPS = [
     label: 'Insights',
     items: [
       { to: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
+      { to: '/admin/loyalty',   label: 'Loyalty',   icon: Award },
       { to: '/admin/logs',      label: 'Logs',      icon: ScrollText },
       { to: '/admin/activity',  label: 'Activity',  icon: Activity },
     ],
