@@ -22,7 +22,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        navigateFallback: '/offline.html',
+        navigateFallback: '/index.html',
         // Never intercept API routes or sitemap/robots as offline fallback
         navigateFallbackDenylist: [/^\/api\//, /^\/sitemap\.xml/, /^\/robots\.txt/],
         // Precache built assets only; no runtime API caching
