@@ -1,5 +1,8 @@
 {
   "rewrites": [
+    { "source": "/api/:path*", "destination": "https://urban-pulse-backend-two.vercel.app/api/:path*" },
+    { "source": "/sitemap.xml", "destination": "https://urban-pulse-backend-two.vercel.app/sitemap.xml" },
+    { "source": "/robots.txt", "destination": "https://urban-pulse-backend-two.vercel.app/robots.txt" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
