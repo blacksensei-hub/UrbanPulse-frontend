@@ -7,6 +7,7 @@ import { productService } from '../../services/index.js';
 import { useCartStore } from '../../stores/cartStore.js';
 import { useAuthStore } from '../../stores/authStore.js';
 import { easeOut } from '../../lib/motion.js';
+import { pluralize } from '../../utils/format.js';
 
 /* Desktop nav — Shop gets the mega-menu */
 const NAV_LINKS = [
@@ -92,6 +93,7 @@ export default function Navbar() {
         setSearchOpen(false);
         setSuggestions([]);
         setActiveIndex(-1);
+        setMobileOpen(false);
       }
     };
     window.addEventListener('keydown', onKey);
@@ -270,7 +272,7 @@ export default function Navbar() {
               <ThemeToggle />
               <motion.button
                 onClick={openDrawer}
-                aria-label={`Cart, ${itemCount} items`}
+                aria-label={`Cart, ${itemCount} ${pluralize(itemCount, 'item')}`}
                 className="relative w-11 h-11 rounded-full hover:bg-highlight flex items-center justify-center transition-colors"
                 animate={bouncing && !reducedMotion ? { scale: [1, 1.15, 0.92, 1], rotate: [0, -8, 5, 0] } : {}}
                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}

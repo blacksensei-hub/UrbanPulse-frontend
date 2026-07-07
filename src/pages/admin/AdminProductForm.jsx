@@ -8,6 +8,7 @@ import { Button, Input } from '../../components/ui/index.jsx';
 import Modal from '../../components/ui/Modal.jsx';
 import { adminService } from '../../services/index.js';
 import AdminPageHeader from '../../components/admin/AdminPageHeader.jsx';
+import { formatDate } from '../../utils/format.js';
 
 const emptyVariant = () => ({ size: '', color: '', sku: '', stock: 0, price_adjustment: 0 });
 
@@ -433,7 +434,7 @@ export default function AdminProductForm() {
                           <td className="px-4 py-2 text-xs">{a.reason}</td>
                           <td className="px-4 py-2 text-xs text-muted max-w-[120px] truncate">{a.note ?? '—'}</td>
                           <td className="px-4 py-2 text-xs text-muted">{a.admin_name ?? 'Admin'}</td>
-                          <td className="px-4 py-2 text-xs text-muted whitespace-nowrap">{new Date(a.created_at).toLocaleDateString()}</td>
+                          <td className="px-4 py-2 text-xs text-muted whitespace-nowrap">{formatDate(a.created_at)}</td>
                         </tr>
                       ))}
                     </tbody>

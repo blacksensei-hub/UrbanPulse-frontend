@@ -1,16 +1,28 @@
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { X } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { scalePop } from '../../lib/motion.js';
 
 export default function Modal({ open, onClose, title, children, maxWidth = '480px' }) {
   const prefersReduced = useReducedMotion();
+  const triggerRef = useRef(null);
 
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose?.();
     if (open) window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
+
+  // Remember whatever had focus when the modal opened, and restore it on close
+  // so keyboard users land back where they started.
+  useEffect(() => {
+    if (open) {
+      triggerRef.current = document.activeElement;
+    } else if (triggerRef.current) {
+      triggerRef.current.focus?.();
+      triggerRef.current = null;
+    }
+  }, [open]);
 
   return (
     <AnimatePresence>

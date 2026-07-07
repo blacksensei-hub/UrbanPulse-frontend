@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, useCallback } from 'rea
 
 const ThemeContext = createContext({ theme: 'light', toggleTheme: () => {}, setTheme: () => {} });
 const STORAGE_KEY = 'urbanpulse-theme';
+const THEME_COLORS = { light: '#F8F6F2', dark: '#12100E' };
 
 export function ThemeProvider({ children }) {
   // Initial value taken from <html> class (set by no-FOUC script in index.html).
@@ -17,6 +18,10 @@ export function ThemeProvider({ children }) {
     else root.classList.remove('dark');
     root.style.colorScheme = next;
     try { localStorage.setItem(STORAGE_KEY, next); } catch {}
+    // Both theme-color meta tags (gated by prefers-color-scheme) get the same value
+    // so the browser chrome reflects the in-app choice, not just the OS preference.
+    document.querySelectorAll('meta[name="theme-color"]')
+      .forEach((m) => m.setAttribute('content', THEME_COLORS[next]));
   }, []);
 
   const toggleTheme = useCallback(() => apply(theme === 'light' ? 'dark' : 'light'), [theme, apply]);

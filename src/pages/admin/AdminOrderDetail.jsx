@@ -13,7 +13,7 @@ import AdminPageHeader from '../../components/admin/AdminPageHeader.jsx';
 import CustomerLink from '../../components/admin/CustomerLink.jsx';
 import MessageComposer from '../../components/admin/MessageComposer.jsx';
 import { adminService } from '../../services/index.js';
-import { cn, formatCurrency, formatRelativeDate } from '../../utils/format.js';
+import { cn, formatCurrency, formatDate, formatRelativeDate } from '../../utils/format.js';
 
 const ALL_STATUSES = ['pending', 'awaiting_confirmation', 'paid', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'];
 
@@ -154,7 +154,7 @@ export default function AdminOrderDetail() {
     const orig = parseAddr(order.shipping_address);
     if (JSON.stringify(editShipping) !== JSON.stringify(orig)) diff.push('Shipping address updated');
     if (editNotes.trim()) diff.push('Admin note appended');
-    if (editTotalOverride !== '') diff.push(`Total override: GH₵${editTotalOverride}`);
+    if (editTotalOverride !== '') diff.push(`Total override: ${formatCurrency(editTotalOverride)}`);
     const removes = editItems.filter(e => e.action === 'remove');
     const adds = editItems.filter(e => e.action === 'add');
     const qtys = editItems.filter(e => e.action === 'update_qty');
@@ -494,7 +494,9 @@ export default function AdminOrderDetail() {
                 <div>
                   <span className="font-medium capitalize">{h.status}</span>
                   {h.note && <span className="text-muted text-xs ml-2">{h.note}</span>}
-                  <div className="text-xs text-muted">{new Date(h.created_at).toLocaleString()}</div>
+                  <div className="text-xs text-muted">
+                    {new Date(h.created_at).toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                  </div>
                 </div>
               </div>
             ))}
@@ -577,7 +579,7 @@ export default function AdminOrderDetail() {
                           <td className="px-4 py-2 max-w-[120px] truncate">{JSON.stringify(e.after_value)}</td>
                           <td className="px-4 py-2 text-muted max-w-[120px] truncate">{e.reason}</td>
                           <td className="px-4 py-2 text-muted whitespace-nowrap">{e.admin_name ?? 'Admin'}</td>
-                          <td className="px-4 py-2 text-muted whitespace-nowrap">{new Date(e.created_at).toLocaleDateString()}</td>
+                          <td className="px-4 py-2 text-muted whitespace-nowrap">{formatDate(e.created_at)}</td>
                         </tr>
                       ))}
                     </tbody>

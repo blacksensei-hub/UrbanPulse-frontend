@@ -2,10 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion, useMotionValue, animate } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { X, Minus, Plus, Trash2, ShoppingBag, Lock, Truck } from 'lucide-react';
-import toast from 'react-hot-toast';
 import { useCartStore } from '../../stores/cartStore.js';
 import { Button } from '../ui/index.jsx';
+import ProductImage from '../ui/ProductImage.jsx';
 import { formatCurrency, formatDate } from '../../utils/format.js';
+import { showUndoToast } from '../../utils/undoToast.jsx';
+import { useDebouncedCartQuantity } from '../../hooks/useDebouncedCartQuantity.js';
 import { spring } from '../../lib/motion.js';
 import FreeShippingBar from './FreeShippingBar.jsx';
 
@@ -33,14 +35,15 @@ function useCountUp(value, duration = 400) {
   return display;
 }
 
-function SwipeItem({ it, remove, update, closeDrawer, prefersReduced }) {
+function SwipeItem({ it, onRemove, getQuantity, setQuantity, closeDrawer, prefersReduced }) {
   const x = useMotionValue(0);
+  const qty = getQuantity(it);
 
   async function handleDragEnd(_, info) {
     const commit = info.offset.x < -120 || info.velocity.x < -500;
     if (commit) {
       await animate(x, -500, { duration: 0.2, ease: 'easeIn' });
-      remove(it.id);
+      onRemove(it);
     } else {
       animate(x, 0, { type: 'spring', stiffness: 400, damping: 30 });
     }
@@ -56,12 +59,10 @@ function SwipeItem({ it, remove, update, closeDrawer, prefersReduced }) {
       className="flex gap-4 bg-surface p-0"
     >
       <div className="w-20 h-24 sm:w-24 sm:h-28 rounded-md overflow-hidden bg-border flex-shrink-0">
-        {it.images?.[0] && (
-          <img src={it.images[0]} alt={it.name} loading="lazy" className="w-full h-full object-cover" />
-        )}
+        <ProductImage src={it.images?.[0]} alt={it.name} loading="lazy" className="w-full h-full object-cover" />
       </div>
       <div className="flex-1 min-w-0">
-        <Link to={`/products/${it.slug}`} onClick={closeDrawer} className="font-medium hover:text-accent transition-colors">
+        <Link to={`/products/${it.slug}`} onClick={closeDrawer} title={it.name} className="block truncate font-medium hover:text-accent transition-colors">
           {it.name}
         </Link>
         <div className="flex items-center gap-1 mt-0.5">
@@ -71,25 +72,20 @@ function SwipeItem({ it, remove, update, closeDrawer, prefersReduced }) {
         {it.is_preorder && it.preorder_ships_at && (
           <p className="text-xs text-accent mt-0.5">Ships {formatDate(it.preorder_ships_at)}</p>
         )}
-        <p className="font-semibold mt-1">{formatCurrency(it.price)}</p>
+        <p className="font-semibold mt-1">{formatCurrency(Number(it.price) * qty)}</p>
         <div className="flex items-center gap-3 mt-2.5">
           <div className="flex items-center border border-border rounded-full">
             <button
-              onClick={() => update(it.id, Math.max(0, it.quantity - 1))}
+              onClick={() => setQuantity(it, qty - 1, 0)}
               aria-label="Decrease quantity"
               className="w-9 h-9 flex items-center justify-center hover:text-accent transition-colors"
             >
               <Minus size={14} />
             </button>
-            <span className="px-2 min-w-[24px] text-center font-medium text-small">{it.quantity}</span>
+            <span className="px-2 min-w-[24px] text-center font-medium text-small">{qty}</span>
             <button
-              onClick={() => {
-                if (it.quantity >= it.stock) return;
-                update(it.id, it.quantity + 1).catch((err) =>
-                  toast.error(err?.response?.data?.message ?? 'Could not update cart')
-                );
-              }}
-              disabled={it.quantity >= it.stock}
+              onClick={() => setQuantity(it, qty + 1, 0)}
+              disabled={qty >= it.stock}
               aria-label="Increase quantity"
               className="w-9 h-9 flex items-center justify-center hover:text-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
@@ -97,14 +93,14 @@ function SwipeItem({ it, remove, update, closeDrawer, prefersReduced }) {
             </button>
           </div>
           <button
-            onClick={() => remove(it.id)}
+            onClick={() => onRemove(it)}
             aria-label={`Remove ${it.name}`}
             className="text-muted hover:text-error transition-colors"
           >
             <Trash2 size={16} />
           </button>
         </div>
-        {it.quantity >= it.stock && (
+        {qty >= it.stock && (
           <p className="mt-1 text-xs text-muted">Max stock reached</p>
         )}
       </div>
@@ -113,10 +109,19 @@ function SwipeItem({ it, remove, update, closeDrawer, prefersReduced }) {
 }
 
 export default function CartDrawer() {
-  const { cart, drawerOpen, closeDrawer, update, remove } = useCartStore();
+  const { cart, drawerOpen, closeDrawer, update, remove, add } = useCartStore();
   const isEmpty         = !cart.items?.length;
   const prefersReduced  = useReducedMotion();
   const displaySubtotal = useCountUp(Number(cart.subtotal) || 0);
+  const { getQuantity, setQuantity } = useDebouncedCartQuantity(update);
+
+  function handleRemove(it) {
+    remove(it.id);
+    showUndoToast({
+      message: 'Removed from cart',
+      onUndo: () => add(it.variant_id, it.quantity),
+    });
+  }
 
   useEffect(() => {
     if (!drawerOpen) return;
@@ -195,8 +200,9 @@ export default function CartDrawer() {
                         </div>
                         <SwipeItem
                           it={it}
-                          remove={remove}
-                          update={update}
+                          onRemove={handleRemove}
+                          getQuantity={getQuantity}
+                          setQuantity={setQuantity}
                           closeDrawer={closeDrawer}
                           prefersReduced={prefersReduced}
                         />

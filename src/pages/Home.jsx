@@ -115,6 +115,9 @@ function Reveal({ children, delay = 0, className = '' }) {
 export default function Home() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchFailed, setFetchFailed] = useState(false);
+  const [slowLoad, setSlowLoad] = useState(false);
+  const [retryToken, setRetryToken] = useState(0);
   const [email, setEmail] = useState('');
   const [referrerName, setReferrerName] = useState(null);
   const prefersReduced = useReducedMotion();
@@ -125,12 +128,17 @@ export default function Home() {
   const contentOpacity = useTransform(scrollY, [0, 300], prefersReduced ? [1, 1] : [1, 0]);
 
   useEffect(() => {
+    setLoading(true);
+    setFetchFailed(false);
+    setSlowLoad(false);
+    const slowTimer = setTimeout(() => setSlowLoad(true), 5000);
     productService
       .list({ sort: 'rating', limit: 8 })
       .then((data) => setProducts(data.items ?? []))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+      .catch(() => setFetchFailed(true))
+      .finally(() => { setLoading(false); clearTimeout(slowTimer); });
+    return () => clearTimeout(slowTimer);
+  }, [retryToken]);
 
   useEffect(() => {
     const code = getStoredRefCode();
@@ -414,14 +422,27 @@ export default function Home() {
         </div>
 
         {loading ? (
-          <div className="container-site grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="space-y-3">
-                <div className="skeleton aspect-[3/4] w-full rounded-2xl" />
-                <div className="skeleton h-4 w-3/4 rounded" />
-                <div className="skeleton h-4 w-1/3 rounded" />
-              </div>
-            ))}
+          <div className="container-site space-y-3">
+            <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="space-y-3">
+                  <div className="skeleton aspect-[3/4] w-full rounded-2xl" />
+                  <div className="skeleton h-4 w-3/4 rounded" />
+                  <div className="skeleton h-4 w-1/3 rounded" />
+                </div>
+              ))}
+            </div>
+            {slowLoad && (
+              <p className="text-center text-sm text-muted">Still loading — hang tight.</p>
+            )}
+          </div>
+        ) : fetchFailed ? (
+          <div className="container-site rounded-xl border border-border bg-surface p-12 text-center">
+            <div className="font-display text-xl font-semibold">Couldn&apos;t load products</div>
+            <p className="mt-2 text-sm text-muted">Something went wrong on our end.</p>
+            <Button variant="outline" size="sm" className="mt-4" onClick={() => setRetryToken((n) => n + 1)}>
+              Retry
+            </Button>
           </div>
         ) : (
           <>
@@ -559,6 +580,8 @@ export default function Home() {
               <input
                 type="email"
                 required
+                autoComplete="email"
+                inputMode="email"
                 placeholder="you@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}

@@ -25,6 +25,7 @@ export default function ProductCard({ product }) {
   const [quickViewOpen, setQuickViewOpen] = useState(false);
   const [isHovered, setIsHovered]       = useState(false);
   const [cardImageIdx, setCardImageIdx] = useState(0);
+  const [imgError, setImgError]         = useState(false);
   const prefersReduced = useReducedMotion();
   const heartRef = useRef(null);
 
@@ -93,7 +94,7 @@ export default function ProductCard({ product }) {
       <Link to={`/products/${product.slug}`} className="block">
         {/* Image container — 3:4 aspect, rounded-lg = 16px */}
         <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-border">
-          {primarySrc && (
+          {primarySrc && !imgError ? (
             <motion.img
               layoutId={imageLayoutId}
               transition={morph}
@@ -102,8 +103,13 @@ export default function ProductCard({ product }) {
               loading="lazy"
               width={900}
               height={1200}
+              onError={() => setImgError(true)}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-accent/10 font-display font-semibold text-accent">
+              {product.name?.[0]?.toUpperCase() ?? '?'}
+            </div>
           )}
 
           {/* Second image crossfade on hover — desktop only */}
@@ -200,6 +206,7 @@ export default function ProductCard({ product }) {
             <motion.h3
               layoutId={nameLayoutId}
               transition={morph}
+              title={product.name}
               className="font-medium truncate"
             >
               {product.name}

@@ -2,11 +2,12 @@ import { motion } from 'framer-motion';
 import { Star, Heart, Minus, Plus, Lock, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { Button, Input } from '../components/ui/index.jsx';
-import { cn, formatCurrency } from '../utils/format.js';
+import { cn, formatCurrency, formatDate, formatRelativeDate } from '../utils/format.js';
 import { spring } from '../lib/motion.js';
 import { swatchColor } from '../components/product/QuickView.jsx';
 import ProductCard from '../components/product/ProductCard.jsx';
 import RecentlyViewed from '../components/product/RecentlyViewed.jsx';
+import ProductImage from '../components/ui/ProductImage.jsx';
 
 const SITE_URL = import.meta.env.VITE_APP_URL || 'https://urbanpulse.com';
 
@@ -279,7 +280,7 @@ export default function ProductDetailEditorial({
         className="relative w-full overflow-hidden"
         style={{ height: '70vh', minHeight: '520px' }}
       >
-        <img
+        <ProductImage
           src={images[0]}
           alt={product.name}
           className="absolute inset-0 h-full w-full object-cover"
@@ -387,9 +388,10 @@ export default function ProductDetailEditorial({
                     reversed && 'md:order-2',
                   )}
                 >
-                  <img
+                  <ProductImage
                     src={img}
                     alt=""
+                    initial={product.name}
                     className="absolute inset-0 h-full w-full object-cover"
                   />
                 </div>
@@ -437,7 +439,7 @@ export default function ProductDetailEditorial({
                           placeholder="https://..."
                         />
                       </div>
-                      {reviewError && <p className="text-sm text-error">{reviewError}</p>}
+                      <div className="min-h-[1.25rem] text-sm text-error">{reviewError}</div>
                       <Button type="submit" loading={submittingReview}>Submit review</Button>
                     </form>
                   </>
@@ -456,9 +458,10 @@ export default function ProductDetailEditorial({
                     </div>
                     <p className="mt-2 text-sm">{r.comment}</p>
                     {r.image_url && (
-                      <img
+                      <ProductImage
                         src={r.image_url}
                         alt="Review photo"
+                        initial={r.user_name}
                         className="mt-3 max-h-40 w-full rounded-lg object-cover"
                         loading="lazy"
                       />
@@ -470,7 +473,7 @@ export default function ProductDetailEditorial({
                           <ShieldCheck className="h-3 w-3" /> Verified buyer
                         </span>
                       )}
-                      <span>{new Date(r.created_at).toLocaleDateString()}</span>
+                      <span title={formatDate(r.created_at)}>{formatRelativeDate(r.created_at)}</span>
                     </div>
                   </div>
                 ))}

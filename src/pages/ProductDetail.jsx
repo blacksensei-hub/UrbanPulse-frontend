@@ -11,13 +11,14 @@ import { useAuthStore } from '../stores/authStore.js';
 import { useWishlistStore } from '../stores/wishlistStore.js';
 import { useViewAs } from '../hooks/useViewAs.js';
 import { useFeature } from '../stores/settingsStore.js';
-import { formatCurrency, formatDate, cn } from '../utils/format.js';
+import { formatCurrency, formatDate, formatRelativeDate, cn } from '../utils/format.js';
 import { fadeIn, morph, spring, staggerContainer } from '../lib/motion.js';
 import FlashSaleTimer from '../components/product/FlashSaleTimer.jsx';
 import { swatchColor } from '../components/product/QuickView.jsx';
 import { triggerWishlistConfetti } from '../utils/confetti.js';
 import { vibrate } from '../utils/haptic.js';
 import { recordView } from '../utils/recentlyViewed.js';
+import ProductImage from '../components/ui/ProductImage.jsx';
 import RecentlyViewed from '../components/product/RecentlyViewed.jsx';
 import ProductCard from '../components/product/ProductCard.jsx';
 import ProductDetailEditorial from './ProductDetailEditorial.jsx';
@@ -56,6 +57,9 @@ export default function ProductDetail() {
   const { slug } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [fetchFailed, setFetchFailed] = useState(false);
+  const [slowLoad, setSlowLoad] = useState(false);
+  const [retryToken, setRetryToken] = useState(0);
   const [activeImage, setActiveImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
@@ -90,11 +94,15 @@ export default function ProductDetail() {
   const wishlistBtnRef = useRef(null);
   const galleryDragX = useMotionValue(0);
   const [draggingGallery, setDraggingGallery] = useState(false);
+  const [mainImgError, setMainImgError] = useState(false);
 
   useEffect(() => {
     setLoading(true);
+    setFetchFailed(false);
+    setSlowLoad(false);
     setSocial(null);
     setRelated([]);
+    const slowTimer = setTimeout(() => setSlowLoad(true), 5000);
     productService
       .get(slug)
       .then((data) => {
@@ -108,9 +116,10 @@ export default function ProductDetail() {
           setHasReviewed(true);
         }
       })
-      .catch(() => setProduct(null))
-      .finally(() => setLoading(false));
-  }, [slug, user]);
+      .catch(() => { setProduct(null); setFetchFailed(true); })
+      .finally(() => { setLoading(false); clearTimeout(slowTimer); });
+    return () => clearTimeout(slowTimer);
+  }, [slug, user, retryToken]);
 
   useEffect(() => {
     if (!product) return;
@@ -130,6 +139,8 @@ export default function ProductDetail() {
     obs.observe(atcRef.current);
     return () => obs.disconnect();
   }, [product]);
+
+  useEffect(() => { setMainImgError(false); }, [activeImage, product?.id]);
 
   const colors = useMemo(
     () => (product ? [...new Set(product.variants.map((v) => v.color).filter(Boolean))] : []),
@@ -213,7 +224,7 @@ export default function ProductDetail() {
         reviews: [{ ...newReview, user_name: user.name }, ...(prev.reviews ?? [])],
       }));
       setHasReviewed(true);
-      toast.success('Review submitted!');
+      toast.success('Review submitted');
     } catch (err) {
       const msg = err?.response?.data?.message ?? 'Could not submit review';
       setReviewError(msg);
@@ -236,18 +247,30 @@ export default function ProductDetail() {
 
   if (loading) {
     return (
-      <div className="container-site grid place-items-center py-24">
+      <div className="container-site grid place-items-center gap-3 py-24 text-center">
         <Spinner />
+        {slowLoad && <p className="text-sm text-muted">Still loading — hang tight.</p>}
       </div>
     );
   }
   if (!product) {
     return (
       <div className="container-site py-24 text-center">
-        <div className="font-display text-2xl font-semibold">Product not found</div>
-        <Link to="/shop" className="mt-3 inline-block text-accent hover:text-accent-hover">
-          Back to shop
-        </Link>
+        <div className="font-display text-2xl font-semibold">
+          {fetchFailed ? "Couldn't load this product" : 'Product not found'}
+        </div>
+        {fetchFailed ? (
+          <button
+            onClick={() => setRetryToken((n) => n + 1)}
+            className="mt-3 inline-block text-accent hover:text-accent-hover"
+          >
+            Retry
+          </button>
+        ) : (
+          <Link to="/shop" className="mt-3 inline-block text-accent hover:text-accent-hover">
+            Back to shop
+          </Link>
+        )}
       </div>
     );
   }
@@ -404,22 +427,35 @@ export default function ProductDetail() {
             onMouseLeave={handleImageMouseLeave}
           >
             <AnimatePresence mode="wait">
-              <motion.img
-                key={images[activeImage]}
-                layoutId={!prefersReduced && activeImage === 0 ? `product-image-${product.id}` : undefined}
-                src={images[activeImage]}
-                alt={product.name}
-                initial={{ opacity: 0, scale: 1.02 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0 }}
-                transition={!prefersReduced && activeImage === 0 ? morph : { duration: 0.25 }}
-                style={zoomStyle}
-                className="aspect-[4/5] w-full object-cover"
-                loading="eager"
-                width={800}
-                height={1000}
-                decoding="async"
-              />
+              {mainImgError ? (
+                <motion.div
+                  key="fallback"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex aspect-[4/5] w-full items-center justify-center bg-accent/10 font-display text-2xl font-semibold text-accent"
+                >
+                  {product.name?.[0]?.toUpperCase() ?? '?'}
+                </motion.div>
+              ) : (
+                <motion.img
+                  key={images[activeImage]}
+                  layoutId={!prefersReduced && activeImage === 0 ? `product-image-${product.id}` : undefined}
+                  src={images[activeImage]}
+                  alt={product.name}
+                  initial={{ opacity: 0, scale: 1.02 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={!prefersReduced && activeImage === 0 ? morph : { duration: 0.25 }}
+                  style={zoomStyle}
+                  className="aspect-[4/5] w-full object-cover"
+                  loading="eager"
+                  width={800}
+                  height={1000}
+                  decoding="async"
+                  onError={() => setMainImgError(true)}
+                />
+              )}
             </AnimatePresence>
             {onSale && (
               <div className="absolute left-4 top-4 flex flex-col gap-1.5">
@@ -484,9 +520,10 @@ export default function ProductDetail() {
                   )}
                   aria-label={`View image ${i + 1}`}
                 >
-                  <img
+                  <ProductImage
                     src={src}
                     alt=""
+                    initial={product.name}
                     className="h-16 w-16 object-cover sm:h-20 sm:w-20 lg:h-24 lg:w-24"
                     loading="lazy"
                     width={200}
@@ -522,7 +559,7 @@ export default function ProductDetail() {
             </div>
             {Number(product.rating) > 0 && (
               <button
-                onClick={() => reviewsRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => reviewsRef.current?.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth' })}
                 className="flex items-center gap-1 text-sm text-muted hover:text-accent transition-colors"
               >
                 <Star className="h-4 w-4 fill-accent text-accent" />
@@ -596,7 +633,7 @@ export default function ProductDetail() {
                       key={s}
                       onClick={() => {
                         if (oos) {
-                          toast('Notify me when back in stock — coming soon!', { icon: '🔔' });
+                          toast('Notify me when back in stock — coming soon', { icon: '🔔' });
                           return;
                         }
                         setSelectedSize(s);
@@ -749,7 +786,7 @@ export default function ProductDetail() {
               ref={tab.id === 'reviews' ? reviewsRef : undefined}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                'relative pb-3 text-sm font-medium transition-colors',
+                'relative scroll-mt-20 pb-3 text-sm font-medium transition-colors sm:scroll-mt-24',
                 activeTab === tab.id ? 'text-text' : 'text-muted hover:text-text',
               )}
             >
@@ -849,7 +886,7 @@ export default function ProductDetail() {
                               placeholder="https://..."
                             />
                           </div>
-                          {reviewError && <p className="text-sm text-error">{reviewError}</p>}
+                          <div className="min-h-[1.25rem] text-sm text-error">{reviewError}</div>
                           <Button type="submit" loading={submittingReview}>Submit review</Button>
                         </form>
                       </>
@@ -868,7 +905,7 @@ export default function ProductDetail() {
                         </div>
                         <p className="mt-2 text-sm">{r.comment}</p>
                         {r.image_url && (
-                          <img src={r.image_url} alt="Review photo"
+                          <ProductImage src={r.image_url} alt="Review photo" initial={r.user_name}
                             className="mt-3 max-h-40 w-full rounded-lg object-cover" loading="lazy" />
                         )}
                         <div className="mt-3 flex items-center gap-2 text-xs text-muted flex-wrap">
@@ -878,7 +915,7 @@ export default function ProductDetail() {
                               <ShieldCheck className="h-3 w-3" /> Verified buyer
                             </span>
                           )}
-                          <span>{new Date(r.created_at).toLocaleDateString()}</span>
+                          <span title={formatDate(r.created_at)}>{formatRelativeDate(r.created_at)}</span>
                         </div>
                       </div>
                     ))}

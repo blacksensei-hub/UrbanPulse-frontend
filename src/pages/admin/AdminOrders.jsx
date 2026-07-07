@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { adminService, orderService } from '../../services/index.js';
 import { Ban, ChevronLeft, ChevronRight, Download, Loader2, PackageCheck, Plus, Search, ShoppingBag, Truck, X } from 'lucide-react';
-import { formatCurrency, formatRelativeDate } from '../../utils/format.js';
+import { formatCurrency, formatDate, formatRelativeDate } from '../../utils/format.js';
 import { cn } from '../../utils/format.js';
 import { Button, Input } from '../../components/ui/index.jsx';
 import Modal from '../../components/ui/Modal.jsx';
@@ -407,7 +407,7 @@ export default function AdminOrders() {
                     <td className="px-4 py-3 font-mono text-xs">{item.order_number}</td>
                     <td className="px-4 py-3 text-muted">{item.customer_name}</td>
                     <td className="px-4 py-3 text-accent text-xs">
-                      {item.preorder_ships_at ? new Date(item.preorder_ships_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
+                      {item.preorder_ships_at ? formatDate(item.preorder_ships_at) : '—'}
                     </td>
                   </tr>
                 ))}

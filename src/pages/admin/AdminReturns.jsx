@@ -186,7 +186,7 @@ function ReturnDetail({ returnId, onBack }) {
             <div>
               <div className="text-xs text-muted uppercase tracking-wider font-semibold">Amount issued</div>
               <p className="mt-1 text-lg font-bold text-success">
-                GH₵ {Number(ret.refund_amount_ghs).toFixed(2)}
+                {formatCurrency(ret.refund_amount_ghs)}
               </p>
             </div>
           )}

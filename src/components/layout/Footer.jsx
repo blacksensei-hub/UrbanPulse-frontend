@@ -87,11 +87,13 @@ export default function Footer() {
             </p>
             <form
               className="flex gap-2 max-w-md"
-              onSubmit={(e) => { e.preventDefault(); toast.success('Subscribed!'); }}
+              onSubmit={(e) => { e.preventDefault(); toast.success('Subscribed'); }}
             >
               <input
                 type="email"
                 required
+                autoComplete="email"
+                inputMode="email"
                 placeholder="your@email.com"
                 className="input flex-1"
               />

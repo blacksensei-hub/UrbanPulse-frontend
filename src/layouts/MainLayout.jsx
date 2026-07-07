@@ -23,6 +23,12 @@ export default function MainLayout() {
 
   return (
     <div className="flex min-h-screen flex-col bg-bg text-text">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-md focus:bg-accent focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+      >
+        Skip to content
+      </a>
       {!loadingActive && !isAuthPage && <ScrollProgress />}
       {inMaintenance && (
         <div className="sticky top-0 z-[150] border-b-2 border-warning/40 bg-warning/10 px-4 py-2 text-center text-sm text-warning">
@@ -32,6 +38,7 @@ export default function MainLayout() {
       <Navbar />
       <div aria-hidden className="h-20 sm:h-24" />
       <motion.main
+        id="main-content"
         key={location.pathname}
         variants={pageTransition}
         initial="initial"

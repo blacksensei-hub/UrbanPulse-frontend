@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import Modal from '../ui/Modal.jsx';
 import { Button, Input } from '../ui/index.jsx';
 import { adminService } from '../../services/index.js';
+import { formatCurrency } from '../../utils/format.js';
 
 const CHANNELS = [
   { id: 'email',     label: 'Email',     icon: Mail },
@@ -160,7 +161,7 @@ export default function MessageComposer({
         {orderNumber && (
           <div className="rounded-lg bg-highlight px-3 py-2 text-xs text-muted">
             Context: Order <span className="font-mono font-semibold">{orderNumber}</span>
-            {orderTotal ? ` · GH₵ ${Number(orderTotal).toFixed(2)}` : ''}
+            {orderTotal ? ` · ${formatCurrency(orderTotal)}` : ''}
           </div>
         )}
 

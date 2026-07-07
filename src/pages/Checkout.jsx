@@ -2,15 +2,16 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Check, ChevronLeft, Lock, Phone, Truck } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
 import toast from 'react-hot-toast';
 
 import { Button, Input } from '../components/ui/index.jsx';
+import SEO from '../components/SEO.jsx';
 import { useCartStore } from '../stores/cartStore.js';
 import { useAuthStore } from '../stores/authStore.js';
 import { orderService, loyaltyService } from '../services/index.js';
 import { useViewAs } from '../hooks/useViewAs.js';
-import { formatCurrency, cn } from '../utils/format.js';
+import { formatCurrency, cn, sanitizePhone } from '../utils/format.js';
+import { getErrorMessage } from '../utils/errors.js';
 import { fadeInUp } from '../lib/motion.js';
 import { useFeature, useSetting } from '../stores/settingsStore.js';
 
@@ -33,6 +34,8 @@ export default function Checkout() {
   const [step, setStep]                 = useState(0);
   const [justCompleted, setJustCompleted] = useState(null);
   const prevStepRef = useRef(0);
+  const phoneRef = useRef(null);
+  const [pendingPhoneFocus, setPendingPhoneFocus] = useState(false);
   const [submitting, setSubmitting]     = useState(false);
   const [couponPreview, setCouponPreview] = useState(null);
   const [couponLoading, setCouponLoading] = useState(false);
@@ -98,6 +101,14 @@ export default function Checkout() {
     if (!form.coupon) { setCouponPreview(null); setCouponError(''); }
   }, [form.coupon]);
 
+  // Re-check an already-applied coupon whenever the subtotal changes (e.g. an item
+  // is removed via the cart drawer while on this page) — the server enforces the
+  // coupon's minimum order amount, so this just surfaces that rule earlier.
+  useEffect(() => {
+    if (form.coupon.trim() && couponPreview) handleCouponBlur();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subtotal]);
+
   useEffect(() => {
     if (user && loyaltyEnabled) loyaltyService.me().then(setLoyalty).catch(() => {});
   }, [user, loyaltyEnabled]);
@@ -113,6 +124,13 @@ export default function Checkout() {
   }, [step]);
 
   useEffect(() => {
+    if (step === 0 && pendingPhoneFocus) {
+      phoneRef.current?.focus();
+      setPendingPhoneFocus(false);
+    }
+  }, [step, pendingPhoneFocus]);
+
+  useEffect(() => {
     if (!paystackEnabled && (form.paymentMethod === 'mobile_money' || form.paymentMethod === 'card')) {
       setField('paymentMethod', codEnabled ? 'cod' : '');
     }
@@ -125,6 +143,8 @@ export default function Checkout() {
     if (isViewAs) return toast.error('Checkout is disabled in view-as mode.');
     if (items.length === 0) return toast.error('Your cart is empty');
     if (form.paymentMethod === 'cod' && !form.phone.trim()) {
+      setStep(0);
+      setPendingPhoneFocus(true);
       return toast.error('Phone number is required for Cash on Delivery');
     }
     setSubmitting(true);
@@ -143,7 +163,7 @@ export default function Checkout() {
           phone:   form.phone,
         },
         shipping_method:          form.shipping,
-        coupon_code:              form.coupon || undefined,
+        coupon_code:              form.coupon.trim() || undefined,
         payment_method:           isCOD ? 'cod' : 'paystack',
         apply_store_credit_ghs:   creditUsed > 0 ? creditUsed : undefined,
         apply_loyalty_points:     pointsUsed > 0 ? pointsUsed : undefined,
@@ -153,7 +173,7 @@ export default function Checkout() {
       if (session?.url) { window.location.href = session.url; }
       else { navigate(`/order-success?id=${order.id}`); }
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Could not place order');
+      toast.error(getErrorMessage(err, 'Could not place order'));
       setSubmitting(false);
     }
   }
@@ -169,7 +189,7 @@ export default function Checkout() {
 
   return (
     <>
-      <Helmet><title>Checkout — UrbanPulse</title></Helmet>
+      <SEO title="Checkout" />
 
       <div className="container-site py-8 md:py-12">
         <Link to="/cart" className="inline-flex items-center gap-1 text-sm text-muted hover:text-text">
@@ -228,26 +248,28 @@ export default function Checkout() {
                   <div className="space-y-5">
                     <h2 className="font-display text-h3 font-bold">Contact</h2>
                     <Input floating type="email" label="Email" value={form.email}
+                      autoComplete="email" inputMode="email"
                       onChange={(e) => setField('email', e.target.value)} />
                     <h2 className="pt-2 font-display text-h3 font-bold">Shipping address</h2>
                     {/* TODO: Future enhancement — integrate GhanaPostGPS digital address (GA-123-4567 format) lookup */}
                     <div className="grid gap-4 sm:grid-cols-2">
-                      <Input floating label="First name" value={form.firstName}
+                      <Input floating label="First name" value={form.firstName} autoComplete="given-name"
                         onChange={(e) => setField('firstName', e.target.value)} />
-                      <Input floating label="Last name" value={form.lastName}
+                      <Input floating label="Last name" value={form.lastName} autoComplete="family-name"
                         onChange={(e) => setField('lastName', e.target.value)} />
                     </div>
-                    <Input floating label="Address" value={form.address}
+                    <Input floating label="Address" value={form.address} autoComplete="address-line1"
                       onChange={(e) => setField('address', e.target.value)} />
-                    <Input floating label="Apartment, suite, etc. (optional)" value={form.apartment}
+                    <Input floating label="Apartment, suite, etc. (optional)" value={form.apartment} autoComplete="address-line2"
                       onChange={(e) => setField('apartment', e.target.value)} />
                     <div className="grid gap-4 sm:grid-cols-3">
-                      <Input floating label="City"  value={form.city}  onChange={(e) => setField('city',  e.target.value)} />
-                      <Input floating label="State" value={form.state} onChange={(e) => setField('state', e.target.value)} />
-                      <Input floating label="ZIP"   value={form.zip}   onChange={(e) => setField('zip',   e.target.value)} />
+                      <Input floating label="City"  value={form.city}  autoComplete="address-level2" onChange={(e) => setField('city',  e.target.value)} />
+                      <Input floating label="State" value={form.state} autoComplete="address-level1" onChange={(e) => setField('state', e.target.value)} />
+                      <Input floating label="ZIP"   value={form.zip}   autoComplete="postal-code"     onChange={(e) => setField('zip',   e.target.value)} />
                     </div>
-                    <Input floating label="Phone" value={form.phone}
-                      onChange={(e) => setField('phone', e.target.value)} />
+                    <Input floating label="Phone" value={form.phone} ref={phoneRef}
+                      autoComplete="tel" inputMode="tel"
+                      onChange={(e) => setField('phone', sanitizePhone(e.target.value))} />
                   </div>
                 )}
 
@@ -377,6 +399,7 @@ export default function Checkout() {
                             {applyCredit && (
                               <div className="mt-2">
                                 <input type="number" min={0.01} max={availableCredit} step={0.01}
+                                  inputMode="decimal"
                                   value={creditInput || availableCredit}
                                   onChange={(e) => setCreditInput(Math.min(Math.max(0, Number(e.target.value)), availableCredit))}
                                   className="w-32 rounded-lg border border-border bg-bg px-3 py-1.5 text-sm font-mono"
@@ -403,6 +426,7 @@ export default function Checkout() {
                               <>
                                 <div className="mt-2">
                                   <input type="number" min={minRedeemPoints} max={maxEligiblePoints} step={1}
+                                    inputMode="numeric"
                                     value={pointsInput || maxEligiblePoints}
                                     onChange={(e) => setPointsInput(Math.min(Math.max(0, Math.floor(Number(e.target.value))), maxEligiblePoints))}
                                     className="w-32 rounded-lg border border-border bg-bg px-3 py-1.5 text-sm font-mono"
@@ -422,17 +446,19 @@ export default function Checkout() {
                     )}
 
                     {/* Promo code */}
-                    <div>
+                    <form onSubmit={(e) => { e.preventDefault(); handleCouponBlur(); }}>
                       <Input label="Promo code (optional)" placeholder="WELCOME10"
                         value={form.coupon}
                         onChange={(e) => setField('coupon', e.target.value.toUpperCase())}
                         onBlur={handleCouponBlur} />
-                      {couponLoading && <p className="mt-1 text-xs text-muted">Checking…</p>}
-                      {!couponLoading && couponError && <p className="mt-1 text-xs text-error">{couponError}</p>}
-                      {!couponLoading && couponPreview && (
-                        <p className="mt-1 text-sm font-medium text-success">✓ {couponPreview.label}</p>
-                      )}
-                    </div>
+                      <div className="mt-1 min-h-[1.25rem] text-xs">
+                        {couponLoading && <p className="text-muted">Checking…</p>}
+                        {!couponLoading && couponError && <p className="text-error">{couponError}</p>}
+                        {!couponLoading && couponPreview && (
+                          <p className="text-sm font-medium text-success">✓ {couponPreview.label}</p>
+                        )}
+                      </div>
+                    </form>
                   </div>
                 )}
               </motion.div>

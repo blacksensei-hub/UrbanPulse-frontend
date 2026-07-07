@@ -3,6 +3,7 @@ import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import ViewAsBanner from './components/ViewAsBanner.jsx';
 import LoadingBar from './components/layout/LoadingBar.jsx';
 import CookieConsent from './components/CookieConsent.jsx';
+import ScrollRestoration from './components/ScrollRestoration.jsx';
 import { AnimatePresence } from 'framer-motion';
 
 import MainLayout from './layouts/MainLayout.jsx';
@@ -97,6 +98,7 @@ export default function App() {
 
   return (
     <>
+    <ScrollRestoration />
     <LoadingBar />
     <ViewAsBanner />
     <CookieConsent />

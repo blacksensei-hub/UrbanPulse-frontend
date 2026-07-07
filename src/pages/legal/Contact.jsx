@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Phone, MessageSquare, MapPin, CheckCircle, Instagram } from 'lucide-react';
 import { Button } from '../../components/ui/index.jsx';
@@ -16,6 +16,9 @@ export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', subject: SUBJECTS[0], message: '' });
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
+  const nameRef = useRef(null);
+  const emailRef = useRef(null);
+  const messageRef = useRef(null);
 
   function setField(k, v) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -33,7 +36,11 @@ export default function Contact() {
   function submit(e) {
     e.preventDefault();
     const errs = validate();
-    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      (errs.name ? nameRef : errs.email ? emailRef : messageRef).current?.focus();
+      return;
+    }
     // TODO: Wire to POST /api/contact when backend endpoint is built — for now shows success without sending.
     setSubmitted(true);
   }
@@ -175,14 +182,16 @@ export default function Contact() {
                       Name <span className="text-error">*</span>
                     </label>
                     <input
+                      ref={nameRef}
                       type="text"
                       required
+                      autoComplete="name"
                       value={form.name}
                       onChange={(e) => setField('name', e.target.value)}
                       className={`input ${errors.name ? 'border-error' : ''}`}
                       placeholder="Your name"
                     />
-                    {errors.name && <p className="mt-1 text-xs text-error">{errors.name}</p>}
+                    <div className="mt-1 min-h-[1rem] text-xs text-error">{errors.name}</div>
                   </div>
 
                   <div>
@@ -190,14 +199,17 @@ export default function Contact() {
                       Email <span className="text-error">*</span>
                     </label>
                     <input
+                      ref={emailRef}
                       type="email"
                       required
+                      autoComplete="email"
+                      inputMode="email"
                       value={form.email}
                       onChange={(e) => setField('email', e.target.value)}
                       className={`input ${errors.email ? 'border-error' : ''}`}
                       placeholder="you@email.com"
                     />
-                    {errors.email && <p className="mt-1 text-xs text-error">{errors.email}</p>}
+                    <div className="mt-1 min-h-[1rem] text-xs text-error">{errors.email}</div>
                   </div>
 
                   <div>
@@ -218,6 +230,7 @@ export default function Contact() {
                       Message <span className="text-error">*</span>
                     </label>
                     <textarea
+                      ref={messageRef}
                       required
                       rows={5}
                       value={form.message}
@@ -225,7 +238,7 @@ export default function Contact() {
                       className={`textarea resize-none ${errors.message ? 'border-error' : ''}`}
                       placeholder="How can we help?"
                     />
-                    {errors.message && <p className="mt-1 text-xs text-error">{errors.message}</p>}
+                    <div className="mt-1 min-h-[1rem] text-xs text-error">{errors.message}</div>
                   </div>
 
                   <Button type="submit" size="lg" className="w-full">

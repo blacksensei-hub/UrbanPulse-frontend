@@ -2,13 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
 
-import toast from 'react-hot-toast';
 import { Button } from '../components/ui/index.jsx';
+import SEO from '../components/SEO.jsx';
+import ProductImage from '../components/ui/ProductImage.jsx';
+import StickyActionBar from '../components/ui/StickyActionBar.jsx';
 import { useCartStore } from '../stores/cartStore.js';
 import { productService } from '../services/index.js';
 import { formatCurrency, formatDate } from '../utils/format.js';
+import { showUndoToast } from '../utils/undoToast.jsx';
+import { useDebouncedCartQuantity } from '../hooks/useDebouncedCartQuantity.js';
 import { fadeInUp, staggerContainer } from '../lib/motion.js';
 import ProductCard from '../components/product/ProductCard.jsx';
 import FreeShippingBar from '../components/cart/FreeShippingBar.jsx';
@@ -36,13 +39,22 @@ function useCountUp(value, duration = 400) {
 }
 
 export default function Cart() {
-  const { cart, update, remove } = useCartStore();
+  const { cart, update, remove, add } = useCartStore();
   const items = cart?.items ?? [];
+  const { getQuantity, setQuantity } = useDebouncedCartQuantity(update);
   const subtotal = items.reduce(
-    (sum, i) => sum + Number(i.price) * i.quantity,
+    (sum, i) => sum + Number(i.price) * getQuantity(i),
     0,
   );
   const displaySubtotal = useCountUp(subtotal);
+
+  function handleRemove(item) {
+    remove(item.id);
+    showUndoToast({
+      message: 'Removed from cart',
+      onUndo: () => add(item.variant_id, item.quantity),
+    });
+  }
 
   const [bestSellers, setBestSellers] = useState([]);
   useEffect(() => {
@@ -56,6 +68,7 @@ export default function Cart() {
   if (items.length === 0) {
     return (
       <div className="container-site py-16 md:py-24">
+        <SEO title="Your bag" />
         <div className="flex flex-col items-center text-center">
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-accent/10">
             <ShoppingBag className="h-9 w-9 text-accent" />
@@ -82,11 +95,9 @@ export default function Cart() {
 
   return (
     <>
-      <Helmet>
-        <title>Cart \u2014 UrbanPulse</title>
-      </Helmet>
+      <SEO title="Cart" />
 
-      <div className="container-site py-8 md:py-12">
+      <div className="container-site py-8 pb-28 md:py-12 lg:pb-12">
         <h1 className="font-display text-h1 font-bold">Your cart</h1>
         <p className="mt-1 text-sm text-muted">
           {items.length} {items.length === 1 ? 'piece' : 'pieces'}
@@ -100,7 +111,9 @@ export default function Cart() {
             className="flex flex-col divide-y divide-border rounded-xl border border-border bg-surface"
           >
             <AnimatePresence initial={false}>
-              {items.map((item) => (
+              {items.map((item) => {
+                const qty = getQuantity(item);
+                return (
                 <motion.li
                   key={item.id}
                   variants={fadeInUp}
@@ -112,8 +125,8 @@ export default function Cart() {
                     to={`/products/${item.slug}`}
                     className="shrink-0 overflow-hidden rounded-md bg-border"
                   >
-                    <img
-                      src={item.image ?? 'https://placehold.co/120x150'}
+                    <ProductImage
+                      src={item.image}
                       alt={item.name}
                       className="h-28 w-24 object-cover sm:h-32 sm:w-28"
                       loading="lazy"
@@ -121,10 +134,11 @@ export default function Cart() {
                   </Link>
                   <div className="flex min-w-0 flex-1 flex-col gap-2">
                     <div className="flex items-start justify-between gap-3">
-                      <div>
+                      <div className="min-w-0">
                         <Link
                           to={`/products/${item.slug}`}
-                          className="font-display text-base font-semibold hover:text-accent"
+                          title={item.name}
+                          className="block truncate font-display text-base font-semibold hover:text-accent"
                         >
                           {item.name}
                         </Link>
@@ -138,8 +152,8 @@ export default function Cart() {
                         )}
                       </div>
                       <button
-                        onClick={() => remove(item.id)}
-                        className="grid h-9 w-9 place-items-center rounded-full text-muted hover:bg-bg hover:text-error"
+                        onClick={() => handleRemove(item)}
+                        className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted hover:bg-bg hover:text-error"
                         aria-label="Remove item"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -148,23 +162,18 @@ export default function Cart() {
                     <div className="mt-auto flex items-center justify-between gap-3">
                       <div className="inline-flex items-center rounded-lg border border-border">
                         <button
-                          onClick={() => update(item.id, Math.max(1, item.quantity - 1))}
+                          onClick={() => setQuantity(item, qty - 1, 1)}
                           className="grid h-9 w-9 place-items-center hover:bg-bg"
                           aria-label="Decrease"
                         >
                           <Minus className="h-3.5 w-3.5" />
                         </button>
                         <span className="w-8 text-center text-sm font-semibold">
-                          {item.quantity}
+                          {qty}
                         </span>
                         <button
-                          onClick={() => {
-                            if (item.quantity >= item.stock) return;
-                            update(item.id, item.quantity + 1).catch((err) =>
-                              toast.error(err?.response?.data?.message ?? 'Could not update cart')
-                            );
-                          }}
-                          disabled={item.quantity >= item.stock}
+                          onClick={() => setQuantity(item, qty + 1, 1)}
+                          disabled={qty >= item.stock}
                           className="grid h-9 w-9 place-items-center hover:bg-bg disabled:opacity-40 disabled:cursor-not-allowed"
                           aria-label="Increase"
                         >
@@ -172,15 +181,15 @@ export default function Cart() {
                         </button>
                       </div>
                       <div className="font-mono font-semibold">
-                        {formatCurrency(Number(item.price) * item.quantity)}
+                        {formatCurrency(Number(item.price) * qty)}
                       </div>
                     </div>
-                    {item.quantity >= item.stock && (
+                    {qty >= item.stock && (
                       <p className="mt-1 text-xs text-muted">Max stock reached</p>
                     )}
                   </div>
                 </motion.li>
-              ))}
+              );})}
             </AnimatePresence>
           </motion.ul>
 
@@ -235,6 +244,16 @@ export default function Cart() {
           </aside>
         </div>
       </div>
+
+      <StickyActionBar>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs text-muted">Total</p>
+          <p className="font-mono font-semibold">{formatCurrency(displaySubtotal)}</p>
+        </div>
+        <Link to="/checkout" className="shrink-0">
+          <Button size="sm">Checkout</Button>
+        </Link>
+      </StickyActionBar>
     </>
   );
 }

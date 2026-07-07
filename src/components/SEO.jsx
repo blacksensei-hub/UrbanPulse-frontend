@@ -1,7 +1,9 @@
 import { Helmet } from 'react-helmet-async';
 import { SITE_URL } from '../lib/seoSchema.js';
+import { useCartStore } from '../stores/cartStore.js';
 
 const SITE_NAME = 'UrbanPulse';
+const DEFAULT_SHARE_IMAGE = '/og-default.jpg';
 
 export default function SEO({
   title,
@@ -14,11 +16,15 @@ export default function SEO({
   jsonLd,
   children,
 }) {
+  const itemCount = useCartStore((s) => s.cart.items.reduce((n, it) => n + it.quantity, 0));
   const canonical = url
     ? (url.startsWith('http') ? url : `${SITE_URL}${url}`)
     : (typeof window !== 'undefined' ? `${SITE_URL}${window.location.pathname}` : SITE_URL);
-  const fullTitle = suffix ? (title ? `${title} — ${SITE_NAME}` : SITE_NAME) : title;
-  const resolvedImage = image ? (image.startsWith('http') ? image : `${SITE_URL}${image}`) : null;
+  const baseTitle = suffix ? (title ? `${title} — ${SITE_NAME}` : SITE_NAME) : title;
+  const fullTitle = itemCount > 0 ? `(${itemCount}) ${baseTitle}` : baseTitle;
+  const resolvedImage = image
+    ? (image.startsWith('http') ? image : `${SITE_URL}${image}`)
+    : `${SITE_URL}${DEFAULT_SHARE_IMAGE}`;
 
   return (
     <Helmet>

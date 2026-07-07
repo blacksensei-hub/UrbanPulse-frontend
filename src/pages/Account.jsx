@@ -17,8 +17,9 @@ import { useCartStore } from '../stores/cartStore.js';
 import { useWishlistStore } from '../stores/wishlistStore.js';
 import { orderService, authService, referralService, returnService, loyaltyService } from '../services/index.js';
 import { useFeature } from '../stores/settingsStore.js';
-import { formatCurrency, formatDate } from '../utils/format.js';
+import { formatCurrency, formatDate, pluralize, sanitizePhone } from '../utils/format.js';
 import { cn } from '../utils/format.js';
+import { showUndoToast } from '../utils/undoToast.jsx';
 import { staggerContainer, fadeInUp } from '../lib/motion.js';
 import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
 import PullToRefreshIndicator from '../components/ui/PullToRefreshIndicator.jsx';
@@ -296,10 +297,10 @@ function AccountLayout() {
             {user.name?.[0]?.toUpperCase() ?? '?'}
           </div>
         ) : null}
-        <div>
+        <div className="min-w-0">
           <p className="eyebrow mb-1">Your account</p>
-          <div className="flex items-center gap-2.5">
-            <h1 className="font-display text-h1 font-bold">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <h1 className="truncate max-w-full font-display text-h1 font-bold">
               {user?.name ? `Hey, ${user.name.split(' ')[0]}.` : 'Account'}
             </h1>
             {loyaltyEnabled && user?.loyalty_tier && (
@@ -465,7 +466,7 @@ function Dashboard() {
                   <div className="text-xs text-muted">{formatDate(entry.created_at)}</div>
                 </div>
                 <div className={`font-display font-bold ${entry.amount_ghs >= 0 ? 'text-success' : 'text-error'}`}>
-                  {entry.amount_ghs >= 0 ? '+' : ''}GH₵ {Math.abs(entry.amount_ghs).toFixed(2)}
+                  {entry.amount_ghs >= 0 ? '+' : ''}{formatCurrency(Math.abs(entry.amount_ghs))}
                 </div>
               </li>
             ))}
@@ -668,10 +669,12 @@ function Orders() {
                       <p className="mb-2 text-xs font-semibold text-muted uppercase tracking-wider">Pre-order items</p>
                       <ul className="space-y-1">
                         {orderDetails[o.id].items.filter(i => i.is_preorder).map(item => (
-                          <li key={item.id} className="flex items-center justify-between text-xs">
-                            <span className="text-text">{item.product_name} × {item.quantity}</span>
+                          <li key={item.id} className="flex items-center justify-between gap-2 text-xs">
+                            <span className="min-w-0 truncate text-text" title={item.product_name}>
+                              {item.product_name} × {item.quantity}
+                            </span>
                             {item.preorder_ships_at && (
-                              <span className="text-accent">Ships {formatDate(item.preorder_ships_at)}</span>
+                              <span className="shrink-0 text-accent">Ships {formatDate(item.preorder_ships_at)}</span>
                             )}
                           </li>
                         ))}
@@ -751,7 +754,7 @@ function ReturnsList() {
           <Link to={`/account/returns/${r.id}`} className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <div className="font-mono font-semibold text-sm">{r.rma_number}</div>
-              <div className="text-xs text-muted mt-0.5">{r.item_count} item(s) · {r.resolution} · {formatDate(r.created_at)}</div>
+              <div className="text-xs text-muted mt-0.5">{r.item_count} {pluralize(r.item_count, 'item')} · {r.resolution} · {formatDate(r.created_at)}</div>
             </div>
             <span className={cn('rounded-full px-3 py-1 text-xs font-semibold capitalize', STATUS_COLORS[r.status])}>
               {r.status}
@@ -844,7 +847,7 @@ function ReturnDetail() {
                 <img src={item.product_image} alt="" className="h-12 w-10 rounded object-cover" />
               )}
               <div className="flex-1 min-w-0">
-                <div className="font-medium text-sm truncate">{item.product_name}</div>
+                <div className="font-medium text-sm truncate" title={item.product_name}>{item.product_name}</div>
                 <div className="text-xs text-muted">{item.variant_description} · qty {item.quantity}</div>
                 {item.reason_code && (
                   <div className="text-xs text-muted capitalize">Reason: {item.reason_code.replace(/_/g, ' ')}</div>
@@ -877,7 +880,7 @@ function ReturnDetail() {
                 {ret.resolution === 'store_credit' ? 'Credit issued' : 'Refund issued'}
               </div>
               <p className="mt-1 text-sm font-semibold text-success">
-                GH₵ {Number(ret.refund_amount_ghs).toFixed(2)}
+                {formatCurrency(ret.refund_amount_ghs)}
               </p>
             </div>
           )}
@@ -922,7 +925,7 @@ function Referrals() {
   const STATUS_LABEL = {
     pending:   'signed up',
     qualified: 'completed first order',
-    rewarded:  'earned GH₵ 50',
+    rewarded:  `earned ${formatCurrency(50)}`,
   };
 
   return (
@@ -930,7 +933,7 @@ function Referrals() {
       <div className="card p-6">
         <h2 className="font-display text-lg font-semibold">Your referral code</h2>
         <p className="mt-1 text-sm text-muted">
-          Share your link — when a friend signs up and completes their first order, you both get GH₵ 50 in store credit.
+          Share your link — when a friend signs up and completes their first order, you both get {formatCurrency(50)} in store credit.
         </p>
 
         {data ? (
@@ -952,7 +955,7 @@ function Referrals() {
               {[
                 { label: 'Signed up', value: data.stats.signed_up },
                 { label: 'Qualified', value: data.stats.qualified },
-                { label: 'Earned', value: `GH₵ ${data.stats.earned_ghs}` },
+                { label: 'Earned', value: formatCurrency(data.stats.earned_ghs) },
               ].map(({ label, value }) => (
                 <div key={label} className="rounded-lg border border-border p-4 text-center">
                   <div className="font-display text-2xl font-bold">{value}</div>
@@ -1023,7 +1026,7 @@ function Rewards() {
   if (!data) return <div className="text-sm text-muted">Loading…</div>;
 
   const tierColor = TIER_COLORS[data.tier] ?? TIER_COLORS.bronze;
-  const cediValue = (data.balance * data.redeem_rate_ghs).toFixed(2);
+  const cediValue = formatCurrency(data.balance * data.redeem_rate_ghs);
 
   return (
     <div className="space-y-6">
@@ -1053,7 +1056,7 @@ function Rewards() {
         <div className="mt-6">
           <p className="eyebrow">Your balance</p>
           <p className="mt-1 font-display text-2xl font-bold">
-            {data.balance} points <span className="text-muted font-normal">= GH₵ {cediValue} in rewards</span>
+            {data.balance} points <span className="text-muted font-normal">= {cediValue} in rewards</span>
           </p>
         </div>
 
@@ -1067,7 +1070,7 @@ function Rewards() {
           <summary className="cursor-pointer select-none px-4 py-3 text-sm font-medium">How it works</summary>
           <div className="space-y-1.5 border-t border-border px-4 py-3 text-sm text-muted">
             <p>Earn {data.settings_snapshot.earn_rate} point per GH₵10 spent on paid orders.</p>
-            <p>Redeem {data.min_redeem_points}+ points at checkout — each point is worth GH₵{data.redeem_rate_ghs.toFixed(2)}.</p>
+            <p>Redeem {data.min_redeem_points}+ points at checkout — each point is worth {formatCurrency(data.redeem_rate_ghs)}.</p>
             <p>Points expire {data.settings_snapshot.points_expire_days} days after they're earned.</p>
           </div>
         </details>
@@ -1118,8 +1121,9 @@ function Profile() {
   }
   return (
     <form onSubmit={save} className="card max-w-lg space-y-5 p-6">
-      <Input label="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-      <Input label="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+      <Input label="Name" autoComplete="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+      <Input label="Phone" autoComplete="tel" inputMode="tel"
+        value={form.phone} onChange={(e) => setForm({ ...form, phone: sanitizePhone(e.target.value) })} />
       <Input label="Email" value={user?.email ?? ''} disabled />
       <Button type="submit" loading={saving}>Save changes</Button>
     </form>
@@ -1318,6 +1322,7 @@ function Privacy() {
             floating
             label="Password"
             type="password"
+            autoComplete="current-password"
             value={deletePassword}
             onChange={(e) => setDeletePassword(e.target.value)}
           />
@@ -1333,6 +1338,7 @@ function Privacy() {
               loading={deleting}
               onClick={handleDelete}
               disabled={!deletePassword || deleteConfirmText !== 'DELETE MY ACCOUNT'}
+              title={!deletePassword ? 'Enter your password' : deleteConfirmText !== 'DELETE MY ACCOUNT' ? 'Type DELETE MY ACCOUNT to confirm' : undefined}
             >
               Delete account
             </Button>
@@ -1352,7 +1358,7 @@ function Wishlist() {
       </div>
     );
   }
-  const { items, loading, refresh, remove } = useWishlistStore();
+  const { items, loading, refresh, remove, add } = useWishlistStore();
   const addToCart = useCartStore((s) => s.add);
   const [addingId, setAddingId] = useState(null);
 
@@ -1370,6 +1376,14 @@ function Wishlist() {
     try { await addToCart(inStock.id, 1); toast.success('Added to cart'); }
     catch { toast.error('Could not add to cart'); }
     finally { setAddingId(null); }
+  }
+
+  function handleRemove(item) {
+    remove(item.id);
+    showUndoToast({
+      message: 'Removed from wishlist',
+      onUndo: () => add(item.product_id),
+    });
   }
 
   if (loading) return <>{ptrIndicator}<div className="text-sm text-muted">Loading…</div></>;
@@ -1418,7 +1432,7 @@ function Wishlist() {
                   onClick={() => handleAddToCart(item)}>
                   {hasInStock ? 'Add to cart' : 'Out of stock'}
                 </Button>
-                <button onClick={() => remove(item.id)} aria-label="Remove from wishlist"
+                <button onClick={() => handleRemove(item)} aria-label="Remove from wishlist"
                   className="rounded-lg border border-border px-3 py-1.5 text-sm text-muted hover:border-error hover:text-error transition-colors">
                   Remove
                 </button>
@@ -1661,6 +1675,7 @@ function Security() {
             <input
               type="text"
               inputMode="numeric"
+              autoComplete="one-time-code"
               maxLength={6}
               value={verifyCode}
               onChange={(e) => setVerifyCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
@@ -1669,7 +1684,10 @@ function Security() {
             />
             <div className="flex justify-end gap-3">
               <Button variant="ghost" onClick={() => setSetupStep('scan')}>Back</Button>
-              <Button loading={acting} disabled={verifyCode.length < 6} onClick={confirmEnable}>Enable 2FA</Button>
+              <Button loading={acting} disabled={verifyCode.length < 6} onClick={confirmEnable}
+                title={verifyCode.length < 6 ? 'Enter the 6-digit code' : undefined}>
+                Enable 2FA
+              </Button>
             </div>
           </div>
         )}
@@ -1792,12 +1810,16 @@ function Security() {
             floating
             label="Password"
             type="password"
+            autoComplete="current-password"
             value={disablePassword}
             onChange={(e) => setDisablePassword(e.target.value)}
           />
           <div className="flex justify-end gap-3">
             <Button variant="ghost" onClick={() => { setDisableModal(false); setDisablePassword(''); }}>Cancel</Button>
-            <Button variant="danger" loading={acting} onClick={disableTotp} disabled={!disablePassword}>Disable 2FA</Button>
+            <Button variant="danger" loading={acting} onClick={disableTotp} disabled={!disablePassword}
+              title={!disablePassword ? 'Enter your password' : undefined}>
+              Disable 2FA
+            </Button>
           </div>
         </div>
       </Modal>
@@ -1810,12 +1832,16 @@ function Security() {
             floating
             label="Current password"
             type="password"
+            autoComplete="current-password"
             value={unlinkPassword}
             onChange={(e) => setUnlinkPassword(e.target.value)}
           />
           <div className="flex justify-end gap-3">
             <Button variant="ghost" onClick={() => { setUnlinkModal(false); setUnlinkPassword(''); }}>Cancel</Button>
-            <Button variant="danger" loading={acting} onClick={handleUnlinkGoogle} disabled={!unlinkPassword}>Remove</Button>
+            <Button variant="danger" loading={acting} onClick={handleUnlinkGoogle} disabled={!unlinkPassword}
+              title={!unlinkPassword ? 'Enter your password' : undefined}>
+              Remove
+            </Button>
           </div>
         </div>
       </Modal>
@@ -1827,6 +1853,7 @@ function Security() {
             floating
             label="New password"
             type="password"
+            autoComplete="new-password"
             hint="At least 8 characters"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
@@ -1835,12 +1862,14 @@ function Security() {
             floating
             label="Confirm new password"
             type="password"
+            autoComplete="new-password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
           <div className="flex justify-end gap-3">
             <Button variant="ghost" onClick={() => { setPasswordModal(false); setNewPassword(''); setConfirmPassword(''); }}>Cancel</Button>
-            <Button loading={acting} onClick={handleSetPassword} disabled={!newPassword || !confirmPassword}>
+            <Button loading={acting} onClick={handleSetPassword} disabled={!newPassword || !confirmPassword}
+              title={!newPassword || !confirmPassword ? 'Fill in both password fields' : undefined}>
               {user?.has_password ? 'Update password' : 'Set password'}
             </Button>
           </div>

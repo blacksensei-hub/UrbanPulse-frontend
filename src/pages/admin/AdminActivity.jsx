@@ -8,6 +8,7 @@ import {
 import AdminPageHeader from '../../components/admin/AdminPageHeader.jsx';
 import { adminService } from '../../services/index.js';
 import { fadeInUp, staggerContainer } from '../../lib/motion.js';
+import { formatDate } from '../../utils/format.js';
 
 const TYPE_CONFIG = {
   order:  { icon: ShoppingBag, label: 'Orders',     color: 'text-blue-500',   bg: 'bg-blue-500/10'  },
@@ -28,7 +29,7 @@ function relativeTime(dateStr) {
   if (hrs < 24)   return rtf.format(-hrs, 'hour');
   const days = Math.round(hrs / 24);
   if (days < 7)   return rtf.format(-days, 'day');
-  return new Date(dateStr).toLocaleDateString();
+  return formatDate(dateStr);
 }
 
 function groupByTime(items) {

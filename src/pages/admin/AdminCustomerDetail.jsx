@@ -256,7 +256,7 @@ function ApologyModal({ open, onClose, customerId, customerEmail, customerName, 
     setSending(true);
     try {
       await adminService.customer.adjustCredit(customerId, { amount_ghs: parsed, reason: reason.trim(), note: 'Apology credit' });
-      const apologyBody = `Hi ${customerName ?? 'there'},\n\nWe sincerely apologise for the inconvenience. As a token of our apology, we've added GH₵ ${parsed.toFixed(2)} to your store credit.\n\nThank you for your patience.\n\nThe UrbanPulse Team`;
+      const apologyBody = `Hi ${customerName ?? 'there'},\n\nWe sincerely apologise for the inconvenience. As a token of our apology, we've added ${formatCurrency(parsed)} to your store credit.\n\nThank you for your patience.\n\nThe UrbanPulse Team`;
       await adminService.sendMessage({
         customer_id: customerId,
         channel: 'email',

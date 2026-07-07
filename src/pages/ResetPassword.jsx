@@ -50,6 +50,7 @@ export default function ResetPassword() {
               <Input
                 label="New password"
                 type="password"
+                autoComplete="new-password"
                 required
                 hint="At least 8 characters"
                 value={password}

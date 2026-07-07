@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { forwardRef, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import { cn } from '../../utils/format.js';
@@ -56,7 +56,7 @@ export function Button({
   );
 }
 
-function FloatingInput({ label, error, hint, className = '', ...rest }) {
+const FloatingInput = forwardRef(function FloatingInput({ label, error, hint, className = '', ...rest }, ref) {
   const [focused, setFocused] = useState(false);
   const filled = rest.value !== undefined ? String(rest.value).length > 0 : false;
   const lifted = focused || filled;
@@ -64,6 +64,7 @@ function FloatingInput({ label, error, hint, className = '', ...rest }) {
   return (
     <label className="relative block">
       <input
+        ref={ref}
         {...rest}
         placeholder=""
         onFocus={(e) => { setFocused(true); rest.onFocus?.(e); }}
@@ -93,21 +94,21 @@ function FloatingInput({ label, error, hint, className = '', ...rest }) {
       {!error && hint && <span className="mt-1 block text-xs text-muted">{hint}</span>}
     </label>
   );
-}
+});
 
-export function Input({ label, error, hint, className = '', floating = false, ...rest }) {
+export const Input = forwardRef(function Input({ label, error, hint, className = '', floating = false, ...rest }, ref) {
   if (floating) {
-    return <FloatingInput label={label} error={error} hint={hint} className={className} {...rest} />;
+    return <FloatingInput ref={ref} label={label} error={error} hint={hint} className={className} {...rest} />;
   }
   return (
     <label className="block">
       {label && <span className="block text-small font-medium mb-1.5">{label}</span>}
-      <input className={cn('input', error && 'border-error', className)} {...rest} />
+      <input ref={ref} className={cn('input', error && 'border-error', className)} {...rest} />
       {error && <span className="block text-small text-error mt-1">{error}</span>}
       {!error && hint && <span className="mt-1 block text-xs text-muted">{hint}</span>}
     </label>
   );
-}
+});
 
 export function Card({ className = '', children, ...rest }) {
   return <div className={cn('card p-5 md:p-6', className)} {...rest}>{children}</div>;

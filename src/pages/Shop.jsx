@@ -7,6 +7,7 @@ import ProductCard from '../components/product/ProductCard.jsx';
 import { Button } from '../components/ui/index.jsx';
 import SEO from '../components/SEO.jsx';
 import { productService } from '../services/index.js';
+import { formatCurrency } from '../utils/format.js';
 import { staggerContainer, bottomSheetVariants } from '../lib/motion.js';
 import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
 import PullToRefreshIndicator from '../components/ui/PullToRefreshIndicator.jsx';
@@ -25,8 +26,8 @@ const FILTER_CHIP_LABELS = {
   category: (v) => v,
   size:     (v) => `Size: ${v}`,
   color:    (v) => `Color: ${v}`,
-  minPrice: (v) => `Min: GH₵ ${v}`,
-  maxPrice: (v) => `Max: GH₵ ${v}`,
+  minPrice: (v) => `Min: ${formatCurrency(v)}`,
+  maxPrice: (v) => `Max: ${formatCurrency(v)}`,
   inStock:  ()  => 'In stock only',
 };
 
@@ -136,6 +137,8 @@ export default function Shop() {
   const [products, setProducts] = useState([]);
   const [total, setTotal]       = useState(0);
   const [loading, setLoading]   = useState(true);
+  const [fetchFailed, setFetchFailed] = useState(false);
+  const [slowLoad, setSlowLoad] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [page, setPage]         = useState(1);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -146,10 +149,14 @@ export default function Shop() {
 
   useEffect(() => {
     setLoading(true);
+    setFetchFailed(false);
+    setSlowLoad(false);
+    const slowTimer = setTimeout(() => setSlowLoad(true), 5000);
     productService.list(params)
       .then((data) => { setProducts(data.items ?? []); setTotal(data.total ?? 0); })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .catch(() => setFetchFailed(true))
+      .finally(() => { setLoading(false); clearTimeout(slowTimer); });
+    return () => clearTimeout(slowTimer);
   }, [params, refreshKey]);
 
   const { pulling, pullProgress, refreshing } = usePullToRefresh(
@@ -264,14 +271,28 @@ export default function Shop() {
             </div>
 
             {loading ? (
-              <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5">
-                {Array.from({ length: 12 }).map((_, i) => (
-                  <div key={i} className="space-y-3">
-                    <div className="skeleton aspect-[3/4] w-full rounded-lg" />
-                    <div className="skeleton h-4 w-3/4 rounded" />
-                    <div className="skeleton h-4 w-1/3 rounded" />
-                  </div>
-                ))}
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5">
+                  {Array.from({ length: 12 }).map((_, i) => (
+                    <div key={i} className="space-y-3">
+                      <div className="skeleton aspect-[3/4] w-full rounded-lg" />
+                      <div className="skeleton h-4 w-3/4 rounded" />
+                      <div className="skeleton h-4 w-1/3 rounded" />
+                    </div>
+                  ))}
+                </div>
+                {slowLoad && (
+                  <p className="text-center text-sm text-muted">Still loading — hang tight.</p>
+                )}
+              </div>
+            ) : fetchFailed ? (
+              <div className="rounded-xl border border-border bg-surface p-12 text-center">
+                <div className="font-display text-xl font-semibold">Couldn&apos;t load products</div>
+                <p className="mt-2 text-sm text-muted">Something went wrong on our end.</p>
+                <Button variant="outline" size="sm" className="mt-4"
+                  onClick={() => setRefreshKey((k) => k + 1)}>
+                  Retry
+                </Button>
               </div>
             ) : products.length === 0 ? (
               <div className="rounded-xl border border-border bg-surface p-12 text-center">

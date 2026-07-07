@@ -6,10 +6,12 @@ import toast from 'react-hot-toast';
 
 import Modal from '../ui/Modal.jsx';
 import { Button } from '../ui/index.jsx';
+import ProductImage from '../ui/ProductImage.jsx';
 import { productService } from '../../services/index.js';
 import { useCartStore } from '../../stores/cartStore.js';
 import { formatCurrency, cn } from '../../utils/format.js';
 import { vibrate } from '../../utils/haptic.js';
+import { prefersReducedMotion } from '../../utils/motion.js';
 
 const COLOR_MAP = {
   black: '#1a1a1a', 'jet black': '#1a1a1a',
@@ -26,8 +28,7 @@ export function swatchColor(name) {
 }
 
 export function showAddedToast(product, priceText) {
-  const reducedMotion = typeof window !== 'undefined'
-    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reducedMotion = prefersReducedMotion();
 
   toast.custom(
     (t) => (
@@ -165,16 +166,20 @@ export default function QuickView({ slug, open, onClose }) {
           <div className="p-4 space-y-2">
             <div className="aspect-[4/5] overflow-hidden rounded-xl bg-surface">
               <AnimatePresence mode="wait">
-                <motion.img
+                <motion.div
                   key={images[activeImage]}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  src={images[activeImage]}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                />
+                  className="w-full h-full"
+                >
+                  <ProductImage
+                    src={images[activeImage]}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                </motion.div>
               </AnimatePresence>
             </div>
             {images.length > 1 && (
@@ -189,7 +194,7 @@ export default function QuickView({ slug, open, onClose }) {
                       i === activeImage ? 'border-accent' : 'border-transparent',
                     )}
                   >
-                    <img src={src} alt="" className="h-14 w-14 object-cover" loading="lazy" />
+                    <ProductImage src={src} alt="" initial={product.name} className="h-14 w-14 object-cover" loading="lazy" />
                   </button>
                 ))}
               </div>
@@ -282,7 +287,7 @@ export default function QuickView({ slug, open, onClose }) {
                         key={s}
                         onClick={() => {
                           if (oos) {
-                            toast('Notify me when back in stock — coming soon!', { icon: '🔔' });
+                            toast('Notify me when back in stock — coming soon', { icon: '🔔' });
                             return;
                           }
                           setSelectedSize(s);
