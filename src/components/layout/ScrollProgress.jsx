@@ -57,6 +57,7 @@ export default function ScrollProgress() {
 
   return (
     <motion.div
+      aria-hidden="true"
       animate={{ opacity: shown ? 1 : 0 }}
       transition={{ duration: prefersReduced ? 0 : 0.15 }}
       style={{

@@ -8,11 +8,20 @@ const SAFETY_TIMEOUT_MS = 15000;
 let showTimer = null;
 let safetyTimer = null;
 
-export const useLoadingStore = create((set) => ({
+export const useLoadingStore = create((set, get) => ({
   active: false,  // raw intent: a navigation is in flight
   visible: false, // true only once the show-delay has elapsed without done() firing
 
+  // The splash screen owns the first load — AnimatePresence's initial={false}
+  // means the first-ever page transition never actually plays (no animation, no
+  // onAnimationComplete), so nothing would ever clear the bar if it armed on that
+  // first navigation. Flipped once, shortly after mount, in App.jsx.
+  hasCompletedFirstLoad: false,
+  completeFirstLoad: () => set({ hasCompletedFirstLoad: true }),
+
   start: () => {
+    if (!get().hasCompletedFirstLoad) return;
+
     clearTimeout(showTimer);
     clearTimeout(safetyTimer);
     set({ active: true });

@@ -30,12 +30,18 @@
          marks splash start time and arms a failsafe in case React never mounts. -->
     <script>
       (function () {
+        function prefersDark() {
+          return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        }
+        var t;
         try {
           var stored = localStorage.getItem('urbanpulse-theme');
-          var t = stored || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-          if (t === 'dark') document.documentElement.classList.add('dark');
-          document.documentElement.style.colorScheme = t;
-        } catch (e) {}
+          t = stored || (prefersDark() ? 'dark' : 'light');
+        } catch (e) {
+          t = prefersDark() ? 'dark' : 'light';
+        }
+        if (t === 'dark') document.documentElement.classList.add('dark');
+        document.documentElement.style.colorScheme = t;
 
         window.__splashStart = Date.now();
         window.__splashTimeoutId = setTimeout(function () {
@@ -64,7 +70,7 @@
       html.dark .sp-failsafe a{color:#E87A4F;}
       @media(prefers-reduced-motion:reduce){.sp-l,.sp-a{opacity:1;animation:none;}.sp-wm{animation:none;}#splash{transition:none;}}
     </style>
-    <script type="module" crossorigin src="/assets/index-Bh1uFtus.js"></script>
+    <script type="module" crossorigin src="/assets/index-BGiWO2uk.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/react-BD33oxTj.js">
     <link rel="modulepreload" crossorigin href="/assets/motion-D4ctv0sM.js">
     <link rel="stylesheet" crossorigin href="/assets/index-DDOweHjE.css">

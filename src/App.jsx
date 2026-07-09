@@ -81,6 +81,7 @@ export default function App() {
   const refreshWishlist = useWishlistStore((s) => s.refresh);
   const loadSettings = useSettingsStore((s) => s.load);
   const startLoading = useLoadingStore((s) => s.start);
+  const completeFirstLoad = useLoadingStore((s) => s.completeFirstLoad);
 
   useEffect(() => {
     initAuth();
@@ -100,7 +101,7 @@ export default function App() {
     const splash = document.getElementById('splash');
     if (!splash) return;
 
-    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
     const elapsed = Date.now() - (window.__splashStart ?? Date.now());
     const remaining = Math.max(0, 500 - elapsed);
 
@@ -119,6 +120,14 @@ export default function App() {
     const t = setTimeout(dismiss, remaining);
     return () => clearTimeout(t);
   }, []);
+
+  // Arms the route-loading bar system. Deferred a tick so the one start() call
+  // that fires synchronously on mount (below) always sees hasCompletedFirstLoad
+  // still false and is correctly suppressed — the splash owns the first load.
+  useEffect(() => {
+    const t = setTimeout(completeFirstLoad, 0);
+    return () => clearTimeout(t);
+  }, [completeFirstLoad]);
 
   useEffect(() => {
     startLoading();

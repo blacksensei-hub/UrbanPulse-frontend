@@ -55,14 +55,19 @@ export default function LoadingBar() {
                 top: 0,
                 bottom: 0,
                 left: 0,
+                width: '30%',
                 background: 'var(--color-accent)',
                 borderRadius: '0 2px 2px 0',
               }}
               animate={
                 phase === 'completing'
-                  ? { width: '100%', transition: { duration: COMPLETE_MS / 1000, ease: 'easeOut' } }
+                  ? { x: '0%', width: '100%', transition: { duration: COMPLETE_MS / 1000, ease: 'easeOut' } }
                   : {
-                      width: ['10%', '80%', '40%', '90%', '60%'],
+                      // Fixed-width segment translating across the track (not a width
+                      // oscillation) — percentages are relative to the segment's own
+                      // width, so -100%/333% sweeps it from off-screen left to off-screen
+                      // right of the (much wider) container.
+                      x: ['-100%', '333%'],
                       transition: { duration: 1.4, repeat: Infinity, ease: 'easeInOut' },
                     }
               }
