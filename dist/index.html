@@ -25,38 +25,55 @@
     <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&display=swap" />
     <!-- Google Identity Services -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <!-- No-FOUC: applies stored theme BEFORE React mounts. Default = light. -->
+    <!-- No-FOUC: applies stored theme BEFORE React mounts, falling back to the OS
+         preference when no theme has been chosen yet (not hardcoded to light). Also
+         marks splash start time and arms a failsafe in case React never mounts. -->
     <script>
       (function () {
         try {
-          var t = localStorage.getItem('urbanpulse-theme') || 'light';
+          var stored = localStorage.getItem('urbanpulse-theme');
+          var t = stored || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
           if (t === 'dark') document.documentElement.classList.add('dark');
           document.documentElement.style.colorScheme = t;
         } catch (e) {}
+
+        window.__splashStart = Date.now();
+        window.__splashTimeoutId = setTimeout(function () {
+          var splash = document.getElementById('splash');
+          if (!splash) return;
+          var msg = document.createElement('p');
+          msg.className = 'sp-failsafe';
+          msg.innerHTML = 'Taking longer than usual. <a href="">Refresh</a>.';
+          splash.appendChild(msg);
+        }, 10000);
       })();
     </script>
     <style>
-      #splash{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#F8F6F2;z-index:9999;pointer-events:none;}
+      #splash{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:#F8F6F2;z-index:9999;pointer-events:none;opacity:1;transition:opacity .25s ease;}
       html.dark #splash{background:#12100E;}
-      .sp-wm{display:flex;font-family:'Clash Display',ui-sans-serif,sans-serif;font-size:clamp(2rem,8vw,3.5rem);font-weight:700;letter-spacing:-0.03em;}
+      #splash.splash-exit{opacity:0;}
+      .sp-wm{display:flex;font-family:'Clash Display',ui-sans-serif,sans-serif;font-size:clamp(2rem,8vw,3.5rem);font-weight:700;letter-spacing:-0.03em;animation:sp-pulse 2s ease-in-out .75s infinite;}
       @keyframes sp-up{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+      @keyframes sp-pulse{0%,100%{opacity:1;}50%{opacity:.75;}}
       .sp-l{color:#1A1A1A;opacity:0;animation:sp-up .4s cubic-bezier(.16,1,.3,1) forwards;animation-delay:calc(var(--i)*35ms);}
       html.dark .sp-l{color:#F2EFE8;}
       .sp-a{color:#D85A30;opacity:0;animation:sp-up .4s cubic-bezier(.16,1,.3,1) forwards;animation-delay:calc(var(--i)*35ms);}
       html.dark .sp-a{color:#E87A4F;}
-      @media(prefers-reduced-motion:reduce){.sp-l,.sp-a{opacity:1;animation:none;}}
+      .sp-failsafe{pointer-events:auto;font-family:ui-sans-serif,sans-serif;font-size:0.875rem;color:#6B6B66;}
+      .sp-failsafe a{color:#D85A30;text-decoration:underline;}
+      html.dark .sp-failsafe a{color:#E87A4F;}
+      @media(prefers-reduced-motion:reduce){.sp-l,.sp-a{opacity:1;animation:none;}.sp-wm{animation:none;}#splash{transition:none;}}
     </style>
-    <script type="module" crossorigin src="/assets/index-dzSxibxr.js"></script>
+    <script type="module" crossorigin src="/assets/index-BQTTUQcR.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/react-BD33oxTj.js">
     <link rel="modulepreload" crossorigin href="/assets/motion-GFxPkxJ3.js">
-    <link rel="stylesheet" crossorigin href="/assets/index-BsoAKCYK.css">
+    <link rel="stylesheet" crossorigin href="/assets/index-ERi-Yzxl.css">
   <link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
   <body>
-    <div id="root">
-      <div id="splash" aria-hidden="true">
-        <div class="sp-wm">
-          <span class="sp-l" style="--i:0">u</span><span class="sp-l" style="--i:1">r</span><span class="sp-l" style="--i:2">b</span><span class="sp-l" style="--i:3">a</span><span class="sp-l" style="--i:4">n</span><span class="sp-a" style="--i:5">p</span><span class="sp-a" style="--i:6">u</span><span class="sp-a" style="--i:7">l</span><span class="sp-a" style="--i:8">s</span><span class="sp-a" style="--i:9">e</span>
-        </div>
+    <div id="root"></div>
+    <div id="splash" aria-hidden="true">
+      <div class="sp-wm">
+        <span class="sp-l" style="--i:0">u</span><span class="sp-l" style="--i:1">r</span><span class="sp-l" style="--i:2">b</span><span class="sp-l" style="--i:3">a</span><span class="sp-l" style="--i:4">n</span><span class="sp-a" style="--i:5">p</span><span class="sp-a" style="--i:6">u</span><span class="sp-a" style="--i:7">l</span><span class="sp-a" style="--i:8">s</span><span class="sp-a" style="--i:9">e</span>
       </div>
     </div>
   </body>

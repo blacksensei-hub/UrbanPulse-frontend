@@ -92,6 +92,34 @@ export default function App() {
     if (ref) storeRefCode(ref);
   }, [initAuth, refreshCart, refreshWishlist, loadSettings]);
 
+  // Dismiss the inline splash (index.html) now that React has mounted. Enforces a
+  // minimum visible time so a fast load doesn't flash the splash for under 500ms,
+  // and skips the fade entirely for prefers-reduced-motion.
+  useEffect(() => {
+    clearTimeout(window.__splashTimeoutId);
+    const splash = document.getElementById('splash');
+    if (!splash) return;
+
+    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const elapsed = Date.now() - (window.__splashStart ?? Date.now());
+    const remaining = Math.max(0, 500 - elapsed);
+
+    const dismiss = () => {
+      if (reducedMotion) {
+        splash.remove();
+        return;
+      }
+      splash.classList.add('splash-exit');
+      const remove = () => splash.remove();
+      splash.addEventListener('transitionend', remove, { once: true });
+      // Fallback in case transitionend never fires (e.g. element already hidden by devtools).
+      setTimeout(remove, 300);
+    };
+
+    const t = setTimeout(dismiss, remaining);
+    return () => clearTimeout(t);
+  }, []);
+
   useEffect(() => {
     startLoading();
   }, [location.pathname, startLoading]);
