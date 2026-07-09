@@ -25,7 +25,6 @@ export default function MainLayout() {
   const location = useLocation();
   const settings = useSettingsStore(s => s.settings);
   const doneLoading = useLoadingStore(s => s.done);
-  const loadingVisible = useLoadingStore(s => s.visible);
   const inMaintenance = settings.maintenance_mode === 'true';
   const maintenanceMsg = settings.maintenance_message || "We're undergoing scheduled maintenance. Some features may be temporarily unavailable.";
 
@@ -37,7 +36,7 @@ export default function MainLayout() {
       >
         Skip to content
       </a>
-      {!loadingVisible && showsScrollProgress(location.pathname) && <ScrollProgress />}
+      {showsScrollProgress(location.pathname) && <ScrollProgress />}
       {inMaintenance && (
         <div className="sticky top-0 z-[150] border-b-2 border-warning/40 bg-warning/10 px-4 py-2 text-center text-sm text-warning">
           <span className="font-medium">Maintenance:</span> {maintenanceMsg}
