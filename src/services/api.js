@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { hasSessionHint, clearSessionHint } from '../utils/sessionHint.js';
 
 const baseURL = import.meta.env.VITE_API_URL || '/api';
 
@@ -35,7 +36,8 @@ api.interceptors.response.use(
       error.response?.status === 401 &&
       original &&
       !original._retry &&
-      !original.url.includes('/auth/')
+      !original.url.includes('/auth/') &&
+      hasSessionHint()
     ) {
       original._retry = true;
       try {
@@ -43,8 +45,11 @@ api.interceptors.response.use(
         await refreshing;
         refreshing = null;
         return api(original);
-      } catch {
+      } catch (refreshErr) {
         refreshing = null;
+        // Only a definitive rejection (refresh token expired/invalid) should
+        // clear the hint — a network/5xx hiccup on the refresh call shouldn't.
+        if (refreshErr?.response?.status === 401) clearSessionHint();
       }
     }
     return Promise.reject(error);

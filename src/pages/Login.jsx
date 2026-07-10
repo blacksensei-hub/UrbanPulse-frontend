@@ -9,6 +9,7 @@ import { Button, Input } from '../components/ui/index.jsx';
 import GoogleSignInButton from '../components/auth/GoogleSignInButton.jsx';
 import { useAuthStore } from '../stores/authStore.js';
 import { authService } from '../services/index.js';
+import { setSessionHint } from '../utils/sessionHint.js';
 import { fadeInUp } from '../lib/motion.js';
 
 export default function Login() {
@@ -74,6 +75,7 @@ export default function Login() {
     try {
       const data = await authService.verifyTotp({ challenge_token: challengeToken, code: totpCode });
       setUser(data.user);
+      setSessionHint();
       toast.success('Welcome back');
       navigate(data.user.role === 'admin' ? '/admin' : '/');
     } catch (err) {

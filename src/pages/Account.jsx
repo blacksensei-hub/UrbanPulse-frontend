@@ -20,6 +20,7 @@ import { useFeature } from '../stores/settingsStore.js';
 import { formatCurrency, formatDate, pluralize, sanitizePhone } from '../utils/format.js';
 import { cn } from '../utils/format.js';
 import { showUndoToast } from '../utils/undoToast.jsx';
+import { clearSessionHint } from '../utils/sessionHint.js';
 import { staggerContainer, fadeInUp } from '../lib/motion.js';
 import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
 import PullToRefreshIndicator from '../components/ui/PullToRefreshIndicator.jsx';
@@ -1207,6 +1208,7 @@ function Privacy() {
     try {
       await authService.deleteAccount(deletePassword);
       setUser(null);
+      clearSessionHint();
       navigate('/');
       toast.success('Your account has been deleted.');
     } catch (err) {

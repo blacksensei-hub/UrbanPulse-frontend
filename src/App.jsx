@@ -77,6 +77,7 @@ function ProtectedRoute({ children, adminOnly = false }) {
 export default function App() {
   const location = useLocation();
   const initAuth = useAuthStore((s) => s.init);
+  const user = useAuthStore((s) => s.user);
   const refreshCart = useCartStore((s) => s.refresh);
   const refreshWishlist = useWishlistStore((s) => s.refresh);
   const loadSettings = useSettingsStore((s) => s.load);
@@ -86,12 +87,18 @@ export default function App() {
   useEffect(() => {
     initAuth();
     refreshCart();
-    refreshWishlist();
     loadSettings();
     // Capture referral code from URL on any page load and persist for 30 days
     const ref = new URLSearchParams(window.location.search).get('ref');
     if (ref) storeRefCode(ref);
-  }, [initAuth, refreshCart, refreshWishlist, loadSettings]);
+  }, [initAuth, refreshCart, loadSettings]);
+
+  // Wishlist requires a real session — only fetch once auth resolves to a logged-in
+  // user, never in parallel with the boot auth check (avoids a guaranteed 401 for
+  // anonymous visitors, and as a side effect now also refreshes on a mid-session login).
+  useEffect(() => {
+    if (user) refreshWishlist();
+  }, [user, refreshWishlist]);
 
   // Dismiss the inline splash (index.html) now that React has mounted. Enforces a
   // minimum visible time so a fast load doesn't flash the splash for under 500ms,

@@ -8,15 +8,11 @@
     <meta name="theme-color" content="#12100E" media="(prefers-color-scheme: dark)" />
     <title>UrbanPulse — Premium Streetwear</title>
     <meta name="description" content="UrbanPulse — Premium streetwear and accessories built to outlast trends." />
-    <!-- LCP preload: Home hero fallback image. Home.jsx's HERO.video/poster point at
-         /hero/spring-26.mp4 and /hero/spring-26.jpg, which don't exist yet (public/ only
-         has offline.html) — for most non-reduced-motion users the <video> branch 404s
-         silently today. This Unsplash URL is the one real, currently-working image
-         (shown to prefers-reduced-motion users via Home.jsx's <img> fallback), so it's
-         the best available real LCP candidate. TODO: once /hero/spring-26.jpg is added,
-         replace this with <link rel="preload" as="image" href="/hero/spring-26.jpg">. -->
-    <link rel="preload" as="image" fetchpriority="high"
-      href="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1800&q=80" />
+    <!-- No hero preload here: Home.jsx's HERO.video/poster point at /hero/spring-26.mp4
+         and /hero/spring-26.jpg, which don't exist in public/ yet, so nothing real is
+         reliably the hero's LCP element to preload. TODO: once those assets are added,
+         add <link rel="preload" as="image" href="/hero/spring-26.jpg"> back, matching
+         the actual poster src exactly. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://api.fontshare.com" />
@@ -70,7 +66,7 @@
       html.dark .sp-failsafe a{color:#E87A4F;}
       @media(prefers-reduced-motion:reduce){.sp-l,.sp-a{opacity:1;animation:none;}.sp-wm{animation:none;}#splash{transition:none;}}
     </style>
-    <script type="module" crossorigin src="/assets/index-BGiWO2uk.js"></script>
+    <script type="module" crossorigin src="/assets/index-ZFU8s9am.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/react-BD33oxTj.js">
     <link rel="modulepreload" crossorigin href="/assets/motion-D4ctv0sM.js">
     <link rel="stylesheet" crossorigin href="/assets/index-DDOweHjE.css">
