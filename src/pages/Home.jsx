@@ -120,6 +120,11 @@ export default function Home() {
   const [retryToken, setRetryToken] = useState(0);
   const [email, setEmail] = useState('');
   const [referrerName, setReferrerName] = useState(null);
+  // 'video' | 'image' | 'solid' — strict degradation order, never goes backward.
+  // Reduced-motion is applied at render time rather than baked in here, because
+  // useReducedMotion() can settle after the first render.
+  const [heroStage, setHeroStage] = useState(() => (HERO.video ? 'video' : 'image'));
+  const [heroImgSrc, setHeroImgSrc] = useState(HERO.poster || HERO.fallback);
   const prefersReduced = useReducedMotion();
   const nextSectionRef = useRef(null);
   const { scrollY } = useScroll();
@@ -155,6 +160,16 @@ export default function Home() {
     setEmail('');
   }
 
+  function handleHeroImgError() {
+    // One more real-image chance: if the poster failed and a distinct fallback
+    // exists, try it; otherwise degrade to the solid brand background.
+    if (heroImgSrc !== HERO.fallback && HERO.fallback) {
+      setHeroImgSrc(HERO.fallback);
+    } else {
+      setHeroStage('solid');
+    }
+  }
+
   return (
     <>
       <SEO
@@ -186,7 +201,7 @@ export default function Home() {
           className="absolute left-0 right-0"
           style={{ top: '-80px', height: 'calc(100% + 80px)', y: bgY }}
         >
-          {!prefersReduced && HERO.video ? (
+          {heroStage === 'video' && !prefersReduced ? (
             <video
               autoPlay muted loop playsInline
               poster={HERO.poster || HERO.fallback}
@@ -195,15 +210,25 @@ export default function Home() {
               height={900}
               className="h-full w-full object-cover"
               aria-hidden="true"
+              onError={() => setHeroStage('image')}
             />
-          ) : (
+          ) : heroStage !== 'solid' ? (
             <img
-              src={HERO.poster || HERO.fallback}
+              src={heroImgSrc}
               alt=""
               width={1600}
               height={900}
               className="h-full w-full object-cover"
               aria-hidden="true"
+              onError={handleHeroImgError}
+            />
+          ) : (
+            <div
+              aria-hidden="true"
+              className="h-full w-full"
+              // Theme-independent charcoal→stone: --color-secondary flips to cream in
+              // dark mode, which would risk white-on-light for the hero text.
+              style={{ background: 'linear-gradient(160deg, #2A2A2A 0%, #57504A 100%)' }}
             />
           )}
           <div className="absolute inset-0 bg-gradient-to-tr from-black/70 via-black/30 to-transparent" />
