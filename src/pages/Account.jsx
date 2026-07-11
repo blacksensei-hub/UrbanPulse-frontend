@@ -1353,6 +1353,17 @@ function Privacy() {
 
 function Wishlist() {
   const wishlistEnabled = useFeature('wishlist');
+  const { items, loading, refresh, remove, add } = useWishlistStore();
+  const addToCart = useCartStore((s) => s.add);
+  const [addingId, setAddingId] = useState(null);
+
+  // Feature gating happens inside the hooks (and in the early return BELOW all
+  // hooks) — never by skipping hook calls, which changes the hook count between
+  // renders when the async-loaded settings flip the flag (React error #310).
+  useEffect(() => { if (wishlistEnabled) refresh(); }, [refresh, wishlistEnabled]);
+
+  const { pulling, pullProgress, refreshing } = usePullToRefresh(refresh, { disabled: !wishlistEnabled });
+
   if (!wishlistEnabled) {
     return (
       <div className="card p-10 text-center text-sm text-muted">
@@ -1360,13 +1371,6 @@ function Wishlist() {
       </div>
     );
   }
-  const { items, loading, refresh, remove, add } = useWishlistStore();
-  const addToCart = useCartStore((s) => s.add);
-  const [addingId, setAddingId] = useState(null);
-
-  useEffect(() => { refresh(); }, [refresh]);
-
-  const { pulling, pullProgress, refreshing } = usePullToRefresh(refresh);
   const ptrIndicator = (
     <PullToRefreshIndicator pulling={pulling} pullProgress={pullProgress} refreshing={refreshing} />
   );

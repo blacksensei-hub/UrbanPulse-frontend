@@ -27,14 +27,16 @@ export default function GoogleSignInButton({ onCredential, text = 'signin_with' 
   const containerRef = useRef(null);
   const [ready, setReady] = useState(false);
 
-  if (!CLIENT_ID) return null;
-
+  // Rules of Hooks: the !CLIENT_ID bail-out lives AFTER all hooks (bottom of the
+  // component); the effects no-op instead, so hook count never varies per render.
   useEffect(() => {
+    if (!CLIENT_ID) return;
     credentialHandlers.add(onCredential);
     return () => credentialHandlers.delete(onCredential);
   }, [onCredential]);
 
   useEffect(() => {
+    if (!CLIENT_ID) return;
     let animFrame;
 
     function tryInit() {
@@ -59,6 +61,8 @@ export default function GoogleSignInButton({ onCredential, text = 'signin_with' 
     tryInit();
     return () => cancelAnimationFrame(animFrame);
   }, [text]);
+
+  if (!CLIENT_ID) return null;
 
   return (
     <div className="w-full">

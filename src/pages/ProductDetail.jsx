@@ -81,6 +81,8 @@ export default function ProductDetail() {
 
   // Must be before early returns to avoid hooks-in-condition violation
   const prefersReduced = useReducedMotion();
+  const reviewsEnabled   = useFeature('reviews');
+  const preordersEnabled = useFeature('preorders');
   const [flashDone, setFlashDone] = useState(false);
   const [zoomStyle, setZoomStyle] = useState({});
   const [showStickyATC, setShowStickyATC] = useState(false);
@@ -284,9 +286,6 @@ export default function ProductDetail() {
   const flashExpired = !!flashEndsAt && !flashActive;
   const onSale = !flashExpired &&
     product.compare_at_price && Number(product.compare_at_price) > Number(product.price);
-
-  const reviewsEnabled   = useFeature('reviews');
-  const preordersEnabled = useFeature('preorders');
 
   const isPreorder = !!product.is_preorder;
   const spotsLeft = product.preorder_limit
