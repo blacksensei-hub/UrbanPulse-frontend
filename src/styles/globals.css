@@ -38,6 +38,9 @@
   --dur-med:  250ms;
   --dur-slow: 400ms;
 
+  /* Top progress bars' glow strength — subtler on bone to avoid haze */
+  --progress-glow: 40%;
+
   color-scheme: light;
 }
 
@@ -57,6 +60,8 @@ html.dark {
   --color-error:         #F87171;
   --color-warning:       #FBBF24;
   --color-info:          #60A5FA;
+  /* Full lit quality against the dark background */
+  --progress-glow: 55%;
   color-scheme: dark;
 }
 

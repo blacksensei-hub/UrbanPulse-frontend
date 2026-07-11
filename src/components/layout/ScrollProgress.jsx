@@ -65,8 +65,13 @@ export default function ScrollProgress() {
         top: 'env(safe-area-inset-top, 0px)',
         left: 0,
         right: 0,
-        height: 2,
-        background: 'var(--color-accent)',
+        height: 3,
+        background: 'linear-gradient(90deg, var(--color-accent), var(--color-accent-hover))',
+        borderRadius: '0 2px 2px 0',
+        // Glow implies motion energy — skipped under reduced motion.
+        ...(prefersReduced ? {} : {
+          boxShadow: '0 0 8px color-mix(in srgb, var(--color-accent) var(--progress-glow), transparent)',
+        }),
         zIndex: 149,
         transformOrigin: '0%',
         scaleX: progress,
