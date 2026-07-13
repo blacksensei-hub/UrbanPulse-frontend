@@ -23,12 +23,23 @@ export const useAuthStore = create((set) => ({
       }
       // The response interceptor deliberately skips /auth/* URLs to avoid
       // refresh loops, so /auth/me needs its own one-shot refresh-and-retry here.
+      // Split into two catches so only a definitive rejection FROM /auth/refresh
+      // clears the hint — a network blip/timeout/5xx on either call, or the
+      // follow-up /auth/me failing for some other reason after a successful
+      // refresh, is not the server saying "no session" and must not clear it.
       try {
         await api.post('/auth/refresh');
+      } catch (refreshErr) {
+        if (refreshErr?.response?.status === 401 || refreshErr?.response?.status === 403) {
+          clearSessionHint();
+        }
+        set({ user: null, loading: false });
+        return;
+      }
+      try {
         const { user } = await authService.me();
         set({ user, loading: false });
       } catch {
-        clearSessionHint();
         set({ user: null, loading: false });
       }
     }

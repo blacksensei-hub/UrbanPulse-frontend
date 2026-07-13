@@ -49,7 +49,7 @@ api.interceptors.response.use(
         refreshing = null;
         // Only a definitive rejection (refresh token expired/invalid) should
         // clear the hint — a network/5xx hiccup on the refresh call shouldn't.
-        if (refreshErr?.response?.status === 401) clearSessionHint();
+        if (refreshErr?.response?.status === 401 || refreshErr?.response?.status === 403) clearSessionHint();
       }
     }
     return Promise.reject(error);
