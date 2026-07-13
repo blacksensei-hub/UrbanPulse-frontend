@@ -22,17 +22,17 @@ function DownloadReceiptButton({ orderId, orderNumber }) {
     finally { setDownloading(false); }
   }
   return (
-    <button
+    <Button
       type="button"
+      variant="outline"
+      size="sm"
       onClick={download}
-      disabled={downloading}
-      className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      loading={downloading}
+      className="w-full justify-center"
     >
-      {downloading
-        ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-        : <Download className="h-3.5 w-3.5" />}
+      {!downloading && <Download className="h-4 w-4" />}
       {downloading ? 'Downloading…' : 'Download receipt (PDF)'}
-    </button>
+    </Button>
   );
 }
 
@@ -103,7 +103,7 @@ export default function OrderSuccess() {
             <p className="mt-3 text-muted max-w-sm mx-auto">
               {cod
                 ? "We'll call or WhatsApp you shortly to confirm. Cash will be collected on delivery."
-                : 'Your order is confirmed. A receipt is on its way to your inbox.'}
+                : "Your order is confirmed. We'll also email a copy of your receipt."}
             </p>
           </div>
 
@@ -124,6 +124,32 @@ export default function OrderSuccess() {
                   <dt className="text-muted">Items</dt>
                   <dd>{order.items?.length ?? 0}</dd>
                 </div>
+                <div className="flex justify-between">
+                  <dt className="text-muted">Subtotal</dt>
+                  <dd className="font-mono">{formatCurrency(order.subtotal)}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-muted">Shipping</dt>
+                  <dd className="font-mono">{Number(order.shipping_cost) === 0 ? 'Free' : formatCurrency(order.shipping_cost)}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-muted">VAT</dt>
+                  <dd className="font-mono">{formatCurrency(order.tax)}</dd>
+                </div>
+                {(() => {
+                  // Coupon/credit aren't stored as order columns — derive the combined
+                  // reduction the way the PDF receipt does, minus the points portion
+                  // (points get their own line below, so don't double-display them).
+                  const pointsGhs = Number(order.loyalty?.points_redeemed_ghs ?? 0);
+                  const reductions = +(Number(order.subtotal) + Number(order.shipping_cost) + Number(order.tax) - Number(order.total) - pointsGhs).toFixed(2);
+                  if (reductions <= 0) return null;
+                  return (
+                    <div className="flex justify-between text-success">
+                      <dt className="text-muted">Discounts & credits</dt>
+                      <dd className="font-mono font-medium">− {formatCurrency(reductions)}</dd>
+                    </div>
+                  );
+                })()}
                 {order.loyalty?.points_redeemed > 0 && (
                   <div className="flex justify-between text-success">
                     <dt className="text-muted">Points used</dt>
@@ -132,8 +158,8 @@ export default function OrderSuccess() {
                     </dd>
                   </div>
                 )}
-                <div className="flex justify-between">
-                  <dt className="text-muted">Total</dt>
+                <div className="flex justify-between border-t border-border pt-2">
+                  <dt className="font-semibold">Total</dt>
                   <dd className="font-mono text-base font-bold">{formatCurrency(order.total)}</dd>
                 </div>
               </dl>

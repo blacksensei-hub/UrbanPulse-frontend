@@ -30,6 +30,7 @@ export default function Checkout() {
   const stdRate    = Number(useSetting('shipping_standard_ghs', '30'));
   const expRate    = Number(useSetting('shipping_express_ghs', '80'));
   const freeThresh = Number(useSetting('free_shipping_threshold_ghs', '1000'));
+  const taxPct     = Number(useSetting('tax_rate_percent', '12.5'));
 
   const [step, setStep]                 = useState(0);
   const [justCompleted, setJustCompleted] = useState(null);
@@ -37,6 +38,9 @@ export default function Checkout() {
   const phoneRef = useRef(null);
   const [pendingPhoneFocus, setPendingPhoneFocus] = useState(false);
   const [submitting, setSubmitting]     = useState(false);
+  // Set once order creation succeeds but payment init fails — the retry button
+  // then re-attempts payment for THIS order instead of re-posting the cart.
+  const [pendingOrder, setPendingOrder] = useState(null);
   const [couponPreview, setCouponPreview] = useState(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError]   = useState('');
@@ -61,12 +65,16 @@ export default function Checkout() {
     paymentMethod: 'mobile_money',
   });
 
+  // Mirrors the server's math in orders.js exactly: tax on subtotal only, and a
+  // free-shipping coupon flows through `discount` (which the server sets equal to
+  // the shipping cost) — the shipping term itself is never zeroed, or the benefit
+  // would be counted twice and the display would undershoot the stored total.
   const subtotal         = items.reduce((sum, i) => sum + Number(i.price) * i.quantity, 0);
   const shippingCost     = form.shipping === 'express' ? expRate : subtotal >= freeThresh ? 0 : stdRate;
+  const tax              = +(subtotal * taxPct / 100).toFixed(2);
   const discount         = couponPreview?.discount ?? 0;
-  const effectiveShipping = couponPreview?.type === 'free_shipping' ? 0 : shippingCost;
   const availableCredit  = Number(user?.store_credit_ghs ?? 0);
-  const preCreditTotal   = subtotal + effectiveShipping - discount;
+  const preCreditTotal   = subtotal + shippingCost + tax - discount;
   const creditUsed       = applyCredit
     ? Math.min(creditInput || availableCredit, availableCredit, preCreditTotal)
     : 0;
@@ -141,44 +149,66 @@ export default function Checkout() {
 
   async function placeOrder() {
     if (isViewAs) return toast.error('Checkout is disabled in view-as mode.');
-    if (items.length === 0) return toast.error('Your cart is empty');
     if (form.paymentMethod === 'cod' && !form.phone.trim()) {
       setStep(0);
       setPendingPhoneFocus(true);
       return toast.error('Phone number is required for Cash on Delivery');
     }
     setSubmitting(true);
+
+    // Step 1 — create the order (skipped entirely when retrying payment for an
+    // order that already exists: the cart survives a failed payment init, but
+    // re-posting it would create a duplicate order).
+    let order = pendingOrder;
+    if (!order) {
+      if (items.length === 0) { setSubmitting(false); return toast.error('Your cart is empty'); }
+      try {
+        const isCOD = form.paymentMethod === 'cod';
+        order = await orderService.create({
+          email: form.email,
+          shipping_address: {
+            name:    `${form.firstName} ${form.lastName}`.trim(),
+            line1:   form.address,
+            line2:   form.apartment,
+            city:    form.city,
+            state:   form.state,
+            zip:     form.zip,
+            country: form.country,
+            phone:   form.phone,
+          },
+          shipping_method:          form.shipping,
+          coupon_code:              form.coupon.trim() || undefined,
+          payment_method:           isCOD ? 'cod' : 'paystack',
+          apply_store_credit_ghs:   creditUsed > 0 ? creditUsed : undefined,
+          apply_loyalty_points:     pointsUsed > 0 ? pointsUsed : undefined,
+        });
+        if (isCOD) { navigate(`/order-success?id=${order.id}&cod=1`); return; }
+        setPendingOrder(order);
+      } catch (err) {
+        toast.error(getErrorMessage(err, 'Could not place order'));
+        setSubmitting(false);
+        return;
+      }
+    }
+
+    // Step 2 — start payment for the (now-guaranteed) existing order. A failure
+    // here is NOT a failed order: say so, and let the button retry this step only.
     try {
-      const isCOD  = form.paymentMethod === 'cod';
-      const order  = await orderService.create({
-        email: form.email,
-        shipping_address: {
-          name:    `${form.firstName} ${form.lastName}`.trim(),
-          line1:   form.address,
-          line2:   form.apartment,
-          city:    form.city,
-          state:   form.state,
-          zip:     form.zip,
-          country: form.country,
-          phone:   form.phone,
-        },
-        shipping_method:          form.shipping,
-        coupon_code:              form.coupon.trim() || undefined,
-        payment_method:           isCOD ? 'cod' : 'paystack',
-        apply_store_credit_ghs:   creditUsed > 0 ? creditUsed : undefined,
-        apply_loyalty_points:     pointsUsed > 0 ? pointsUsed : undefined,
-      });
-      if (isCOD) { navigate(`/order-success?id=${order.id}&cod=1`); return; }
       const session = await orderService.checkout(order.id, form.paymentMethod);
       if (session?.url) { window.location.href = session.url; }
       else { navigate(`/order-success?id=${order.id}`); }
     } catch (err) {
-      toast.error(getErrorMessage(err, 'Could not place order'));
+      // Never let a raw server message swallow the crucial context: the order
+      // exists — only the payment init failed.
+      const detail = err?.response?.data?.message;
+      toast.error(`Your order is saved, but payment couldn't start${detail ? `: ${detail}` : ''}. Use "Retry payment" when ready.`);
       setSubmitting(false);
     }
   }
 
-  if (items.length === 0) {
+  // Keep the page (and its Retry payment button) reachable when an order is
+  // pending payment, even if the cart has since been cleared.
+  if (items.length === 0 && !pendingOrder) {
     return (
       <div className="container-site py-24 text-center">
         <h1 className="font-display text-h2 font-bold">Your cart is empty</h1>
@@ -488,7 +518,7 @@ export default function Checkout() {
                     </span>
                   </div>
                   <Button size="lg" onClick={placeOrder} loading={submitting} className="w-full">
-                    Place order · <span className="font-mono">{formatCurrency(total)}</span>
+                    {pendingOrder ? 'Retry payment' : 'Place order'} · <span className="font-mono">{formatCurrency(pendingOrder ? pendingOrder.total : total)}</span>
                   </Button>
                 </div>
               )}
@@ -536,6 +566,10 @@ export default function Checkout() {
                       </>
                     ) : shippingCost === 0 ? 'Free' : <span className="font-mono">{formatCurrency(shippingCost)}</span>}
                   </dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-muted">VAT ({taxPct}%)</dt>
+                  <dd className="font-mono">{formatCurrency(tax)}</dd>
                 </div>
                 {couponPreview && couponPreview.type !== 'free_shipping' && (
                   <div className="flex justify-between text-success">

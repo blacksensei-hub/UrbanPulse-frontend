@@ -13,6 +13,7 @@ import { formatCurrency, formatDate } from '../utils/format.js';
 import { showUndoToast } from '../utils/undoToast.jsx';
 import { useDebouncedCartQuantity } from '../hooks/useDebouncedCartQuantity.js';
 import { fadeInUp, staggerContainer } from '../lib/motion.js';
+import { useSetting } from '../stores/settingsStore.js';
 import ProductCard from '../components/product/ProductCard.jsx';
 import FreeShippingBar from '../components/cart/FreeShippingBar.jsx';
 
@@ -42,11 +43,15 @@ export default function Cart() {
   const { cart, update, remove, add } = useCartStore();
   const items = cart?.items ?? [];
   const { getQuantity, setQuantity } = useDebouncedCartQuantity(update);
+  const taxPct = Number(useSetting('tax_rate_percent', '12.5'));
   const subtotal = items.reduce(
     (sum, i) => sum + Number(i.price) * getQuantity(i),
     0,
   );
+  // Same rounding as the server (orders.js): VAT on the subtotal only.
+  const tax = +(subtotal * taxPct / 100).toFixed(2);
   const displaySubtotal = useCountUp(subtotal);
+  const displayTotal = useCountUp(subtotal + tax);
 
   function handleRemove(item) {
     remove(item.id);
@@ -206,13 +211,17 @@ export default function Cart() {
                   <dd className="font-semibold">{formatCurrency(displaySubtotal)}</dd>
                 </div>
                 <div className="flex justify-between">
+                  <dt className="text-muted">VAT ({taxPct}%)</dt>
+                  <dd className="font-mono">{formatCurrency(tax)}</dd>
+                </div>
+                <div className="flex justify-between">
                   <dt className="text-muted">Shipping</dt>
                   <dd className="text-muted">Calculated at checkout</dd>
                 </div>
                 <div className="flex justify-between border-t border-border pt-3 text-base">
                   <dt className="font-semibold">Total</dt>
                   <dd className="font-display text-lg font-bold">
-                    {formatCurrency(displaySubtotal)}
+                    {formatCurrency(displayTotal)}
                   </dd>
                 </div>
               </dl>
@@ -247,8 +256,8 @@ export default function Cart() {
 
       <StickyActionBar>
         <div className="flex-1 min-w-0">
-          <p className="text-xs text-muted">Total</p>
-          <p className="font-mono font-semibold">{formatCurrency(displaySubtotal)}</p>
+          <p className="text-xs text-muted">Total incl. VAT</p>
+          <p className="font-mono font-semibold">{formatCurrency(displayTotal)}</p>
         </div>
         <Link to="/checkout" className="shrink-0">
           <Button size="sm">Checkout</Button>
