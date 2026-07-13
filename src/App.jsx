@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import ViewAsBanner from './components/ViewAsBanner.jsx';
 import LoadingBar from './components/layout/LoadingBar.jsx';
@@ -15,6 +15,8 @@ import { useWishlistStore } from './stores/wishlistStore.js';
 import { useSettingsStore } from './stores/settingsStore.js';
 import { useLoadingStore } from './stores/loadingStore.js';
 import { storeRefCode } from './utils/referral.js';
+import { authService } from './services/index.js';
+import { hasSessionHint, setSessionHint } from './utils/sessionHint.js';
 
 const Home           = lazy(() => import('./pages/Home.jsx'));
 const Shop           = lazy(() => import('./pages/Shop.jsx'));
@@ -67,9 +69,35 @@ function PageSkeleton() {
 }
 
 function ProtectedRoute({ children, adminOnly = false }) {
-  const { user, loading } = useAuthStore();
+  const { user, loading, setUser } = useAuthStore();
+  const [fallbackDone, setFallbackDone] = useState(false);
+
+  // The session hint is an optimization, never the source of truth: init()
+  // skips /auth/me entirely when the hint is missing (fast path for genuinely
+  // anonymous visitors on public pages, which never render this component).
+  // But a missing hint doesn't mean a missing session — localStorage can be
+  // cleared while the httpOnly cookie is still valid. On a protected route,
+  // try exactly one /auth/me before trusting "logged out" and redirecting;
+  // success also repairs the hint so this doesn't recur next load.
+  useEffect(() => {
+    if (loading || user || fallbackDone || hasSessionHint()) return;
+    let cancelled = false;
+    authService.me()
+      .then(({ user: u }) => {
+        if (cancelled) return;
+        setUser(u);
+        setSessionHint();
+      })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setFallbackDone(true); });
+    return () => { cancelled = true; };
+  }, [loading, user, fallbackDone, setUser]);
+
   if (loading) return null;
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) {
+    if (!hasSessionHint() && !fallbackDone) return null; // one-shot check in flight
+    return <Navigate to="/login" replace />;
+  }
   if (adminOnly && user.role !== 'admin') return <Navigate to="/" replace />;
   return children;
 }

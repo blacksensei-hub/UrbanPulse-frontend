@@ -14,7 +14,7 @@ import { fadeInUp } from '../lib/motion.js';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { setUser, loginWithGoogle } = useAuthStore();
+  const { setUser, login, loginWithGoogle } = useAuthStore();
 
   const [form, setForm] = useState({ email: '', password: '' });
   const [submitting, setSubmitting] = useState(false);
@@ -52,12 +52,16 @@ export default function Login() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const data = await authService.login(form.email, form.password);
+      // Go through the store's login action (not authService directly) — it's
+      // the one place that sets the session hint alongside the user, same as
+      // loginWithGoogle below. Calling authService.login() directly here was
+      // the bug: it set the user but never the hint, so refresh saw no hint,
+      // skipped /auth/me entirely, and resolved logged-out.
+      const data = await login(form.email, form.password);
       if (data.requires_totp) {
         setChallengeToken(data.challenge_token);
         setStep('totp');
       } else if (data.user) {
-        setUser(data.user);
         toast.success('Welcome back');
         navigate(data.user.role === 'admin' ? '/admin' : '/');
       }
