@@ -146,7 +146,11 @@ export const adminService = {
   cancelCOD:           (id) => api.post(`/admin/orders/${id}/cancel-cod`).then(r => r.data),
 
   orders: (params) => api.get('/admin/orders', { params }).then(r => r.data),
-  updateOrderStatus: (id, status, note) => api.put(`/admin/orders/${id}/status`, { status, ...(note ? { note } : {}) }).then(r => r.data),
+  updateOrderStatus: (id, status, { note, tracking_number } = {}) => api.put(`/admin/orders/${id}/status`, {
+    status,
+    ...(note ? { note } : {}),
+    ...(tracking_number ? { tracking_number } : {}),
+  }).then(r => r.data),
 
   users: () => api.get('/admin/users').then(r => r.data),
   updateUserRole: (id, role) => api.put(`/admin/users/${id}/role`, { role }).then(r => r.data),

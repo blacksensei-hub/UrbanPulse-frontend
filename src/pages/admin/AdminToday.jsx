@@ -220,7 +220,7 @@ function ShipRow({ item, onDone }) {
   async function markShipped() {
     setShipping(true);
     try {
-      await adminService.updateOrderStatus(item.id, 'shipped', tracking || undefined);
+      await adminService.updateOrderStatus(item.id, 'shipped', { tracking_number: tracking || undefined });
       toast.success(`${item.order_number} marked as shipped`);
       onDone();
     } catch (err) {
