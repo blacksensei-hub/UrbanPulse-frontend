@@ -71,6 +71,7 @@ function PageSkeleton() {
 function ProtectedRoute({ children, adminOnly = false }) {
   const { user, loading, setUser } = useAuthStore();
   const [fallbackDone, setFallbackDone] = useState(false);
+  const location = useLocation();
 
   // The session hint is an optimization, never the source of truth: init()
   // skips /auth/me entirely when the hint is missing (fast path for genuinely
@@ -96,9 +97,11 @@ function ProtectedRoute({ children, adminOnly = false }) {
   if (loading) return null;
   if (!user) {
     if (!hasSessionHint() && !fallbackDone) return null; // one-shot check in flight
-    return <Navigate to="/login" replace />;
+    return <Navigate to={`/login?next=${encodeURIComponent(location.pathname)}`} replace />;
   }
-  if (adminOnly && user.role !== 'admin') return <Navigate to="/" replace />;
+  if (adminOnly && user.role !== 'admin') {
+    return <Navigate to={`/login?next=${encodeURIComponent(location.pathname)}&notice=wrong-account`} replace />;
+  }
   return children;
 }
 

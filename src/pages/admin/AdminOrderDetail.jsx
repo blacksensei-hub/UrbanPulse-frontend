@@ -411,9 +411,23 @@ export default function AdminOrderDetail() {
             </tbody>
           </table>
         </div>
-        <div className="px-4 py-3 border-t border-border text-right text-sm">
-          <span className="text-muted mr-4">Order total</span>
-          <span className="font-display font-bold tabular-nums">{formatCurrency(order.total)}</span>
+        <div className="px-4 py-3 border-t border-border text-sm space-y-1.5">
+          <div className="flex justify-end gap-4">
+            <span className="text-muted">Subtotal</span>
+            <span className="tabular-nums w-28 text-right">{formatCurrency(order.subtotal)}</span>
+          </div>
+          <div className="flex justify-end gap-4">
+            <span className="text-muted">Shipping</span>
+            <span className="tabular-nums w-28 text-right">{Number(order.shipping_cost) === 0 ? 'Free' : formatCurrency(order.shipping_cost)}</span>
+          </div>
+          <div className="flex justify-end gap-4">
+            <span className="text-muted">VAT</span>
+            <span className="tabular-nums w-28 text-right">{formatCurrency(order.tax)}</span>
+          </div>
+          <div className="flex justify-end gap-4 border-t border-border pt-1.5">
+            <span className="text-muted">Order total</span>
+            <span className="font-display font-bold tabular-nums w-28 text-right">{formatCurrency(order.total)}</span>
+          </div>
         </div>
       </div>
 

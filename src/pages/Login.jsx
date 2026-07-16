@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import toast from 'react-hot-toast';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Info } from 'lucide-react';
 
 import { Button, Input } from '../components/ui/index.jsx';
 import GoogleSignInButton from '../components/auth/GoogleSignInButton.jsx';
@@ -14,7 +14,18 @@ import { fadeInUp } from '../lib/motion.js';
 
 export default function Login() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const next = searchParams.get('next');
+  const notice = searchParams.get('notice');
   const { setUser, login, loginWithGoogle } = useAuthStore();
+
+  // Honor `next` when present, except a non-admin landing on an admin `next`
+  // would just bounce straight back to this same wrong-account redirect —
+  // fall through to the normal role-based destination instead.
+  function destinationFor(user) {
+    if (next && !(next.startsWith('/admin') && user.role !== 'admin')) return next;
+    return user.role === 'admin' ? '/admin' : '/';
+  }
 
   const [form, setForm] = useState({ email: '', password: '' });
   const [submitting, setSubmitting] = useState(false);
@@ -39,7 +50,7 @@ export default function Login() {
         setStep('totp');
       } else if (data.user) {
         toast.success('Welcome back');
-        navigate(data.user.role === 'admin' ? '/admin' : '/');
+        navigate(destinationFor(data.user));
       }
     } catch (err) {
       toast.error(err?.response?.data?.message ?? 'Google sign-in failed. Try again.');
@@ -63,7 +74,7 @@ export default function Login() {
         setStep('totp');
       } else if (data.user) {
         toast.success('Welcome back');
-        navigate(data.user.role === 'admin' ? '/admin' : '/');
+        navigate(destinationFor(data.user));
       }
     } catch (err) {
       toast.error(err?.response?.data?.message ?? 'Invalid email or password');
@@ -81,7 +92,7 @@ export default function Login() {
       setUser(data.user);
       setSessionHint();
       toast.success('Welcome back');
-      navigate(data.user.role === 'admin' ? '/admin' : '/');
+      navigate(destinationFor(data.user));
     } catch (err) {
       toast.error(err?.response?.data?.message ?? 'Invalid code');
       setTotpCode('');
@@ -120,6 +131,13 @@ export default function Login() {
             >
               <h1 className="font-display text-h2 font-bold">Sign in</h1>
               <p className="mt-2 text-sm text-muted">Good to have you back.</p>
+
+              {notice === 'wrong-account' && (
+                <div className="mt-4 flex items-start gap-2 rounded-lg bg-highlight px-3 py-2.5 text-xs text-muted">
+                  <Info className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                  <span>You&apos;re signed in as a different account. Sign in with an admin account to continue.</span>
+                </div>
+              )}
 
               <div className="mt-6">
                 <GoogleSignInButton text="signin_with" onCredential={handleGoogleCredential} />
