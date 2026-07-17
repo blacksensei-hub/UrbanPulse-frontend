@@ -8,7 +8,7 @@ import { Button, Input } from '../components/ui/index.jsx';
 import GoogleSignInButton from '../components/auth/GoogleSignInButton.jsx';
 import { useAuthStore } from '../stores/authStore.js';
 import { referralService } from '../services/index.js';
-import { getStoredRefCode } from '../utils/referral.js';
+import { getStoredRefCode, clearRefCode } from '../utils/referral.js';
 import { fadeInUp } from '../lib/motion.js';
 
 export default function Register() {
@@ -51,6 +51,7 @@ export default function Register() {
         navigate('/login');
         return;
       }
+      if (refCode) clearRefCode();
       toast.success('Welcome to UrbanPulse');
       navigate('/');
     } catch (err) {
@@ -65,12 +66,14 @@ export default function Register() {
     }
     setSubmitting(true);
     try {
+      const refCode = form.referralCode.trim();
       await register(
         form.email,
         form.password,
         form.name,
-        form.referralCode.trim() || undefined,
+        refCode || undefined,
       );
+      if (refCode) clearRefCode();
       toast.success('Welcome to UrbanPulse');
       navigate('/');
     } catch (err) {

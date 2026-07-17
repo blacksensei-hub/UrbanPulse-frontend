@@ -12,6 +12,7 @@ import { buildOrganizationSchema, buildWebsiteSchema } from '../lib/seoSchema.js
 import { productService, referralService } from '../services/index.js';
 import RecentlyViewed from '../components/product/RecentlyViewed.jsx';
 import { getStoredRefCode } from '../utils/referral.js';
+import { useAuthStore } from '../stores/authStore.js';
 
 // TODO: Replace with real asset paths before launch
 const HERO = {
@@ -120,6 +121,7 @@ export default function Home() {
   const [retryToken, setRetryToken] = useState(0);
   const [email, setEmail] = useState('');
   const [referrerName, setReferrerName] = useState(null);
+  const user = useAuthStore((s) => s.user);
   // 'video' | 'image' | 'solid' — strict degradation order, never goes backward.
   // Reduced-motion is applied at render time rather than baked in here, because
   // useReducedMotion() can settle after the first render.
@@ -146,12 +148,13 @@ export default function Home() {
   }, [retryToken]);
 
   useEffect(() => {
+    if (user) return;
     const code = getStoredRefCode();
     if (!code) return;
     referralService.lookup(code).then((r) => {
       if (r.valid) setReferrerName(r.referrer_name);
     }).catch(() => {});
-  }, []);
+  }, [user]);
 
   function subscribe(e) {
     e.preventDefault();
@@ -182,7 +185,7 @@ export default function Home() {
       />
 
       {/* Referral banner — shown only when the visitor arrived via a referral link */}
-      {referrerName && (
+      {!user && referrerName && (
         <div className="border-b border-accent/20 bg-accent/8 py-2.5 text-center text-sm text-accent">
           You were referred by <strong>{referrerName}</strong>. Sign up to get GH₵ 50 off your first order.{' '}
           <Link to="/register" className="underline underline-offset-2">

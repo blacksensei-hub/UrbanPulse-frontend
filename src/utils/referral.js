@@ -23,3 +23,11 @@ export function getStoredRefCode() {
     return null;
   }
 }
+
+// Called once a stored code has actually been consumed (a signup succeeded
+// using it) — without this, the code sits in localStorage until its 30-day
+// expiry and the homepage keeps inviting an already-registered visitor to
+// "create an account" they already have.
+export function clearRefCode() {
+  localStorage.removeItem(LS_KEY);
+}
