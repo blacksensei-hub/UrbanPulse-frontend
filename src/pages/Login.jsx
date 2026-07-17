@@ -102,9 +102,20 @@ export default function Login() {
     }
   }
 
+  // Recovery-code alphabet must match backend/src/routes/auth.js's
+  // RECOVERY_CODE_ALPHABET (uppercase letters + digits, excluding 0/O/1/I) —
+  // the frontend can't import the backend constant directly (separate app),
+  // so keep these two in sync if either changes.
+  const RECOVERY_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
   function handleTotpChange(e) {
-    const val = e.target.value.replace(/\s/g, '').toUpperCase();
+    const raw = e.target.value.replace(/\s/g, '').toUpperCase();
     const maxLen = useRecovery ? 8 : 6;
+    // Only filter to the allowed alphabet in recovery mode — TOTP's numeric
+    // input stays untouched.
+    const val = useRecovery
+      ? raw.split('').filter((ch) => RECOVERY_CODE_ALPHABET.includes(ch)).join('')
+      : raw;
     const trimmed = val.slice(0, maxLen);
     setTotpCode(trimmed);
     // Auto-submit when 6-digit TOTP is complete (not for recovery codes)
