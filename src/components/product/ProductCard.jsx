@@ -207,7 +207,7 @@ export default function ProductCard({ product }) {
               layoutId={nameLayoutId}
               transition={morph}
               title={product.name}
-              className="font-medium truncate"
+              className="font-medium line-clamp-2 min-h-[2.3em]"
             >
               {product.name}
             </motion.h3>
