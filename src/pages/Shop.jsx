@@ -11,8 +11,9 @@ import { formatCurrency } from '../utils/format.js';
 import { staggerContainer, bottomSheetVariants } from '../lib/motion.js';
 import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
 import PullToRefreshIndicator from '../components/ui/PullToRefreshIndicator.jsx';
+import { CATEGORIES as PRODUCT_CATEGORIES } from '../lib/categories.js';
 
-const CATEGORIES = ['All', 'Tops', 'Outerwear', 'Bottoms', 'Footwear', 'Accessories'];
+const CATEGORIES = ['All', ...PRODUCT_CATEGORIES];
 const SIZES  = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '28', '30', 'One size'];
 const COLORS = ['Black', 'White', 'Navy', 'Grey', 'Brown', 'Green', 'Blue', 'Red', 'Cream'];
 const SORTS  = [

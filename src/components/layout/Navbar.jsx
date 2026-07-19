@@ -8,6 +8,7 @@ import { useCartStore } from '../../stores/cartStore.js';
 import { useAuthStore } from '../../stores/authStore.js';
 import { easeOut } from '../../lib/motion.js';
 import { pluralize } from '../../utils/format.js';
+import { CATEGORIES } from '../../lib/categories.js';
 
 /* Desktop nav — Shop gets the mega-menu */
 const NAV_LINKS = [
@@ -26,13 +27,9 @@ const MOBILE_NAV = [
 ];
 
 /* Mega-menu categories — TODO: swap `abbr` placeholders for first product image per category */
-const MEGA_CATEGORIES = [
-  { label: 'Tops',        to: '/shop?category=Tops',        abbr: 'T' },
-  { label: 'Outerwear',   to: '/shop?category=Outerwear',   abbr: 'O' },
-  { label: 'Bottoms',     to: '/shop?category=Bottoms',     abbr: 'B' },
-  { label: 'Footwear',    to: '/shop?category=Footwear',    abbr: 'F' },
-  { label: 'Accessories', to: '/shop?category=Accessories', abbr: 'A' },
-];
+const MEGA_CATEGORIES = CATEGORIES.map((label) => ({
+  label, to: `/shop?category=${label}`, abbr: label[0],
+}));
 
 export default function Navbar() {
   const [scrolled, setScrolled]         = useState(false);

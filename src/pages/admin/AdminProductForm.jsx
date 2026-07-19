@@ -9,6 +9,7 @@ import Modal from '../../components/ui/Modal.jsx';
 import { adminService } from '../../services/index.js';
 import AdminPageHeader from '../../components/admin/AdminPageHeader.jsx';
 import { formatDate } from '../../utils/format.js';
+import { CATEGORIES } from '../../lib/categories.js';
 
 const emptyVariant = () => ({ size: '', color: '', sku: '', stock: 0, price_adjustment: 0 });
 
@@ -254,12 +255,23 @@ export default function AdminProductForm() {
                 onChange={(e) => set('slug', e.target.value)}
                 hint="Lowercase, hyphen-separated. Used in the URL."
               />
-              <Input
-                label="Category"
-                floating
-                value={form.category}
-                onChange={(e) => set('category', e.target.value)}
-              />
+              <div>
+                <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">Category <span className="text-error">*</span></label>
+                <select
+                  value={form.category}
+                  onChange={(e) => set('category', e.target.value)}
+                  className="select"
+                  required
+                >
+                  <option value="">— select —</option>
+                  {form.category && !CATEGORIES.includes(form.category) && (
+                    <option value={form.category}>{form.category} (current)</option>
+                  )}
+                  {CATEGORIES.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
               <label className="block">
                 <span className="text-eyebrow text-muted mb-1.5 block">Description</span>
                 <textarea

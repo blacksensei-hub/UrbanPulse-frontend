@@ -6,7 +6,7 @@ import BottomSheet from '../../components/admin/BottomSheet.jsx';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 
-import { Button, Input } from '../../components/ui/index.jsx';
+import { Button } from '../../components/ui/index.jsx';
 import Modal from '../../components/ui/Modal.jsx';
 import { adminService } from '../../services/index.js';
 import { formatCurrency, cn } from '../../utils/format.js';
@@ -14,6 +14,7 @@ import { usePullToRefresh } from '../../hooks/usePullToRefresh.js';
 import { useLongPress } from '../../hooks/useLongPress.js';
 import { useTableSelection } from '../../hooks/useTableSelection.js';
 import BulkSelectionBar from '../../components/admin/BulkSelectionBar.jsx';
+import { CATEGORIES } from '../../lib/categories.js';
 
 function MobileProductCard({ p, onEdit, onRemove, onLongPress, isSelected }) {
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -404,13 +405,17 @@ export default function AdminProducts() {
         {confirmAction?.action === 'set_category' ? (
           <>
             <p className="text-sm text-muted mb-3">Assign a new category to {count} product{count !== 1 ? 's' : ''}.</p>
-            <Input
+            <select
               value={categoryInput}
               onChange={(e) => setCategoryInput(e.target.value)}
-              placeholder="Category name"
-              className="mb-4"
+              className="select mb-4"
               autoFocus
-            />
+            >
+              <option value="">— select —</option>
+              {CATEGORIES.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
           </>
         ) : (
           <p className="text-sm text-muted mb-4">This will affect {count} product{count !== 1 ? 's' : ''}. Products with order history will be deactivated instead of deleted.</p>
