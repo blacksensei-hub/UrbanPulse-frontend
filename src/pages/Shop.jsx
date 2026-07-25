@@ -126,7 +126,13 @@ function FilterPanel({ filters, setFilters, onApply }) {
 
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [filters, setFilters] = useState({
+
+  // The URL is the single source of truth for filters — derived fresh every render
+  // instead of mirrored into separate useState+effects. React Router doesn't remount
+  // Shop on a query-only navigation (e.g. the mega-menu linking to /shop?category=X
+  // while already on /shop), so a one-time useState initializer would go stale the
+  // moment an external link changed the URL; a plain derived value can't go stale.
+  const filters = useMemo(() => ({
     category: searchParams.get('category') ?? '',
     minPrice:  searchParams.get('minPrice')  ?? '',
     maxPrice:  searchParams.get('maxPrice')  ?? '',
@@ -134,7 +140,24 @@ export default function Shop() {
     size:      searchParams.get('size')      ?? '',
     color:     searchParams.get('color')     ?? '',
     inStock:   searchParams.get('inStock')   ?? '',
-  });
+  }), [searchParams]);
+
+  // Matches useState's setter signature (plain object OR updater function) so every
+  // existing call site below reads exactly as it did when this was local state.
+  function setFilters(update) {
+    const next = typeof update === 'function' ? update(filters) : update;
+    const params = {};
+    if (next.category) params.category = next.category;
+    if (next.minPrice) params.minPrice = next.minPrice;
+    if (next.maxPrice) params.maxPrice = next.maxPrice;
+    if (next.sort && next.sort !== 'newest') params.sort = next.sort;
+    if (next.size)    params.size    = next.size;
+    if (next.color)   params.color   = next.color;
+    if (next.inStock) params.inStock = next.inStock;
+    setSearchParams(params, { replace: true });
+    setPage(1);
+  }
+
   const [products, setProducts] = useState([]);
   const [total, setTotal]       = useState(0);
   const [loading, setLoading]   = useState(true);
@@ -164,19 +187,6 @@ export default function Shop() {
     () => setRefreshKey((k) => k + 1),
     { disabled: mobileOpen },
   );
-
-  useEffect(() => {
-    const next = {};
-    if (filters.category) next.category = filters.category;
-    if (filters.minPrice) next.minPrice  = filters.minPrice;
-    if (filters.maxPrice) next.maxPrice  = filters.maxPrice;
-    if (filters.sort && filters.sort !== 'newest') next.sort = filters.sort;
-    if (filters.size)    next.size    = filters.size;
-    if (filters.color)   next.color   = filters.color;
-    if (filters.inStock) next.inStock = filters.inStock;
-    setSearchParams(next, { replace: true });
-    setPage(1);
-  }, [filters, setSearchParams]);
 
   const totalPages = Math.max(1, Math.ceil(total / 24));
 

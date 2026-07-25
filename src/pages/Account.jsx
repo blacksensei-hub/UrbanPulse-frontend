@@ -15,7 +15,8 @@ import GoogleSignInButton from '../components/auth/GoogleSignInButton.jsx';
 import { useAuthStore } from '../stores/authStore.js';
 import { useCartStore } from '../stores/cartStore.js';
 import { useWishlistStore } from '../stores/wishlistStore.js';
-import { orderService, authService, referralService, returnService, loyaltyService } from '../services/index.js';
+import { orderService, authService, referralService, returnService, loyaltyService, reviewService, addressService } from '../services/index.js';
+import StarPicker from '../components/product/StarPicker.jsx';
 import { useFeature } from '../stores/settingsStore.js';
 import { formatCurrency, formatDate, pluralize, sanitizePhone } from '../utils/format.js';
 import { cn } from '../utils/format.js';
@@ -57,9 +58,9 @@ const TIER_BENEFITS = {
 };
 
 function isEligibleForReturn(order) {
-  if (order.payment_status !== 'paid' || order.status !== 'delivered') return false;
-  const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
-  return new Date(order.updated_at) >= cutoff;
+  // Computed server-side (GET /orders/user/me) from order_status_history's delivered
+  // timestamp — orders has no `updated_at` column, so that can never be derived client-side.
+  return !!order.eligible_for_return;
 }
 
 // ─── Return request modal ────────────────────────────────────────────────────
@@ -258,6 +259,78 @@ function ReturnRequestModal({ orderId, onClose }) {
           </div>
         </div>
       )}
+    </Modal>
+  );
+}
+
+// ─── Write a review modal ────────────────────────────────────────────────────
+
+function WriteReviewModal({ item, onClose, onSubmitted }) {
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  async function submit(e) {
+    e.preventDefault();
+    setError('');
+    if (!rating) return setError('Please select a star rating.');
+    if (!comment.trim()) return setError('Please write a comment.');
+    setSubmitting(true);
+    try {
+      await reviewService.add(item.product_slug, {
+        rating,
+        comment: comment.trim(),
+        image_url: imageUrl.trim() || undefined,
+      });
+      toast.success('Review submitted');
+      onSubmitted(item.id);
+      onClose();
+    } catch (err) {
+      setError(err?.response?.data?.message ?? 'Could not submit review');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <Modal open onClose={onClose} title="Write a review" maxWidth="480px">
+      <form onSubmit={submit} className="space-y-4">
+        <div className="flex items-center gap-3">
+          {item.product_image && (
+            <img src={item.product_image} alt="" className="h-14 w-14 rounded-md object-cover shrink-0" />
+          )}
+          <div className="min-w-0">
+            <div className="font-medium text-sm truncate">{item.product_name}</div>
+            {item.variant_description && (
+              <div className="text-xs text-muted">{item.variant_description}</div>
+            )}
+          </div>
+        </div>
+        <div>
+          <p className="text-sm font-medium mb-2">Your rating</p>
+          <StarPicker value={rating} onChange={setRating} />
+        </div>
+        <label className="block">
+          <span className="text-xs text-muted">Comment</span>
+          <textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            rows={4}
+            className="mt-1 w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm"
+            placeholder="What did you think?"
+          />
+        </label>
+        <Input
+          label="Photo URL (optional)"
+          floating
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+        />
+        {error && <p className="text-sm text-error">{error}</p>}
+        <Button type="submit" className="w-full" loading={submitting}>Submit review</Button>
+      </form>
     </Modal>
   );
 }
@@ -513,7 +586,22 @@ function Orders() {
   const [histories, setHistories] = useState({});
   const [orderDetails, setOrderDetails] = useState({});
   const [returningOrderId, setReturningOrderId] = useState(null);
+  const [reviewingItem, setReviewingItem] = useState(null);
   const prefersReduced = useReducedMotion();
+
+  function markReviewed(orderId, itemId) {
+    setOrderDetails((d) => {
+      const order = d[orderId];
+      if (!order) return d;
+      return {
+        ...d,
+        [orderId]: {
+          ...order,
+          items: order.items.map((i) => (i.id === itemId ? { ...i, already_reviewed: true } : i)),
+        },
+      };
+    });
+  }
 
   const load = useCallback(() => {
     setLoading(true);
@@ -682,6 +770,28 @@ function Orders() {
                       </ul>
                     </div>
                   )}
+                  {/* Write a review — delivered orders, per line item, once each */}
+                  {o.status === 'delivered' && orderDetails[o.id]?.items?.some(i => i.product_slug && !i.already_reviewed) && (
+                    <div className="mt-3 border-t border-border pt-3">
+                      <p className="mb-2 text-xs font-semibold text-muted uppercase tracking-wider">Rate your items</p>
+                      <ul className="space-y-2">
+                        {orderDetails[o.id].items.filter(i => i.product_slug && !i.already_reviewed).map(item => (
+                          <li key={item.id} className="flex items-center justify-between gap-2 text-xs">
+                            <span className="min-w-0 truncate text-text" title={item.product_name}>
+                              {item.product_name}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setReviewingItem(item)}
+                              className="shrink-0 font-semibold text-accent hover:text-accent-hover"
+                            >
+                              Write a review
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                   {/* Receipt download — only for paid / COD-delivered orders */}
                   {(() => {
                     const isPaid  = o.payment_status === 'paid';
@@ -704,6 +814,13 @@ function Orders() {
 
       {returningOrderId && (
         <ReturnRequestModal orderId={returningOrderId} onClose={() => setReturningOrderId(null)} />
+      )}
+      {reviewingItem && (
+        <WriteReviewModal
+          item={reviewingItem}
+          onClose={() => setReviewingItem(null)}
+          onSubmitted={(itemId) => markReviewed(reviewingItem.order_id, itemId)}
+        />
       )}
     </>
   );
@@ -1132,12 +1249,48 @@ function Profile() {
 }
 
 function Addresses() {
+  const [addresses, setAddresses] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    addressService.list().then(setAddresses).catch(() => {}).finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <div className="text-sm text-muted">Loading…</div>;
+
+  if (addresses.length === 0) {
+    return (
+      <div className="card p-8 text-center">
+        <MapPin className="mx-auto h-10 w-10 text-muted" />
+        <h2 className="mt-4 font-display text-lg font-semibold">No addresses yet</h2>
+        <p className="mt-2 text-sm text-muted">Addresses you use at checkout will appear here.</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="card p-8 text-center">
-      <MapPin className="mx-auto h-10 w-10 text-muted" />
-      <h2 className="mt-4 font-display text-lg font-semibold">No addresses yet</h2>
-      <p className="mt-2 text-sm text-muted">Addresses you use at checkout will appear here.</p>
-    </div>
+    <ul className="space-y-3">
+      {addresses.map((a) => (
+        <li key={a.id} className="card p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <div className="font-display text-base font-semibold">{a.name}</div>
+                {a.is_default && (
+                  <span className="rounded-full bg-accent/15 px-2 py-0.5 text-xs font-semibold text-accent">Default</span>
+                )}
+              </div>
+              <div className="mt-1 text-sm text-muted">
+                {a.line1}{a.line2 ? `, ${a.line2}` : ''}<br />
+                {[a.city, a.state, a.zip].filter(Boolean).join(', ')}<br />
+                {a.country}
+                {a.phone && <><br />{a.phone}</>}
+              </div>
+            </div>
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }
 

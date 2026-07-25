@@ -116,6 +116,10 @@ export const returnService = {
   get:    (id)     => api.get(`/returns/${id}`).then(r => r.data),
 };
 
+export const addressService = {
+  list: () => api.get('/addresses').then(r => r.data),
+};
+
 export const settingsService = {
   public:  ()       => api.get('/settings/public').then(r => r.data),
   getAll:  ()       => api.get('/admin/settings').then(r => r.data),

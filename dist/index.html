@@ -8,6 +8,24 @@
     <meta name="theme-color" content="#12100E" media="(prefers-color-scheme: dark)" />
     <title>UrbanPulse — Premium Streetwear</title>
     <meta name="description" content="UrbanPulse — Premium streetwear and accessories built to outlast trends." />
+    <!-- Static default OG tags — crawlers like WhatsApp's do not execute JS, so they never
+         see the per-page tags SEO.jsx injects client-side via react-helmet. These are the
+         ONLY tags a link-preview crawler will ever observe, on every URL, until a server-side
+         (edge function / middleware) solution injects per-page tags before the JS bundle loads.
+         og:image points at an existing app icon as a stopgap — replace with a real 1200x630
+         branded share image when one exists. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="UrbanPulse" />
+    <meta property="og:title" content="UrbanPulse — Premium Streetwear" />
+    <meta property="og:description" content="UrbanPulse — Premium streetwear and accessories built to outlast trends." />
+    <meta property="og:url" content="https://urbanpulse.com" />
+    <meta property="og:image" content="https://urbanpulse.com/icons/icon-512.png" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="UrbanPulse — Premium Streetwear" />
+    <meta name="twitter:description" content="UrbanPulse — Premium streetwear and accessories built to outlast trends." />
+    <meta name="twitter:image" content="https://urbanpulse.com/icons/icon-512.png" />
     <!-- No hero preload here: Home.jsx's HERO.video/poster point at /hero/spring-26.mp4
          and /hero/spring-26.jpg, which don't exist in public/ yet, so nothing real is
          reliably the hero's LCP element to preload. TODO: once those assets are added,
@@ -66,7 +84,7 @@
       html.dark .sp-failsafe a{color:#E87A4F;}
       @media(prefers-reduced-motion:reduce){.sp-l,.sp-a{opacity:1;animation:none;}.sp-wm{animation:none;}#splash{transition:none;}}
     </style>
-    <script type="module" crossorigin src="/assets/index-CkhyK7Qu.js"></script>
+    <script type="module" crossorigin src="/assets/index-BIN7yn8e.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/react-BD33oxTj.js">
     <link rel="modulepreload" crossorigin href="/assets/motion-D4ctv0sM.js">
     <link rel="stylesheet" crossorigin href="/assets/index-BmtrdiyR.css">

@@ -14,7 +14,8 @@ import { useFeature } from '../stores/settingsStore.js';
 import { formatCurrency, formatDate, formatRelativeDate, cn } from '../utils/format.js';
 import { fadeIn, morph, spring, staggerContainer } from '../lib/motion.js';
 import FlashSaleTimer from '../components/product/FlashSaleTimer.jsx';
-import { swatchColor } from '../components/product/QuickView.jsx';
+import { swatchColor, showAddedToast } from '../components/product/QuickView.jsx';
+import StarPicker from '../components/product/StarPicker.jsx';
 import { triggerWishlistConfetti } from '../utils/confetti.js';
 import { vibrate } from '../utils/haptic.js';
 import { recordView } from '../utils/recentlyViewed.js';
@@ -26,30 +27,6 @@ import SEO from '../components/SEO.jsx';
 import ShareButtons from '../components/product/ShareButtons.jsx';
 import { SITE_URL, buildProductSchema, buildBreadcrumbSchema } from '../lib/seoSchema.js';
 
-function StarPicker({ value, onChange }) {
-  const [hovered, setHovered] = useState(0);
-  return (
-    <div className="flex gap-1">
-      {[1, 2, 3, 4, 5].map((n) => (
-        <button
-          key={n}
-          type="button"
-          onClick={() => onChange(n)}
-          onMouseEnter={() => setHovered(n)}
-          onMouseLeave={() => setHovered(0)}
-          aria-label={`Rate ${n} star${n > 1 ? 's' : ''}`}
-        >
-          <Star
-            className={cn(
-              'h-6 w-6 transition-colors',
-              n <= (hovered || value) ? 'fill-accent text-accent' : 'text-border',
-            )}
-          />
-        </button>
-      ))}
-    </div>
-  );
-}
 
 export default function ProductDetail() {
   const { slug } = useParams();
@@ -168,6 +145,7 @@ export default function ProductDetail() {
     try {
       await add(variant.id, quantity);
       vibrate(10);
+      showAddedToast(product, formatCurrency(variant.price ?? product.price));
       if (!prefersReduced && mainImageRef.current) {
         const rect = mainImageRef.current.getBoundingClientRect();
         setFlyState({
