@@ -349,6 +349,11 @@ export default function AdminProducts() {
                                 Pre-order
                               </span>
                             )}
+                            {p.is_featured && (
+                              <span className="rounded-pill bg-accent/15 px-2 py-0.5 text-eyebrow text-accent">
+                                Featured
+                              </span>
+                            )}
                           </div>
                           <div className="text-xs text-muted">{p.slug}</div>
                         </div>

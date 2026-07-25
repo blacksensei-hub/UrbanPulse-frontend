@@ -39,6 +39,7 @@ export default function AdminProductForm() {
     compare_at_price: '',
     images: [''],
     is_active: true,
+    is_featured: false,
     is_preorder: false,
     preorder_ships_at: '',
     preorder_limit: '',
@@ -470,6 +471,15 @@ export default function AdminProductForm() {
                 className="accent-accent"
               />
               Active (visible on storefront)
+            </label>
+            <label className="flex items-center gap-2 text-sm cursor-pointer mt-3">
+              <input
+                type="checkbox"
+                checked={!!form.is_featured}
+                onChange={(e) => set('is_featured', e.target.checked)}
+                className="accent-accent"
+              />
+              Editorial layout (featured)
             </label>
           </section>
 

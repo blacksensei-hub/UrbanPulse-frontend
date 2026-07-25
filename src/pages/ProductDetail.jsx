@@ -26,8 +26,6 @@ import SEO from '../components/SEO.jsx';
 import ShareButtons from '../components/product/ShareButtons.jsx';
 import { SITE_URL, buildProductSchema, buildBreadcrumbSchema } from '../lib/seoSchema.js';
 
-const EDITORIAL_SLUGS = ['ghana-jersey'];
-
 function StarPicker({ value, onChange }) {
   const [hovered, setHovered] = useState(0);
   return (
@@ -292,7 +290,7 @@ export default function ProductDetail() {
     ? Number(product.preorder_limit) - Number(product.preorder_count ?? 0)
     : null;
   const wishlisted = isWishlisted(product.id);
-  const isEditorial = EDITORIAL_SLUGS.includes(product.slug);
+  const isEditorial = product.is_featured === true;
   const canonicalUrl = `${SITE_URL}/products/${product.slug}`;
 
   return (
