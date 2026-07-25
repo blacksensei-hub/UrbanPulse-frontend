@@ -26,7 +26,7 @@ import SEO from '../components/SEO.jsx';
 import ShareButtons from '../components/product/ShareButtons.jsx';
 import { SITE_URL, buildProductSchema, buildBreadcrumbSchema } from '../lib/seoSchema.js';
 
-const EDITORIAL_SLUGS = ['pulse-hoodie-bone-white'];
+const EDITORIAL_SLUGS = ['ghana-jersey'];
 
 function StarPicker({ value, onChange }) {
   const [hovered, setHovered] = useState(0);
