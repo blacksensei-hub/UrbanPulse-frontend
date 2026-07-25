@@ -158,20 +158,20 @@ export default function Cart() {
                       </div>
                       <button
                         onClick={() => handleRemove(item)}
-                        className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted hover:bg-bg hover:text-error"
+                        className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-muted hover:bg-bg hover:text-error"
                         aria-label="Remove item"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4 pointer-events-none" />
                       </button>
                     </div>
                     <div className="mt-auto flex items-center justify-between gap-3">
                       <div className="inline-flex items-center rounded-lg border border-border">
                         <button
                           onClick={() => setQuantity(item, qty - 1, 1)}
-                          className="grid h-9 w-9 place-items-center hover:bg-bg"
+                          className="grid h-11 w-11 place-items-center hover:bg-bg"
                           aria-label="Decrease"
                         >
-                          <Minus className="h-3.5 w-3.5" />
+                          <Minus className="h-3.5 w-3.5 pointer-events-none" />
                         </button>
                         <span className="w-8 text-center text-sm font-semibold">
                           {qty}
@@ -179,10 +179,10 @@ export default function Cart() {
                         <button
                           onClick={() => setQuantity(item, qty + 1, 1)}
                           disabled={qty >= item.stock}
-                          className="grid h-9 w-9 place-items-center hover:bg-bg disabled:opacity-40 disabled:cursor-not-allowed"
+                          className="grid h-11 w-11 place-items-center hover:bg-bg disabled:opacity-40 disabled:cursor-not-allowed"
                           aria-label="Increase"
                         >
-                          <Plus className="h-3.5 w-3.5" />
+                          <Plus className="h-3.5 w-3.5 pointer-events-none" />
                         </button>
                       </div>
                       <div className="font-mono font-semibold">

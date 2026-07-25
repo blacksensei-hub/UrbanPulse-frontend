@@ -78,26 +78,26 @@ function SwipeItem({ it, onRemove, getQuantity, setQuantity, closeDrawer, prefer
             <button
               onClick={() => setQuantity(it, qty - 1, 0)}
               aria-label="Decrease quantity"
-              className="w-9 h-9 flex items-center justify-center hover:text-accent transition-colors"
+              className="w-11 h-11 flex items-center justify-center hover:text-accent transition-colors"
             >
-              <Minus size={14} />
+              <Minus size={14} className="pointer-events-none" />
             </button>
             <span className="px-2 min-w-[24px] text-center font-medium text-small">{qty}</span>
             <button
               onClick={() => setQuantity(it, qty + 1, 0)}
               disabled={qty >= it.stock}
               aria-label="Increase quantity"
-              className="w-9 h-9 flex items-center justify-center hover:text-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="w-11 h-11 flex items-center justify-center hover:text-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
-              <Plus size={14} />
+              <Plus size={14} className="pointer-events-none" />
             </button>
           </div>
           <button
             onClick={() => onRemove(it)}
             aria-label={`Remove ${it.name}`}
-            className="text-muted hover:text-error transition-colors"
+            className="w-11 h-11 flex items-center justify-center hover:text-error transition-colors"
           >
-            <Trash2 size={16} />
+            <Trash2 size={16} className="pointer-events-none" />
           </button>
         </div>
         {qty >= it.stock && (
