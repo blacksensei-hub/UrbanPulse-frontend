@@ -117,7 +117,11 @@ export const returnService = {
 };
 
 export const addressService = {
-  list: () => api.get('/addresses').then(r => r.data),
+  list:       ()             => api.get('/addresses').then(r => r.data),
+  create:     (payload)      => api.post('/addresses', payload).then(r => r.data),
+  update:     (id, payload)  => api.put(`/addresses/${id}`, payload).then(r => r.data),
+  remove:     (id)           => api.delete(`/addresses/${id}`).then(r => r.data),
+  setDefault: (id)           => api.post(`/addresses/${id}/default`).then(r => r.data),
 };
 
 export const settingsService = {

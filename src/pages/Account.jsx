@@ -4,7 +4,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   User, Package, MapPin, LogOut, ShieldCheck, ChevronDown, Heart,
   Gift, Copy, Check, RotateCcw, X, Lock, Smartphone, AlertTriangle,
-  Download, Loader2, KeyRound, Award, Fingerprint,
+  Download, Loader2, KeyRound, Award, Fingerprint, Plus, Pencil, Trash2,
 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import toast from 'react-hot-toast';
@@ -1248,49 +1248,197 @@ function Profile() {
   );
 }
 
+function AddressFormModal({ address, onClose, onSaved }) {
+  const isEdit = !!address;
+  const [form, setForm] = useState({
+    label: address?.label ?? '',
+    name: address?.name ?? '',
+    line1: address?.line1 ?? '',
+    line2: address?.line2 ?? '',
+    city: address?.city ?? '',
+    state: address?.state ?? '',
+    zip: address?.zip ?? '',
+    country: address?.country ?? 'Ghana',
+    phone: address?.phone ?? '',
+  });
+  const [saving, setSaving] = useState(false);
+
+  function set(k, v) { setForm((f) => ({ ...f, [k]: v })); }
+
+  async function submit(e) {
+    e.preventDefault();
+    if (!form.name.trim() || !form.line1.trim() || !form.city.trim()) {
+      return toast.error('Full name, address line 1, and city are required.');
+    }
+    setSaving(true);
+    try {
+      const saved = isEdit
+        ? await addressService.update(address.id, form)
+        : await addressService.create(form);
+      toast.success(isEdit ? 'Address updated' : 'Address added');
+      onSaved(saved);
+      onClose();
+    } catch (err) {
+      toast.error(err?.response?.data?.message ?? 'Could not save address');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Modal open onClose={onClose} title={isEdit ? 'Edit address' : 'Add address'} maxWidth="480px">
+      <form onSubmit={submit} className="space-y-4">
+        <Input label="Label (e.g. Home, Work)" floating value={form.label} onChange={(e) => set('label', e.target.value)} />
+        <Input label="Full name" floating required value={form.name} onChange={(e) => set('name', e.target.value)} />
+        <Input label="Address line 1" floating required value={form.line1} onChange={(e) => set('line1', e.target.value)} />
+        <Input label="Address line 2 (optional)" floating value={form.line2} onChange={(e) => set('line2', e.target.value)} />
+        <div className="grid grid-cols-2 gap-3">
+          <Input label="City" floating required value={form.city} onChange={(e) => set('city', e.target.value)} />
+          <Input label="State/Region" floating value={form.state} onChange={(e) => set('state', e.target.value)} />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Input label="Postal/Zip (optional)" floating value={form.zip} onChange={(e) => set('zip', e.target.value)} />
+          <Input label="Country" floating value={form.country} onChange={(e) => set('country', e.target.value)} />
+        </div>
+        <Input label="Phone" floating value={form.phone} onChange={(e) => set('phone', e.target.value)} />
+        <Button type="submit" className="w-full" loading={saving}>
+          {isEdit ? 'Save changes' : 'Add address'}
+        </Button>
+      </form>
+    </Modal>
+  );
+}
+
 function Addresses() {
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [formTarget, setFormTarget] = useState(null); // null | 'new' | address object
+  const [busyId, setBusyId] = useState(null);
 
   useEffect(() => {
     addressService.list().then(setAddresses).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="text-sm text-muted">Loading…</div>;
-
-  if (addresses.length === 0) {
-    return (
-      <div className="card p-8 text-center">
-        <MapPin className="mx-auto h-10 w-10 text-muted" />
-        <h2 className="mt-4 font-display text-lg font-semibold">No addresses yet</h2>
-        <p className="mt-2 text-sm text-muted">Addresses you use at checkout will appear here.</p>
-      </div>
+  function sortAddresses(list) {
+    return [...list].sort((a, b) =>
+      (b.is_default === true) - (a.is_default === true) ||
+      new Date(b.created_at) - new Date(a.created_at)
     );
   }
 
+  function handleSaved(saved) {
+    setAddresses((prev) => {
+      const exists = prev.some((a) => a.id === saved.id);
+      const next = exists
+        ? prev.map((a) => (a.id === saved.id ? saved : a))
+        : [...prev, saved];
+      return sortAddresses(saved.is_default ? next.map((a) => ({ ...a, is_default: a.id === saved.id })) : next);
+    });
+  }
+
+  async function handleDelete(id) {
+    if (!window.confirm('Delete this address?')) return;
+    setBusyId(id);
+    try {
+      await addressService.remove(id);
+      setAddresses((prev) => prev.filter((a) => a.id !== id));
+      toast.success('Address deleted');
+    } catch (err) {
+      toast.error(err?.response?.data?.message ?? 'Could not delete address');
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function handleSetDefault(id) {
+    setBusyId(id);
+    try {
+      await addressService.setDefault(id);
+      setAddresses((prev) => sortAddresses(prev.map((a) => ({ ...a, is_default: a.id === id }))));
+      toast.success('Default address updated');
+    } catch (err) {
+      toast.error(err?.response?.data?.message ?? 'Could not update default address');
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  if (loading) return <div className="text-sm text-muted">Loading…</div>;
+
   return (
-    <ul className="space-y-3">
-      {addresses.map((a) => (
-        <li key={a.id} className="card p-5">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <div className="font-display text-base font-semibold">{a.name}</div>
-                {a.is_default && (
-                  <span className="rounded-full bg-accent/15 px-2 py-0.5 text-xs font-semibold text-accent">Default</span>
-                )}
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <Button size="sm" onClick={() => setFormTarget('new')}>
+          <Plus className="h-4 w-4 mr-1.5" /> Add address
+        </Button>
+      </div>
+
+      {addresses.length === 0 ? (
+        <div className="card p-8 text-center">
+          <MapPin className="mx-auto h-10 w-10 text-muted" />
+          <h2 className="mt-4 font-display text-lg font-semibold">No addresses yet</h2>
+          <p className="mt-2 text-sm text-muted">Addresses you use at checkout will appear here.</p>
+        </div>
+      ) : (
+        <ul className="space-y-3">
+          {addresses.map((a) => (
+            <li key={a.id} className="card p-5">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="font-display text-base font-semibold">{a.label || a.name}</div>
+                    {a.is_default && (
+                      <span className="rounded-full bg-accent/15 px-2 py-0.5 text-xs font-semibold text-accent">Default</span>
+                    )}
+                  </div>
+                  <div className="mt-1 text-sm text-muted">
+                    {a.name}<br />
+                    {a.line1}{a.line2 ? `, ${a.line2}` : ''}<br />
+                    {[a.city, a.state, a.zip].filter(Boolean).join(', ')}<br />
+                    {a.country}
+                    {a.phone && <><br />{a.phone}</>}
+                  </div>
+                </div>
+                <div className="flex shrink-0 items-center gap-1">
+                  <button
+                    onClick={() => setFormTarget(a)}
+                    aria-label="Edit address"
+                    className="grid h-9 w-9 place-items-center rounded-full text-muted hover:bg-highlight hover:text-text"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(a.id)}
+                    disabled={busyId === a.id}
+                    aria-label="Delete address"
+                    className="grid h-9 w-9 place-items-center rounded-full text-muted hover:bg-error/10 hover:text-error disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
-              <div className="mt-1 text-sm text-muted">
-                {a.line1}{a.line2 ? `, ${a.line2}` : ''}<br />
-                {[a.city, a.state, a.zip].filter(Boolean).join(', ')}<br />
-                {a.country}
-                {a.phone && <><br />{a.phone}</>}
-              </div>
-            </div>
-          </div>
-        </li>
-      ))}
-    </ul>
+              {!a.is_default && (
+                <button
+                  onClick={() => handleSetDefault(a.id)}
+                  disabled={busyId === a.id}
+                  className="mt-3 text-xs font-semibold text-accent hover:text-accent-hover disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Set as default
+                </button>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {formTarget && (
+        <AddressFormModal
+          address={formTarget === 'new' ? null : formTarget}
+          onClose={() => setFormTarget(null)}
+          onSaved={handleSaved}
+        />
+      )}
+    </div>
   );
 }
 
