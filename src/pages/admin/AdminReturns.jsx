@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowLeft, CheckCircle, RotateCcw, Check, X, XCircle } from 'lucide-react';
@@ -45,10 +45,19 @@ function ReturnDetail({ returnId, onBack }) {
   const [refundAmount, setRefundAmount] = useState('');
   const [restock, setRestock] = useState(true);
   const [acting, setActing] = useState(false);
+  const requestIdRef = useRef(0);
 
   function load() {
     setLoading(true);
-    adminService.getReturn(returnId).then((r) => { setRet(r); setLoading(false); }).catch(() => setLoading(false));
+    const thisRequestId = ++requestIdRef.current;
+    adminService.getReturn(returnId).then((r) => {
+      if (thisRequestId !== requestIdRef.current) return; // a newer load() already superseded this one
+      setRet(r);
+      setLoading(false);
+    }).catch(() => {
+      if (thisRequestId !== requestIdRef.current) return;
+      setLoading(false);
+    });
   }
 
   useEffect(() => { load(); }, [returnId]);
