@@ -64,8 +64,8 @@ function ReturnDetail({ returnId, onBack }) {
   async function act(fn, successMsg) {
     setActing(true);
     try {
-      const updated = await fn();
-      setRet(updated);
+      await fn();
+      load();
       toast.success(successMsg);
     } catch (err) {
       toast.error(err?.response?.data?.message ?? 'Action failed');
@@ -78,12 +78,12 @@ function ReturnDetail({ returnId, onBack }) {
   if (!ret) return <div className="py-10 text-center text-sm text-muted">Return not found.</div>;
 
   const TIMELINE = [
-    { label: 'Requested',    date: ret.created_at },
-    { label: 'Approved',     date: ret.approved_at },
-    { label: 'Items received', date: ret.received_at },
+    { label: 'Requested',      date: ret.created_at, placeholder: '—' },
+    { label: 'Approved',       date: ret.approved_at, placeholder: 'Not yet approved' },
+    { label: 'Items received', date: ret.received_at, placeholder: 'Not yet received' },
     ret.status === 'rejected'
-      ? { label: 'Rejected', date: ret.rejected_at }
-      : { label: ret.resolution === 'store_credit' ? 'Credit issued' : 'Refund issued', date: ret.refunded_at },
+      ? { label: 'Rejected', date: ret.rejected_at, placeholder: '—' }
+      : { label: ret.resolution === 'store_credit' ? 'Credit issued' : 'Refund issued', date: ret.refunded_at, placeholder: 'Not yet issued' },
   ];
 
   const statusOrder = ['requested', 'approved', 'received', 'refunded'];
@@ -104,7 +104,7 @@ function ReturnDetail({ returnId, onBack }) {
             <span className="font-mono">{ret.order_number}</span>
           </div>
           <div className="mt-1 text-xs text-muted">
-            Resolution: <strong>{RESOLUTION_LABELS[ret.resolution]}</strong> · {formatDate(ret.created_at)}
+            Resolution: <strong>{RESOLUTION_LABELS[ret.resolution] ?? ret.resolution ?? '—'}</strong> · {formatDate(ret.created_at)}
           </div>
         </div>
         <span className={cn('rounded-full px-4 py-1.5 text-sm font-semibold capitalize', STATUS_COLORS[ret.status])}>
@@ -130,7 +130,7 @@ function ReturnDetail({ returnId, onBack }) {
                 </div>
                 <div className="mt-2 pr-2">
                   <div className="text-xs font-medium">{step.label}</div>
-                  {step.date && <div className="text-xs text-muted">{formatDate(step.date)}</div>}
+                  <div className="text-xs text-muted">{step.date ? formatDate(step.date) : step.placeholder}</div>
                 </div>
               </div>
             );
@@ -168,30 +168,22 @@ function ReturnDetail({ returnId, onBack }) {
       </div>
 
       {/* Notes */}
-      {(ret.customer_note || ret.admin_note || ret.refund_amount_ghs) && (
-        <div className="card p-6 space-y-4">
-          {ret.customer_note && (
-            <div>
-              <div className="text-xs text-muted uppercase tracking-wider font-semibold">Customer note</div>
-              <p className="mt-1 text-sm">{ret.customer_note}</p>
-            </div>
-          )}
-          {ret.admin_note && (
-            <div>
-              <div className="text-xs text-muted uppercase tracking-wider font-semibold">Rejection reason</div>
-              <p className="mt-1 text-sm">{ret.admin_note}</p>
-            </div>
-          )}
-          {ret.refund_amount_ghs && (
-            <div>
-              <div className="text-xs text-muted uppercase tracking-wider font-semibold">Amount issued</div>
-              <p className="mt-1 text-lg font-bold text-success">
-                {formatCurrency(ret.refund_amount_ghs)}
-              </p>
-            </div>
-          )}
+      <div className="card p-6 space-y-4">
+        <div>
+          <div className="text-xs text-muted uppercase tracking-wider font-semibold">Customer note</div>
+          <p className="mt-1 text-sm">{ret.customer_note || '—'}</p>
         </div>
-      )}
+        <div>
+          <div className="text-xs text-muted uppercase tracking-wider font-semibold">Rejection reason</div>
+          <p className="mt-1 text-sm">{ret.admin_note || '—'}</p>
+        </div>
+        <div>
+          <div className="text-xs text-muted uppercase tracking-wider font-semibold">Amount issued</div>
+          <p className="mt-1 text-lg font-bold text-success">
+            {ret.refund_amount_ghs ? formatCurrency(ret.refund_amount_ghs) : '—'}
+          </p>
+        </div>
+      </div>
 
       {/* Desktop inline actions */}
       <div className="hidden md:block space-y-3">
@@ -261,7 +253,7 @@ function ReturnDetail({ returnId, onBack }) {
       <Modal open={refundModal} onClose={() => setRefundModal(false)} title="Issue refund">
         <div className="space-y-4">
           <p className="text-sm text-muted">
-            Resolution: <strong>{RESOLUTION_LABELS[ret.resolution]}</strong>
+            Resolution: <strong>{RESOLUTION_LABELS[ret.resolution] ?? ret.resolution ?? '—'}</strong>
             {ret.resolution === 'refund' && ret.payment_method !== 'cod' && ' via Paystack'}
             {ret.resolution === 'refund' && ret.payment_method === 'cod' && ' — cash handled manually'}
           </p>
@@ -411,6 +403,10 @@ export default function AdminReturns() {
     { label: 'Reject',  icon: XCircle,     destructive: true, onClick: () => setConfirmAction({ action: 'reject', label: `Reject ${count} return${count !== 1 ? 's' : ''}?` }) },
   ];
 
+  // Hooks must run unconditionally on every render — keep this above the
+  // `selectedId` early return below (it stays inert on the detail view via `disabled`).
+  const { isPulling, isRefreshing } = usePullToRefresh(loadList, { disabled: !!selectedId });
+
   if (selectedId) {
     return (
       <div className="space-y-6">
@@ -422,8 +418,6 @@ export default function AdminReturns() {
       </div>
     );
   }
-
-  const { isPulling, isRefreshing } = usePullToRefresh(loadList);
 
   return (
     <div className="space-y-6">
