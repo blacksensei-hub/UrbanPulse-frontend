@@ -50,14 +50,14 @@ function ReturnDetail({ returnId, onBack }) {
   function load() {
     setLoading(true);
     const thisRequestId = ++requestIdRef.current;
-    adminService.getReturn(returnId).then((r) => {
-      if (thisRequestId !== requestIdRef.current) return; // a newer load() already superseded this one
-      setRet(r);
-      setLoading(false);
-    }).catch(() => {
-      if (thisRequestId !== requestIdRef.current) return;
-      setLoading(false);
-    });
+    // Only setRet is guarded against a stale/superseded response — setLoading(false)
+    // must run unconditionally in finally(), or a permanently-locked-out earlier call
+    // resolving first (in dev, StrictMode double-invokes this effect) can leave the
+    // view stuck on "Loading…" until the still-current call happens to settle.
+    adminService.getReturn(returnId)
+      .then((r) => { if (thisRequestId === requestIdRef.current) setRet(r); })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }
 
   useEffect(() => { load(); }, [returnId]);

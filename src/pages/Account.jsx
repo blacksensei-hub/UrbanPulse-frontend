@@ -897,7 +897,7 @@ function ReturnDetail() {
     returnService.get(id)
       .then((r) => { if (thisRequestId === requestIdRef.current) setRet(r); })
       .catch(() => {})
-      .finally(() => { if (thisRequestId === requestIdRef.current) setLoading(false); });
+      .finally(() => setLoading(false));
   }, [id]);
 
   if (loading) return <div className="text-sm text-muted">Loading…</div>;

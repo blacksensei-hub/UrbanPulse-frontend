@@ -95,7 +95,7 @@ export default function AdminOrderDetail() {
     } catch {
       if (thisRequestId === requestIdRef.current) toast.error('Could not load order');
     } finally {
-      if (thisRequestId === requestIdRef.current) setLoading(false);
+      setLoading(false);
     }
   }
 
