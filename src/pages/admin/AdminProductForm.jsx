@@ -60,13 +60,15 @@ export default function AdminProductForm() {
 
   // Adjustment history (all variants)
   const [adjHistory, setAdjHistory] = useState([]);
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
     if (!isEdit) return;
+    const thisRequestId = ++requestIdRef.current;
     adminService
       .getProduct(id)
       .then(async (p) => {
-        if (!p) return;
+        if (!p || thisRequestId !== requestIdRef.current) return;
         const variants = p.variants?.length ? p.variants : [emptyVariant()];
         setForm({ ...p, images: p.images?.length ? p.images : [''], variants });
         const savedVariants = variants.filter(v => v.id);
@@ -81,7 +83,9 @@ export default function AdminProductForm() {
                 .catch(() => [])
             )
           );
-          setAdjHistory(histories.flat().sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
+          if (thisRequestId === requestIdRef.current) {
+            setAdjHistory(histories.flat().sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
+          }
         }
       })
       .catch(() => {});

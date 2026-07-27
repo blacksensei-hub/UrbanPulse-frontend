@@ -507,7 +507,21 @@ export default function AdminCustomerDetail() {
     } catch { setFlags([]); }
   }
 
-  useEffect(() => { loadProfile(); loadFlags(); }, [id]);
+  useEffect(() => {
+    // Reset per-customer state on navigation to a different customer — without this,
+    // loadTab()'s "already loaded" guard (tabData[tab] !== null) would keep showing
+    // the PREVIOUS customer's cached tab data under the new customer's page. Force-load
+    // 'orders' here (in the same effect as the reset) rather than in a separate effect —
+    // a separate effect with the same [id] deps would close over the pre-reset tabData
+    // from this same render and could skip the fetch if the old customer's 'orders' was
+    // already loaded.
+    setTabData({ orders: null, returns: null, reviews: null, wishlist: null, credit: null, loyalty: null, messages: null });
+    setTabLoading({});
+    setActiveTab('orders');
+    loadProfile();
+    loadFlags();
+    loadTab('orders', true);
+  }, [id]);
 
   // Close desktop actions dropdown on outside click
   useEffect(() => {
@@ -518,8 +532,8 @@ export default function AdminCustomerDetail() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  async function loadTab(tab) {
-    if (tabData[tab] !== null) return; // already loaded
+  async function loadTab(tab, force = false) {
+    if (!force && tabData[tab] !== null) return; // already loaded
     setTabLoading(p => ({ ...p, [tab]: true }));
     try {
       let data;
@@ -566,8 +580,6 @@ export default function AdminCustomerDetail() {
     document.getElementById(`tab-section-${tab}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  useEffect(() => { loadTab('orders'); }, [id]);
-
   async function toggleBlock() {
     if (!profile) return;
     const { user } = profile;
@@ -604,7 +616,16 @@ export default function AdminCustomerDetail() {
     );
   }
 
-  if (!profile) return null;
+  if (!profile) {
+    return (
+      <div className="py-10 text-center text-sm text-muted">
+        Couldn't load this customer.{' '}
+        <button onClick={() => navigate('/admin/users')} className="text-accent hover:text-accent-hover underline">
+          Back to customers
+        </button>
+      </div>
+    );
+  }
   const { user, stats } = profile;
 
   const statTiles = [

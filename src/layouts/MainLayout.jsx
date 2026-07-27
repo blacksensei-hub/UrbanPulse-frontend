@@ -1,5 +1,5 @@
 import { Outlet, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../components/layout/Navbar.jsx';
 import Footer from '../components/layout/Footer.jsx';
 import CartDrawer from '../components/cart/CartDrawer.jsx';
@@ -44,18 +44,23 @@ export default function MainLayout() {
       )}
       <Navbar />
       <div aria-hidden className="h-20 sm:h-24" />
-      <motion.main
-        id="main-content"
-        key={location.pathname}
-        variants={pageTransition}
-        initial="initial"
-        animate="animate"
-        exit="exit"
-        onAnimationComplete={(definition) => { if (definition === 'animate') doneLoading(); }}
-        className="flex-1"
-      >
-        <Outlet />
-      </motion.main>
+      {/* AnimatePresence must directly parent the keyed, exit-animated element — putting
+          the key/AnimatePresence pairing up at the Routes level (several components away
+          from this motion.main) meant exit completion was never detected correctly. */}
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.main
+          id="main-content"
+          key={location.pathname}
+          variants={pageTransition}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          onAnimationComplete={(definition) => { if (definition === 'animate') doneLoading(); }}
+          className="flex-1"
+        >
+          <Outlet />
+        </motion.main>
+      </AnimatePresence>
       <Footer />
       <CartDrawer />
       <MobileBottomNav />

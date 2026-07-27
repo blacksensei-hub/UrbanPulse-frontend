@@ -4,7 +4,6 @@ import ViewAsBanner from './components/ViewAsBanner.jsx';
 import LoadingBar from './components/layout/LoadingBar.jsx';
 import CookieConsent from './components/CookieConsent.jsx';
 import ScrollRestoration from './components/ScrollRestoration.jsx';
-import { AnimatePresence } from 'framer-motion';
 
 import MainLayout from './layouts/MainLayout.jsx';
 import AdminLayout from './layouts/AdminLayout.jsx';
@@ -178,8 +177,14 @@ export default function App() {
     <ViewAsBanner />
     <CookieConsent />
     <Suspense fallback={<PageSkeleton />}>
-      <AnimatePresence mode="wait" initial={false}>
-        <Routes location={location} key={location.pathname}>
+        {/* No `key` here — MainLayout/AdminLayout own the page-transition animation via
+            their own locally-scoped AnimatePresence wrapping their motion.main directly.
+            A `key` here previously forced this whole Routes subtree (Navbar, Footer, the
+            works) to hard-remount every navigation, while ALSO being wrapped by an
+            AnimatePresence too far away from the actual animated element to ever
+            correctly detect when its exit finished — the old page's content stayed
+            mounted (sometimes forever) under the new URL until a hard reload. */}
+        <Routes location={location}>
           {/* Customer */}
           <Route element={<MainLayout />}>
             <Route index element={<Home />} />
@@ -231,7 +236,6 @@ export default function App() {
             <Route path="activity" element={<AdminActivity />} />
           </Route>
         </Routes>
-      </AnimatePresence>
     </Suspense>
     </>
   );

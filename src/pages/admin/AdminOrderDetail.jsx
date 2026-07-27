@@ -84,14 +84,18 @@ export default function AdminOrderDetail() {
   // Message composer
   const [msgOpen, setMsgOpen] = useState(false);
 
+  const requestIdRef = useRef(0);
+
   async function loadOrder() {
     setLoading(true);
+    const thisRequestId = ++requestIdRef.current;
     try {
-      setOrder(await adminService.getOrder(id));
+      const data = await adminService.getOrder(id);
+      if (thisRequestId === requestIdRef.current) setOrder(data);
     } catch {
-      toast.error('Could not load order');
+      if (thisRequestId === requestIdRef.current) toast.error('Could not load order');
     } finally {
-      setLoading(false);
+      if (thisRequestId === requestIdRef.current) setLoading(false);
     }
   }
 

@@ -889,9 +889,15 @@ function ReturnDetail() {
   const { id } = useParams();
   const [ret, setRet] = useState(null);
   const [loading, setLoading] = useState(true);
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
-    returnService.get(id).then(setRet).catch(() => {}).finally(() => setLoading(false));
+    setLoading(true);
+    const thisRequestId = ++requestIdRef.current;
+    returnService.get(id)
+      .then((r) => { if (thisRequestId === requestIdRef.current) setRet(r); })
+      .catch(() => {})
+      .finally(() => { if (thisRequestId === requestIdRef.current) setLoading(false); });
   }, [id]);
 
   if (loading) return <div className="text-sm text-muted">Loading…</div>;
