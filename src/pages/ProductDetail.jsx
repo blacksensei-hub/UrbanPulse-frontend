@@ -79,34 +79,24 @@ export default function ProductDetail() {
   const [draggingGallery, setDraggingGallery] = useState(false);
   const [mainImgError, setMainImgError] = useState(false);
 
-  const mountedForRef = useRef(null);
-  const requestIdRef = useRef(0);
-
   useEffect(() => {
     // `user` deliberately isn't a dependency here — it's only needed for the
-    // hasReviewed check (now a separate memo below), and including it meant this
-    // whole fetch re-ran (resetting loading back to true) whenever the auth
-    // store's one-time init() resolved after this component had already mounted
-    // and started fetching — invisible on a fast connection where both settle in
-    // the same tick, but a real "renders then reverts to stuck loading" bug under
-    // throttling. The mountedForRef guard below also prevents React 18 StrictMode's
-    // dev-only double-effect-invoke from firing a second redundant fetch (same
-    // pattern already proven in AdminReturns.jsx/AdminOrderDetail.jsx/Account.jsx).
-    const key = `${slug}::${retryToken}`;
-    if (mountedForRef.current === key) return;
-    mountedForRef.current = key;
-
+    // hasReviewed check (a separate memo above), and including it meant this whole
+    // fetch re-ran (resetting loading back to true) whenever the auth store's
+    // one-time init() resolved after this component had already mounted and started
+    // fetching — invisible on a fast connection where both settle in the same tick,
+    // but a real "renders then reverts to stuck loading" bug under throttling.
+    let cancelled = false;
     setLoading(true);
     setFetchFailed(false);
     setSlowLoad(false);
     setSocial(null);
     setRelated([]);
-    const thisRequestId = ++requestIdRef.current;
-    const slowTimer = setTimeout(() => { if (thisRequestId === requestIdRef.current) setSlowLoad(true); }, 5000);
+    const slowTimer = setTimeout(() => { if (!cancelled) setSlowLoad(true); }, 5000);
     productService
       .get(slug)
       .then((data) => {
-        if (thisRequestId !== requestIdRef.current) return;
+        if (cancelled) return;
         setProduct(data);
         const colors = [...new Set(data.variants?.map((v) => v.color).filter(Boolean))];
         const sizes = [...new Set(data.variants?.map((v) => v.size).filter(Boolean))];
@@ -114,9 +104,14 @@ export default function ProductDetail() {
         setSelectedSize(sizes[0] ?? null);
         setActiveImage(0);
       })
-      .catch(() => { if (thisRequestId === requestIdRef.current) { setProduct(null); setFetchFailed(true); } })
-      .finally(() => { setLoading(false); clearTimeout(slowTimer); });
-    return () => clearTimeout(slowTimer);
+      .catch((err) => {
+        if (cancelled) return;
+        setProduct(null);
+        setFetchFailed(true);
+        console.error('productService.get failed', err);
+      })
+      .finally(() => { if (!cancelled) setLoading(false); clearTimeout(slowTimer); });
+    return () => { cancelled = true; clearTimeout(slowTimer); };
   }, [slug, retryToken]);
 
   useEffect(() => {

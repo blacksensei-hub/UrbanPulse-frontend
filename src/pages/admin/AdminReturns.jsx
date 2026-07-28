@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowLeft, CheckCircle, RotateCcw, Check, X, XCircle } from 'lucide-react';
@@ -45,32 +45,25 @@ function ReturnDetail({ returnId, onBack }) {
   const [refundAmount, setRefundAmount] = useState('');
   const [restock, setRestock] = useState(true);
   const [acting, setActing] = useState(false);
-  const requestIdRef = useRef(0);
-  const mountedForRef = useRef(null);
 
-  function load() {
+  // Post-action refresh (approve/receive/refund) — a direct, one-off reload, not
+  // subject to the mount effect's cancellation below.
+  function reload() {
     setLoading(true);
-    const thisRequestId = ++requestIdRef.current;
-    // Only setRet is guarded against a stale/superseded response — setLoading(false)
-    // must run unconditionally in finally(), or a permanently-locked-out earlier call
-    // resolving first (in dev, StrictMode double-invokes this effect) can leave the
-    // view stuck on "Loading…" until the still-current call happens to settle.
-    adminService.getReturn(returnId)
-      .then((r) => { if (thisRequestId === requestIdRef.current) setRet(r); })
-      .catch(() => {})
+    return adminService.getReturn(returnId)
+      .then((r) => setRet(r))
+      .catch((err) => { setRet(null); console.error('getReturn failed', err); })
       .finally(() => setLoading(false));
   }
 
   useEffect(() => {
-    // StrictMode double-invokes this effect in dev, which used to fire TWO real,
-    // redundant HTTP requests for the same return. On a throttled connection they
-    // resolve at meaningfully different times — confirmed live under Slow-3G-
-    // equivalent throttling — and if the (correctly-ignored) first one lands before
-    // the current one, the view briefly shows "Return not found." before self-
-    // correcting. Skip re-firing for a returnId we've already dispatched a request for.
-    if (mountedForRef.current === returnId) return;
-    mountedForRef.current = returnId;
-    load();
+    let cancelled = false;
+    setLoading(true);
+    adminService.getReturn(returnId)
+      .then((r) => { if (!cancelled) setRet(r); })
+      .catch((err) => { if (!cancelled) { setRet(null); console.error('getReturn failed', err); } })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, [returnId]);
 
   // Pre-fill refund amount with sum of item prices
@@ -85,7 +78,7 @@ function ReturnDetail({ returnId, onBack }) {
     setActing(true);
     try {
       await fn();
-      load();
+      reload();
       toast.success(successMsg);
     } catch (err) {
       toast.error(err?.response?.data?.message ?? 'Action failed');
