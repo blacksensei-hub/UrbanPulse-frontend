@@ -43,8 +43,11 @@ export default function ProductDetail() {
   const add = useCartStore((s) => s.add);
   const { isViewAs } = useViewAs();
 
-  const { user } = useAuthStore();
-  const { isWishlisted, getItem, add: addToWishlist, remove: removeFromWishlist } = useWishlistStore();
+  const user = useAuthStore((s) => s.user);
+  const isWishlisted = useWishlistStore((s) => s.isWishlisted);
+  const getItem = useWishlistStore((s) => s.getItem);
+  const addToWishlist = useWishlistStore((s) => s.add);
+  const removeFromWishlist = useWishlistStore((s) => s.remove);
   const [wishlistToggling, setWishlistToggling] = useState(false);
 
   const [reviewRating, setReviewRating] = useState(0);
@@ -52,7 +55,10 @@ export default function ProductDetail() {
   const [reviewImageUrl, setReviewImageUrl] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewError, setReviewError] = useState('');
-  const [hasReviewed, setHasReviewed] = useState(false);
+  const hasReviewed = useMemo(
+    () => !!user && !!product?.reviews?.some((r) => r.user_id === user.id),
+    [product?.reviews, user],
+  );
 
   // Must be before early returns to avoid hooks-in-condition violation
   const prefersReduced = useReducedMotion();
@@ -73,30 +79,45 @@ export default function ProductDetail() {
   const [draggingGallery, setDraggingGallery] = useState(false);
   const [mainImgError, setMainImgError] = useState(false);
 
+  const mountedForRef = useRef(null);
+  const requestIdRef = useRef(0);
+
   useEffect(() => {
+    // `user` deliberately isn't a dependency here — it's only needed for the
+    // hasReviewed check (now a separate memo below), and including it meant this
+    // whole fetch re-ran (resetting loading back to true) whenever the auth
+    // store's one-time init() resolved after this component had already mounted
+    // and started fetching — invisible on a fast connection where both settle in
+    // the same tick, but a real "renders then reverts to stuck loading" bug under
+    // throttling. The mountedForRef guard below also prevents React 18 StrictMode's
+    // dev-only double-effect-invoke from firing a second redundant fetch (same
+    // pattern already proven in AdminReturns.jsx/AdminOrderDetail.jsx/Account.jsx).
+    const key = `${slug}::${retryToken}`;
+    if (mountedForRef.current === key) return;
+    mountedForRef.current = key;
+
     setLoading(true);
     setFetchFailed(false);
     setSlowLoad(false);
     setSocial(null);
     setRelated([]);
-    const slowTimer = setTimeout(() => setSlowLoad(true), 5000);
+    const thisRequestId = ++requestIdRef.current;
+    const slowTimer = setTimeout(() => { if (thisRequestId === requestIdRef.current) setSlowLoad(true); }, 5000);
     productService
       .get(slug)
       .then((data) => {
+        if (thisRequestId !== requestIdRef.current) return;
         setProduct(data);
         const colors = [...new Set(data.variants?.map((v) => v.color).filter(Boolean))];
         const sizes = [...new Set(data.variants?.map((v) => v.size).filter(Boolean))];
         setSelectedColor(colors[0] ?? null);
         setSelectedSize(sizes[0] ?? null);
         setActiveImage(0);
-        if (user && data.reviews?.some((r) => r.user_id === user.id)) {
-          setHasReviewed(true);
-        }
       })
-      .catch(() => { setProduct(null); setFetchFailed(true); })
+      .catch(() => { if (thisRequestId === requestIdRef.current) { setProduct(null); setFetchFailed(true); } })
       .finally(() => { setLoading(false); clearTimeout(slowTimer); });
     return () => clearTimeout(slowTimer);
-  }, [slug, user, retryToken]);
+  }, [slug, retryToken]);
 
   useEffect(() => {
     if (!product) return;
@@ -201,7 +222,6 @@ export default function ProductDetail() {
         ...prev,
         reviews: [{ ...newReview, user_name: user.name }, ...(prev.reviews ?? [])],
       }));
-      setHasReviewed(true);
       toast.success('Review submitted');
     } catch (err) {
       const msg = err?.response?.data?.message ?? 'Could not submit review';
