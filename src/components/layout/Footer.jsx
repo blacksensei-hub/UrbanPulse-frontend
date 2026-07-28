@@ -12,7 +12,7 @@ const COLUMNS = [
     links: [
       { to: '/shop', label: 'All Products' },
       { to: '/shop?category=Outerwear', label: 'Outerwear' },
-      { to: '/shop?category=Pants', label: 'Pants' },
+      { to: '/shop?category=Bottoms', label: 'Bottoms' },
       { to: '/shop?category=Accessories', label: 'Accessories' },
     ],
   },

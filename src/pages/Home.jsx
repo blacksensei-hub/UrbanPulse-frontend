@@ -34,7 +34,7 @@ const DROP_ITEMS = [
   {
     label: 'New',
     name: 'Cargo Tech Pant',
-    href: '/shop?category=Pants',
+    href: '/shop?category=Bottoms',
     image: 'https://images.unsplash.com/photo-1594938298603-c8148c4b4e01?auto=format&fit=crop&w=800&q=80',
     large: false,
   },
