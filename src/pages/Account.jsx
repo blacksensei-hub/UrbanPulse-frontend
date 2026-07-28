@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, Route, Routes, useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
@@ -890,8 +890,15 @@ function ReturnDetail() {
   const [ret, setRet] = useState(null);
   const [loading, setLoading] = useState(true);
   const requestIdRef = useRef(0);
+  const mountedForRef = useRef(null);
 
   useEffect(() => {
+    // Skip StrictMode's second dev-mode invocation for the same id — otherwise it
+    // fires a redundant duplicate request that can resolve after the current one
+    // under a slow connection, briefly showing "Return not found." (confirmed live
+    // under Slow-3G-equivalent throttling in AdminReturns.jsx's identical pattern).
+    if (mountedForRef.current === id) return;
+    mountedForRef.current = id;
     setLoading(true);
     const thisRequestId = ++requestIdRef.current;
     returnService.get(id)

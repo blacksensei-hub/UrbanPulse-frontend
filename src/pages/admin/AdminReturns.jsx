@@ -46,6 +46,7 @@ function ReturnDetail({ returnId, onBack }) {
   const [restock, setRestock] = useState(true);
   const [acting, setActing] = useState(false);
   const requestIdRef = useRef(0);
+  const mountedForRef = useRef(null);
 
   function load() {
     setLoading(true);
@@ -60,7 +61,17 @@ function ReturnDetail({ returnId, onBack }) {
       .finally(() => setLoading(false));
   }
 
-  useEffect(() => { load(); }, [returnId]);
+  useEffect(() => {
+    // StrictMode double-invokes this effect in dev, which used to fire TWO real,
+    // redundant HTTP requests for the same return. On a throttled connection they
+    // resolve at meaningfully different times — confirmed live under Slow-3G-
+    // equivalent throttling — and if the (correctly-ignored) first one lands before
+    // the current one, the view briefly shows "Return not found." before self-
+    // correcting. Skip re-firing for a returnId we've already dispatched a request for.
+    if (mountedForRef.current === returnId) return;
+    mountedForRef.current = returnId;
+    load();
+  }, [returnId]);
 
   // Pre-fill refund amount with sum of item prices
   useEffect(() => {

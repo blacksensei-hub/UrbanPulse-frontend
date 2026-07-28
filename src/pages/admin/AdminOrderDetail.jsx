@@ -85,6 +85,7 @@ export default function AdminOrderDetail() {
   const [msgOpen, setMsgOpen] = useState(false);
 
   const requestIdRef = useRef(0);
+  const mountedForRef = useRef(null);
 
   async function loadOrder() {
     setLoading(true);
@@ -99,7 +100,15 @@ export default function AdminOrderDetail() {
     }
   }
 
-  useEffect(() => { loadOrder(); }, [id]);
+  useEffect(() => {
+    // Skip StrictMode's second dev-mode invocation for the same id — otherwise it
+    // fires a redundant duplicate request that can resolve after the current one
+    // under a slow connection, briefly showing a stale/empty state (confirmed live
+    // under Slow-3G-equivalent throttling in AdminReturns.jsx's identical pattern).
+    if (mountedForRef.current === id) return;
+    mountedForRef.current = id;
+    loadOrder();
+  }, [id]);
 
   function enterEditMode() {
     if (!order) return;
