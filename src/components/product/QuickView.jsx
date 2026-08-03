@@ -11,7 +11,6 @@ import { productService } from '../../services/index.js';
 import { useCartStore } from '../../stores/cartStore.js';
 import { formatCurrency, cn } from '../../utils/format.js';
 import { vibrate } from '../../utils/haptic.js';
-import { prefersReducedMotion } from '../../utils/motion.js';
 
 const COLOR_MAP = {
   black: '#1a1a1a', 'jet black': '#1a1a1a',
@@ -25,46 +24,6 @@ const COLOR_MAP = {
 
 export function swatchColor(name) {
   return COLOR_MAP[name?.toLowerCase()] ?? null;
-}
-
-export function showAddedToast(product, priceText) {
-  const reducedMotion = prefersReducedMotion();
-
-  toast.custom(
-    (t) => (
-      <motion.div
-        initial={reducedMotion ? { opacity: 0 } : { x: 60, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        exit={reducedMotion ? { opacity: 0 } : { x: 60, opacity: 0 }}
-        className={cn(
-          'glass-strong flex items-center gap-3 border border-accent rounded-xl shadow-elevated px-4 py-3 max-w-[300px]',
-          !t.visible && 'opacity-0',
-        )}
-      >
-        {product.images?.[0] && (
-          <img
-            src={product.images[0]}
-            className="h-10 w-10 rounded-lg object-cover shrink-0"
-            alt=""
-          />
-        )}
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold truncate">{product.name}</p>
-          <p className="text-xs text-muted">
-            {priceText ? `Added · ${priceText}` : 'Added to cart'}
-          </p>
-        </div>
-        <Link
-          to="/cart"
-          onClick={() => toast.dismiss(t.id)}
-          className="text-xs font-semibold text-accent shrink-0 hover:text-accent-hover"
-        >
-          View cart
-        </Link>
-      </motion.div>
-    ),
-    { duration: 3500, position: 'top-right', id: 'cart-preview' },
-  );
 }
 
 export default function QuickView({ slug, open, onClose }) {
@@ -120,7 +79,6 @@ export default function QuickView({ slug, open, onClose }) {
     try {
       await add(variant.id, qty);
       vibrate(10);
-      showAddedToast(product, formatCurrency(variant.price ?? product.price));
       onClose();
     } catch (err) {
       toast.error(err?.response?.data?.message ?? 'Could not add to cart');

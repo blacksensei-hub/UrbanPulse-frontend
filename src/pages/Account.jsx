@@ -1693,7 +1693,7 @@ function Wishlist() {
     const inStock = (item.variants ?? []).find((v) => v.stock > 0);
     if (!inStock) return toast.error('No variants in stock');
     setAddingId(item.id);
-    try { await addToCart(inStock.id, 1); toast.success('Added to cart'); }
+    try { await addToCart(inStock.id, 1); }
     catch { toast.error('Could not add to cart'); }
     finally { setAddingId(null); }
   }

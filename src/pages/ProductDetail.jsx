@@ -14,7 +14,7 @@ import { useFeature } from '../stores/settingsStore.js';
 import { formatCurrency, formatDate, formatRelativeDate, cn } from '../utils/format.js';
 import { fadeIn, morph, spring, staggerContainer } from '../lib/motion.js';
 import FlashSaleTimer from '../components/product/FlashSaleTimer.jsx';
-import { swatchColor, showAddedToast } from '../components/product/QuickView.jsx';
+import { swatchColor } from '../components/product/QuickView.jsx';
 import StarPicker from '../components/product/StarPicker.jsx';
 import { triggerWishlistConfetti } from '../utils/confetti.js';
 import { vibrate } from '../utils/haptic.js';
@@ -161,7 +161,6 @@ export default function ProductDetail() {
     try {
       await add(variant.id, quantity);
       vibrate(10);
-      showAddedToast(product, formatCurrency(variant.price ?? product.price));
       if (!prefersReduced && mainImageRef.current) {
         const rect = mainImageRef.current.getBoundingClientRect();
         setFlyState({
