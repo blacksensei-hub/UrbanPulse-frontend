@@ -8,7 +8,7 @@ import { Button, Input } from '../components/ui/index.jsx';
 import SEO from '../components/SEO.jsx';
 import { useCartStore } from '../stores/cartStore.js';
 import { useAuthStore } from '../stores/authStore.js';
-import { orderService, loyaltyService } from '../services/index.js';
+import { orderService, loyaltyService, addressService } from '../services/index.js';
 import { useViewAs } from '../hooks/useViewAs.js';
 import { formatCurrency, cn, sanitizePhone } from '../utils/format.js';
 import { getErrorMessage } from '../utils/errors.js';
@@ -49,6 +49,8 @@ export default function Checkout() {
   const [loyalty, setLoyalty]           = useState(null);
   const [applyPoints, setApplyPoints]   = useState(false);
   const [pointsInput, setPointsInput]   = useState(0);
+  const [savedAddresses, setSavedAddresses]   = useState([]);
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [form, setForm] = useState({
     email:         user?.email ?? '',
     firstName:     '',
@@ -92,6 +94,32 @@ export default function Checkout() {
 
   function setField(k, v) { setForm((f) => ({ ...f, [k]: v })); }
 
+  function applySavedAddress(addr) {
+    const [first, ...rest] = (addr.name || '').trim().split(' ');
+    setForm((f) => ({
+      ...f,
+      firstName: first || '',
+      lastName: rest.join(' '),
+      address: addr.line1 || '',
+      apartment: addr.line2 || '',
+      city: addr.city || '',
+      state: addr.state || '',
+      zip: addr.zip || '',
+      country: addr.country || 'Ghana',
+      phone: addr.phone || '',
+    }));
+    setSelectedAddressId(addr.id);
+  }
+
+  function selectNewAddress() {
+    setSelectedAddressId(null);
+    setForm((f) => ({
+      ...f,
+      firstName: '', lastName: '', address: '', apartment: '',
+      city: '', state: '', zip: '', country: 'Ghana', phone: '',
+    }));
+  }
+
   async function handleCouponBlur() {
     const code = form.coupon.trim();
     if (!code) { setCouponPreview(null); setCouponError(''); return; }
@@ -120,6 +148,16 @@ export default function Checkout() {
   useEffect(() => {
     if (user && loyaltyEnabled) loyaltyService.me().then(setLoyalty).catch(() => {});
   }, [user, loyaltyEnabled]);
+
+  useEffect(() => {
+    if (!user) return;
+    addressService.list().then((list) => {
+      setSavedAddresses(list);
+      const def = list.find((a) => a.is_default) ?? list[0];
+      if (def) applySavedAddress(def);
+    }).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   useEffect(() => {
     if (step > prevStepRef.current) {
@@ -281,6 +319,43 @@ export default function Checkout() {
                       autoComplete="email" inputMode="email"
                       onChange={(e) => setField('email', e.target.value)} />
                     <h2 className="pt-2 font-display text-h3 font-bold">Shipping address</h2>
+                    {user && savedAddresses.length > 0 && (
+                      <div className="space-y-2">
+                        {savedAddresses.map((a) => (
+                          <label
+                            key={a.id}
+                            className={cn(
+                              'flex cursor-pointer items-start gap-3 rounded-lg border p-3 text-sm transition-colors',
+                              selectedAddressId === a.id ? 'border-accent bg-accent/5' : 'border-border hover:border-text',
+                            )}
+                          >
+                            <input type="radio" name="savedAddress" className="mt-1 accent-accent"
+                              checked={selectedAddressId === a.id}
+                              onChange={() => applySavedAddress(a)} />
+                            <div>
+                              <div className="font-medium">
+                                {a.label || a.name}
+                                {a.is_default && <span className="ml-2 text-xs font-semibold text-accent">Default</span>}
+                              </div>
+                              <div className="text-xs text-muted">
+                                {a.line1}{a.line2 ? `, ${a.line2}` : ''}, {a.city}
+                              </div>
+                            </div>
+                          </label>
+                        ))}
+                        <label
+                          className={cn(
+                            'flex cursor-pointer items-center gap-3 rounded-lg border p-3 text-sm transition-colors',
+                            selectedAddressId === null ? 'border-accent bg-accent/5' : 'border-border hover:border-text',
+                          )}
+                        >
+                          <input type="radio" name="savedAddress" className="accent-accent"
+                            checked={selectedAddressId === null}
+                            onChange={selectNewAddress} />
+                          <span className="font-medium">Use a different address</span>
+                        </label>
+                      </div>
+                    )}
                     {/* TODO: Future enhancement — integrate GhanaPostGPS digital address (GA-123-4567 format) lookup */}
                     <div className="grid gap-4 sm:grid-cols-2">
                       <Input floating label="First name" value={form.firstName} autoComplete="given-name"
