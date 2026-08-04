@@ -29,10 +29,8 @@ const COLUMNS = [
   {
     title: 'Company',
     links: [
-      { to: '/about', label: 'Our Story' },
+      { to: '/about', label: 'About' },
       { to: '/lookbook', label: 'Lookbook' },
-      { to: '/sustainability', label: 'Sustainability' },
-      { to: '/careers', label: 'Careers' },
     ],
   },
 ];

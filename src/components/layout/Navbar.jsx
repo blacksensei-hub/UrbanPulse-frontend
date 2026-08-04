@@ -362,6 +362,7 @@ export default function Navbar() {
                 <p className="eyebrow mb-3">Support &amp; Policies</p>
                 {[
                   { to: '/contact',        label: 'Contact us' },
+                  { to: '/about',          label: 'About' },
                   { to: '/faq',            label: 'FAQ' },
                   { to: '/shipping',       label: 'Shipping info' },
                   { to: '/returns-policy', label: 'Returns' },

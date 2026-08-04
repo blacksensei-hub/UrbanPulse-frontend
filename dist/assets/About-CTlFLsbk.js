@@ -1,1 +1,0 @@
-import{j as t}from"./motion-D4ctv0sM.js";import{C as o}from"./ContentPage-Bc6WH6s1.js";import"./react-BD33oxTj.js";import"./SEO-DIfNLodC.js";import"./index-B6zsbMLY.js";import"./Markdown-DsvgWRgp.js";import"./NotFound-BWs-e_4D.js";import"./useContentPage-i5-JQPuN.js";function n(){return t.jsx(o,{slug:"about"})}export{n as default};
