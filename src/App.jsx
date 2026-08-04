@@ -56,6 +56,8 @@ const AdminCustomerDetail = lazy(() => import('./pages/admin/AdminCustomerDetail
 const AdminActivity       = lazy(() => import('./pages/admin/AdminActivity.jsx'));
 const AdminOrderDetail    = lazy(() => import('./pages/admin/AdminOrderDetail.jsx'));
 const AdminTemplates      = lazy(() => import('./pages/admin/AdminTemplates.jsx'));
+const AdminPages          = lazy(() => import('./pages/admin/AdminPages.jsx'));
+const AdminPageEdit       = lazy(() => import('./pages/admin/AdminPageEdit.jsx'));
 
 function PageSkeleton() {
   return (
@@ -233,6 +235,8 @@ export default function App() {
             <Route path="logs" element={<AdminLogs />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="settings/templates" element={<AdminTemplates />} />
+            <Route path="pages" element={<AdminPages />} />
+            <Route path="pages/:slug" element={<AdminPageEdit />} />
             <Route path="activity" element={<AdminActivity />} />
           </Route>
         </Routes>

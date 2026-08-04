@@ -263,6 +263,33 @@ html.dark {
     max-width: 65ch;
     color: var(--color-muted);
   }
+
+  /* Rendered markdown — used by public content pages and the admin preview pane */
+  .markdown-body { line-height: 1.75; color: var(--color-muted); }
+  .markdown-body > *:first-child { margin-top: 0; }
+  .markdown-body h1 { @apply font-display text-h1 font-bold text-text; margin-top: 2rem; margin-bottom: 1rem; }
+  .markdown-body h2 { @apply font-display text-h3 font-semibold text-text; margin-top: 2.5rem; margin-bottom: .75rem; }
+  .markdown-body h3 { @apply font-display font-semibold text-text; font-size: 1.0625rem; margin-top: 1.75rem; margin-bottom: .5rem; }
+  .markdown-body p { margin-top: .75rem; }
+  .markdown-body ul, .markdown-body ol { margin-top: .75rem; padding-left: 1.25rem; }
+  .markdown-body ul { list-style: disc; }
+  .markdown-body ol { list-style: decimal; }
+  .markdown-body li { margin-top: .375rem; }
+  .markdown-body li > ul, .markdown-body li > ol { margin-top: .375rem; }
+  .markdown-body strong { color: var(--color-text); font-weight: 600; }
+  .markdown-body a { color: var(--color-accent); text-decoration-line: underline; text-decoration-color: transparent; transition: text-decoration-color var(--dur-fast) var(--easing-out); }
+  .markdown-body a:hover { text-decoration-color: var(--color-accent); }
+  .markdown-body blockquote {
+    margin-top: 1.25rem;
+    padding-left: 1rem;
+    border-left: 2px solid var(--color-accent);
+    font-style: italic;
+    color: var(--color-text);
+  }
+  .markdown-body blockquote p { margin-top: .5rem; }
+  .markdown-body table { width: 100%; font-size: .875rem; border-collapse: collapse; margin-top: 1rem; }
+  .markdown-body th, .markdown-body td { padding: .75rem 0; text-align: left; border-bottom: 1px solid var(--color-border); }
+  .markdown-body th { font-weight: 600; color: var(--color-text); }
 }
 
 /* Keyframes */

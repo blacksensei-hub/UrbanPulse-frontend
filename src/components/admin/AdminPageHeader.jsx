@@ -16,6 +16,7 @@ const LABEL_MAP = {
   logs: 'Logs',
   activity: 'Activity',
   settings: 'Settings',
+  pages: 'Pages',
   new: 'New',
   edit: 'Edit',
 };

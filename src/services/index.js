@@ -10,6 +10,10 @@ export const productService = {
   byIds:   (ids)           => api.get('/products/by-ids', { params: { ids: ids.join(',') } }).then(r => r.data),
 };
 
+export const contentService = {
+  get: (slug) => api.get(`/content/${slug}`).then(r => r.data),
+};
+
 export const cartService = {
   get:  () => api.get('/cart').then(r => r.data),
   add:  (variant_id, quantity) => api.post('/cart/items', { variant_id, quantity }).then(r => r.data),
@@ -213,6 +217,9 @@ export const adminService = {
   updateTemplate:      (id, b)  => api.put(`/admin/message-templates/${id}`, b).then(r => r.data),
   deleteTemplate:      (id)     => api.delete(`/admin/message-templates/${id}`).then(r => r.data),
   sendMessage:         (b)      => api.post('/admin/messages/send', b).then(r => r.data),
+
+  content:       ()          => api.get('/admin/content').then(r => r.data),
+  updateContent: (slug, b)   => api.put(`/admin/content/${slug}`, b).then(r => r.data),
 
   customer: {
     get:                (id)            => api.get(`/admin/customers/${id}`).then(r => r.data),

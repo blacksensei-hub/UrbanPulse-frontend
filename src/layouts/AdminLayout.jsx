@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Package, ShoppingBag, Users, TicketPercent,
   BarChart3, ScrollText, Settings, Menu, X, LogOut, Store,
-  RotateCcw, UserCog, ChevronLeft, ChevronRight, Search, Activity, Award,
+  RotateCcw, UserCog, ChevronLeft, ChevronRight, Search, Activity, Award, FileText,
 } from 'lucide-react';
 import { adminService } from '../services/index.js';
 import AdminThemeToggle from '../components/admin/AdminThemeToggle.jsx';
@@ -26,6 +26,7 @@ const PAGE_TITLES = {
   '/admin/loyalty': 'Loyalty',
   '/admin/logs': 'Logs',
   '/admin/settings': 'Settings',
+  '/admin/pages': 'Pages',
 };
 
 function getPageTitle(pathname) {
@@ -34,6 +35,7 @@ function getPageTitle(pathname) {
   if (pathname.includes('/products/')) return 'Product';
   if (pathname.includes('/returns/')) return 'Return';
   if (pathname.includes('/customers/')) return 'Customer';
+  if (pathname.includes('/pages/')) return 'Page';
   return 'Admin';
 }
 
@@ -52,6 +54,12 @@ const NAV_GROUPS = [
     label: 'Catalog',
     items: [
       { to: '/admin/products',  label: 'Products',  icon: Package },
+    ],
+  },
+  {
+    label: 'Content',
+    items: [
+      { to: '/admin/pages',     label: 'Pages',     icon: FileText },
     ],
   },
   {
