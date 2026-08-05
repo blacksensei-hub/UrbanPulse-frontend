@@ -52,9 +52,9 @@ export default function Modal({ open, onClose, title, children, maxWidth = '480p
               <button
                 onClick={onClose}
                 aria-label="Close"
-                className="w-9 h-9 rounded-full hover:bg-border flex items-center justify-center"
+                className="w-11 h-11 rounded-full hover:bg-border flex items-center justify-center"
               >
-                <X size={18} />
+                <X size={18} className="pointer-events-none" />
               </button>
             </div>
             {children}

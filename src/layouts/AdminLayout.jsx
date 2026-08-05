@@ -167,26 +167,40 @@ function SidebarBody({ onNavigate, pendingReturns, collapsed, onToggleCollapse }
 
   return (
     <div className="flex h-full flex-col relative">
-      {/* Collapse toggle — pinned to right edge */}
-      <button
-        onClick={onToggleCollapse}
-        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        className="absolute -right-3 top-16 z-10 grid h-6 w-6 place-items-center rounded-full border border-border bg-surface shadow-sm text-muted hover:text-text hover:bg-highlight transition-colors"
+      {/* Brand + collapse toggle. The toggle used to float via `position:
+          absolute` pinned to the sidebar's edge, straddling/overlapping this
+          row and the nav below it — turns out that a sibling with a lower
+          z-index can still win hit-testing over an absolutely-positioned,
+          higher z-index sibling once several of this codebase's ambient
+          effects stack up (backdrop-filter + overflow-hidden context on the
+          aside, nested flex/scroll containers). Rather than fight that, the
+          toggle now lives in normal flex flow as a real sibling of the brand
+          content, which structurally can't overlap anything. */}
+      <div
+        className={`flex border-b border-border py-4 ${
+          collapsed ? 'flex-col items-center gap-2 px-2' : 'items-center gap-3 px-4'
+        }`}
       >
-        {collapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
-      </button>
-
-      {/* Brand */}
-      <div className={`flex items-center border-b border-border px-4 py-4 ${collapsed ? 'justify-center' : 'gap-3'}`}>
         <div className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-accent text-white">
           <Store className="h-4 w-4" />
         </div>
         {!collapsed && (
-          <div className="min-w-0 leading-tight">
+          <div className="min-w-0 flex-1 leading-tight">
             <div className="text-eyebrow text-muted uppercase tracking-widest">Admin</div>
             <div className="truncate text-sm font-semibold font-display">{user?.name ?? 'Admin'}</div>
           </div>
         )}
+        <button
+          onClick={onToggleCollapse}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          className={`grid h-11 w-11 shrink-0 place-items-center rounded-full text-muted hover:text-text hover:bg-highlight transition-colors ${collapsed ? '' : 'ml-auto'}`}
+        >
+          <span className="grid h-6 w-6 place-items-center rounded-full border border-border bg-surface shadow-sm">
+            {collapsed
+              ? <ChevronRight className="h-3 w-3 pointer-events-none" />
+              : <ChevronLeft className="h-3 w-3 pointer-events-none" />}
+          </span>
+        </button>
       </div>
 
       {/* Nav */}
@@ -273,9 +287,9 @@ function SidebarBody({ onNavigate, pendingReturns, collapsed, onToggleCollapse }
           <button
             onClick={() => logout()}
             aria-label="Sign out"
-            className="grid h-10 w-10 place-items-center rounded-md border border-border text-muted transition-colors hover:bg-highlight hover:text-text"
+            className="grid h-11 w-11 place-items-center rounded-md border border-border text-muted transition-colors hover:bg-highlight hover:text-text"
           >
-            <LogOut className="h-4 w-4" />
+            <LogOut className="h-4 w-4 pointer-events-none" />
           </button>
         </div>
       </div>
@@ -344,9 +358,9 @@ function AdminLayoutInner({ open, setOpen, collapsed, setCollapsed, pendingRetur
           <button
             onClick={() => setOpen(true)}
             aria-label="Open menu"
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-md border border-border hover:bg-highlight transition-colors"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-md border border-border hover:bg-highlight transition-colors"
           >
-            <Menu className="h-5 w-5" />
+            <Menu className="h-5 w-5 pointer-events-none" />
           </button>
           <span className="flex-1 px-3 text-center font-display text-base font-semibold truncate">
             {getPageTitle(location.pathname)}
@@ -355,9 +369,9 @@ function AdminLayoutInner({ open, setOpen, collapsed, setCollapsed, pendingRetur
             <button
               onClick={onOpenPalette}
               aria-label="Open command palette"
-              className="grid h-10 w-10 place-items-center rounded-md border border-border hover:bg-highlight transition-colors"
+              className="grid h-11 w-11 place-items-center rounded-md border border-border hover:bg-highlight transition-colors"
             >
-              <Search className="h-4 w-4" />
+              <Search className="h-4 w-4 pointer-events-none" />
             </button>
             {mobileAction}
           </div>

@@ -381,9 +381,9 @@ export default function AdminOrderDetail() {
                     <td className="px-4 py-3 text-right">
                       {isEditing ? (
                         <div className="inline-flex items-center gap-1">
-                          <button onClick={() => changeQty(item, -1)} className="h-6 w-6 rounded border border-border inline-flex items-center justify-center hover:bg-highlight"><Minus className="h-3 w-3" /></button>
+                          <button onClick={() => changeQty(item, -1)} aria-label="Decrease quantity" className="grid h-11 w-11 place-items-center rounded border border-border hover:bg-highlight"><Minus className="h-3 w-3 pointer-events-none" /></button>
                           <span className="w-8 text-center tabular-nums">{qty}</span>
-                          <button onClick={() => changeQty(item, 1)} className="h-6 w-6 rounded border border-border inline-flex items-center justify-center hover:bg-highlight"><Plus className="h-3 w-3" /></button>
+                          <button onClick={() => changeQty(item, 1)} aria-label="Increase quantity" className="grid h-11 w-11 place-items-center rounded border border-border hover:bg-highlight"><Plus className="h-3 w-3 pointer-events-none" /></button>
                         </div>
                       ) : (
                         <span className="tabular-nums">{item.quantity}</span>
@@ -393,7 +393,7 @@ export default function AdminOrderDetail() {
                     <td className="px-4 py-3 text-right tabular-nums font-medium">{formatCurrency(item.unit_price * qty)}</td>
                     {isEditing && (
                       <td className="px-4 py-3">
-                        <button onClick={() => removeItem(item)} className="text-muted hover:text-error transition-colors"><X className="h-4 w-4" /></button>
+                        <button onClick={() => removeItem(item)} aria-label="Remove item" className="grid h-11 w-11 place-items-center text-muted hover:text-error transition-colors"><X className="h-4 w-4 pointer-events-none" /></button>
                       </td>
                     )}
                   </tr>
@@ -409,15 +409,15 @@ export default function AdminOrderDetail() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="inline-flex items-center gap-1">
-                      <button onClick={() => setEditItems(prev => e.quantity <= 1 ? prev.filter(x => x !== e) : prev.map(x => x === e ? { ...x, quantity: x.quantity - 1 } : x))} className="h-6 w-6 rounded border border-border inline-flex items-center justify-center hover:bg-highlight"><Minus className="h-3 w-3" /></button>
+                      <button onClick={() => setEditItems(prev => e.quantity <= 1 ? prev.filter(x => x !== e) : prev.map(x => x === e ? { ...x, quantity: x.quantity - 1 } : x))} aria-label="Decrease quantity" className="grid h-11 w-11 place-items-center rounded border border-border hover:bg-highlight"><Minus className="h-3 w-3 pointer-events-none" /></button>
                       <span className="w-8 text-center tabular-nums">{e.quantity}</span>
-                      <button onClick={() => setEditItems(prev => prev.map(x => x === e ? { ...x, quantity: x.quantity + 1 } : x))} className="h-6 w-6 rounded border border-border inline-flex items-center justify-center hover:bg-highlight"><Plus className="h-3 w-3" /></button>
+                      <button onClick={() => setEditItems(prev => prev.map(x => x === e ? { ...x, quantity: x.quantity + 1 } : x))} aria-label="Increase quantity" className="grid h-11 w-11 place-items-center rounded border border-border hover:bg-highlight"><Plus className="h-3 w-3 pointer-events-none" /></button>
                     </div>
                   </td>
                   <td className="px-4 py-3 text-right tabular-nums text-muted">{formatCurrency(e._price)}</td>
                   <td className="px-4 py-3 text-right tabular-nums font-medium text-success">{formatCurrency(e._price * e.quantity)}</td>
                   <td className="px-4 py-3">
-                    <button onClick={() => setEditItems(prev => prev.filter(x => x !== e))} className="text-muted hover:text-error transition-colors"><X className="h-4 w-4" /></button>
+                    <button onClick={() => setEditItems(prev => prev.filter(x => x !== e))} aria-label="Remove item" className="grid h-11 w-11 place-items-center text-muted hover:text-error transition-colors"><X className="h-4 w-4 pointer-events-none" /></button>
                   </td>
                 </tr>
               ))}

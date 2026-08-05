@@ -49,10 +49,10 @@ function MobileProductCard({ p, onEdit, onRemove, onLongPress, isSelected }) {
         </div>
         <button
           onClick={(e) => { e.stopPropagation(); setSheetOpen(true); }}
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-md text-muted hover:bg-bg"
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-md text-muted hover:bg-bg"
           aria-label="More actions"
         >
-          <MoreVertical className="h-4 w-4" />
+          <MoreVertical className="h-4 w-4 pointer-events-none" />
         </button>
       </div>
       <BottomSheet open={sheetOpen} onClose={() => setSheetOpen(false)} title={p.name}>
@@ -380,17 +380,17 @@ export default function AdminProducts() {
                       <div className="flex items-center justify-end gap-1">
                         <Link
                           to={`/admin/products/${p.id}/edit`}
-                          className="grid h-8 w-8 place-items-center rounded-md text-muted hover:bg-bg hover:text-text transition-colors"
+                          className="grid h-11 w-11 place-items-center rounded-md text-muted hover:bg-bg hover:text-text transition-colors"
                           aria-label="Edit"
                         >
-                          <Pencil className="h-4 w-4" />
+                          <Pencil className="h-4 w-4 pointer-events-none" />
                         </Link>
                         <button
                           onClick={() => remove(p.id)}
-                          className="grid h-8 w-8 place-items-center rounded-md text-error hover:bg-error/10 transition-colors"
+                          className="grid h-11 w-11 place-items-center rounded-md text-error hover:bg-error/10 transition-colors"
                           aria-label="Delete"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-4 w-4 pointer-events-none" />
                         </button>
                       </div>
                     </td>

@@ -274,17 +274,19 @@ export default function AdminTemplates() {
                     <div className="flex items-center gap-1 justify-end">
                       <button
                         onClick={() => { setEditing(t); setModalOpen(true); }}
-                        className="grid h-7 w-7 place-items-center rounded-md text-muted hover:bg-highlight transition-colors"
+                        aria-label="Edit template"
+                        className="grid h-11 w-11 place-items-center rounded-md text-muted hover:bg-highlight transition-colors"
                         title="Edit"
                       >
-                        <Pencil className="h-3.5 w-3.5" />
+                        <Pencil className="h-3.5 w-3.5 pointer-events-none" />
                       </button>
                       <button
                         onClick={() => handleDelete(t.id)}
-                        className="grid h-7 w-7 place-items-center rounded-md text-error hover:bg-error/10 transition-colors"
+                        aria-label="Deactivate template"
+                        className="grid h-11 w-11 place-items-center rounded-md text-error hover:bg-error/10 transition-colors"
                         title="Deactivate"
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <Trash2 className="h-3.5 w-3.5 pointer-events-none" />
                       </button>
                     </div>
                   </td>

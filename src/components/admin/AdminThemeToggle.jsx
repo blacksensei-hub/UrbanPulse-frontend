@@ -23,7 +23,7 @@ export default function AdminThemeToggle({ className = '' }) {
       transition={{ type: 'spring', stiffness: 320, damping: 22 }}
       aria-label={`Switch to ${isAdminDark ? 'light' : 'dark'} admin theme`}
       title={`Switch to ${isAdminDark ? 'light' : 'dark'} mode`}
-      className={`relative inline-flex items-center justify-center w-10 h-10 rounded-md border border-border bg-surface text-text overflow-hidden transition-colors hover:bg-highlight ${className}`}
+      className={`relative inline-flex items-center justify-center w-11 h-11 rounded-md border border-border bg-surface text-text overflow-hidden transition-colors hover:bg-highlight ${className}`}
     >
       <AnimatePresence mode="wait" initial={false}>
         {isAdminDark ? (
@@ -34,7 +34,7 @@ export default function AdminThemeToggle({ className = '' }) {
             initial="initial"
             animate="animate"
             exit="exit"
-            className="flex"
+            className="flex pointer-events-none"
           >
             <Moon size={16} strokeWidth={2} />
           </motion.span>
@@ -46,7 +46,7 @@ export default function AdminThemeToggle({ className = '' }) {
             initial="initial"
             animate="animate"
             exit="exit"
-            className="flex"
+            className="flex pointer-events-none"
           >
             <Sun size={16} strokeWidth={2} />
           </motion.span>

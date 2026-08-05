@@ -357,7 +357,7 @@ export default function AdminProductForm() {
                     className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-border text-muted hover:text-error transition-colors"
                     aria-label="Remove image"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4 pointer-events-none" />
                   </button>
                 </div>
               ))}
@@ -404,7 +404,7 @@ export default function AdminProductForm() {
                     className="grid h-11 w-11 place-items-center rounded-lg border border-border text-muted hover:text-error transition-colors"
                     aria-label="Remove variant"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4 pointer-events-none" />
                   </button>
                   {v.id ? (
                     <button
@@ -414,7 +414,7 @@ export default function AdminProductForm() {
                       aria-label="Adjust stock"
                       title="Adjust stock"
                     >
-                      <SlidersHorizontal className="h-4 w-4" />
+                      <SlidersHorizontal className="h-4 w-4 pointer-events-none" />
                     </button>
                   ) : <div />}
                 </motion.div>

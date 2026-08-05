@@ -453,9 +453,12 @@ export default function AdminOrders() {
                     <button
                       onClick={() => downloadReceipt(o)}
                       disabled={downloadingReceiptId === o.id}
-                      className="grid h-8 w-8 place-items-center rounded-md text-muted hover:bg-bg disabled:opacity-50"
+                      aria-label="Download receipt"
+                      className="grid h-11 w-11 place-items-center rounded-md text-muted hover:bg-bg disabled:opacity-50"
                     >
-                      {downloadingReceiptId === o.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+                      {downloadingReceiptId === o.id
+                        ? <Loader2 className="h-3.5 w-3.5 animate-spin pointer-events-none" />
+                        : <Download className="h-3.5 w-3.5 pointer-events-none" />}
                     </button>
                   )}
                 </div>
@@ -691,10 +694,24 @@ export default function AdminOrders() {
                         <div className="text-xs text-muted">{item.variant_label} · {formatCurrency(item.unit_price)}</div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <button onClick={() => setManualItems(prev => prev.map((x, idx) => idx === i ? { ...x, quantity: Math.max(1, x.quantity - 1) } : x))} className="h-6 w-6 rounded border border-border flex items-center justify-center text-xs">−</button>
+                        <button
+                          onClick={() => setManualItems(prev => prev.map((x, idx) => idx === i ? { ...x, quantity: Math.max(1, x.quantity - 1) } : x))}
+                          aria-label="Decrease quantity"
+                          className="grid h-11 w-11 place-items-center rounded border border-border text-xs"
+                        >−</button>
                         <span className="w-6 text-center tabular-nums">{item.quantity}</span>
-                        <button onClick={() => setManualItems(prev => prev.map((x, idx) => idx === i ? { ...x, quantity: x.quantity + 1 } : x))} className="h-6 w-6 rounded border border-border flex items-center justify-center text-xs">+</button>
-                        <button onClick={() => setManualItems(prev => prev.filter((_, idx) => idx !== i))} className="text-muted hover:text-error ml-1"><X className="h-3.5 w-3.5" /></button>
+                        <button
+                          onClick={() => setManualItems(prev => prev.map((x, idx) => idx === i ? { ...x, quantity: x.quantity + 1 } : x))}
+                          aria-label="Increase quantity"
+                          className="grid h-11 w-11 place-items-center rounded border border-border text-xs"
+                        >+</button>
+                        <button
+                          onClick={() => setManualItems(prev => prev.filter((_, idx) => idx !== i))}
+                          aria-label="Remove item"
+                          className="grid h-11 w-11 place-items-center text-muted hover:text-error"
+                        >
+                          <X className="h-3.5 w-3.5 pointer-events-none" />
+                        </button>
                       </div>
                     </div>
                   ))}

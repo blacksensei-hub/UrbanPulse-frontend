@@ -36,13 +36,13 @@ export default function BulkSelectionBar({ count, actions = [], onClear }) {
                   key={a.label}
                   onClick={a.onClick}
                   aria-label={a.label}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  className={`inline-flex min-h-11 items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                     a.destructive
                       ? 'text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40'
                       : 'text-text hover:bg-highlight'
                   }`}
                 >
-                  {a.icon && <a.icon size={14} />}
+                  {a.icon && <a.icon size={14} className="pointer-events-none" />}
                   {a.label}
                 </button>
               ))}
@@ -50,9 +50,9 @@ export default function BulkSelectionBar({ count, actions = [], onClear }) {
             <button
               onClick={onClear}
               aria-label="Clear selection"
-              className="ml-auto flex items-center gap-1 text-xs text-muted hover:text-text transition-colors"
+              className="ml-auto flex min-h-11 items-center gap-1 px-2 text-xs text-muted hover:text-text transition-colors"
             >
-              <X size={14} />
+              <X size={14} className="pointer-events-none" />
               Clear
             </button>
           </motion.div>
@@ -74,19 +74,23 @@ export default function BulkSelectionBar({ count, actions = [], onClear }) {
                   key={a.label}
                   onClick={a.onClick}
                   aria-label={a.label}
-                  className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  className={`inline-flex min-h-11 items-center gap-1 px-2.5 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                     a.destructive
                       ? 'text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40'
                       : 'text-text hover:bg-highlight'
                   }`}
                 >
-                  {a.icon && <a.icon size={14} />}
+                  {a.icon && <a.icon size={14} className="pointer-events-none" />}
                   <span className="hidden sm:inline">{a.label}</span>
                 </button>
               ))}
             </div>
-            <button onClick={onClear} aria-label="Clear selection" className="text-muted hover:text-text">
-              <X size={18} />
+            <button
+              onClick={onClear}
+              aria-label="Clear selection"
+              className="grid h-11 w-11 shrink-0 place-items-center text-muted hover:text-text"
+            >
+              <X size={18} className="pointer-events-none" />
             </button>
           </motion.div>
 

@@ -152,18 +152,20 @@ function CodRow({ item, onDone }) {
         <div className="flex items-center gap-2 shrink-0">
           {item.customer_phone && (
             <a href={`tel:${item.customer_phone}`}
-              className="grid h-9 w-9 place-items-center rounded-md border border-border text-muted hover:bg-highlight hover:text-text transition-colors"
+              className="grid h-11 w-11 place-items-center rounded-md border border-border text-muted hover:bg-highlight hover:text-text transition-colors"
+              aria-label="Call customer"
               title="Call customer"
             >
-              <Phone className="h-4 w-4" />
+              <Phone className="h-4 w-4 pointer-events-none" />
             </a>
           )}
           <Button size="sm-dense" onClick={confirmCOD} loading={confirming}>Confirm</Button>
           <button onClick={cancelCOD} disabled={cancelling}
-            className="grid h-8 w-8 place-items-center rounded-md text-muted hover:bg-error/10 hover:text-error transition-colors disabled:opacity-50"
+            aria-label="Cancel order"
+            className="grid h-11 w-11 place-items-center rounded-md text-muted hover:bg-error/10 hover:text-error transition-colors disabled:opacity-50"
             title="Cancel order"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4 pointer-events-none" />
           </button>
         </div>
       </div>
@@ -179,8 +181,8 @@ function CodRow({ item, onDone }) {
               {' · '}{item.items_count} items{' · '}{formatRelativeDate(item.created_at)}
             </div>
           </div>
-          <button onClick={() => setActionsOpen(true)} className="grid h-9 w-9 place-items-center rounded-md border border-border text-muted shrink-0">
-            <Phone className="h-4 w-4" />
+          <button onClick={() => setActionsOpen(true)} aria-label="Order actions" className="grid h-11 w-11 place-items-center rounded-md border border-border text-muted shrink-0">
+            <Phone className="h-4 w-4 pointer-events-none" />
           </button>
         </div>
         <div className="flex gap-2">
@@ -468,16 +470,18 @@ function StockRow({ item }) {
           <button
             onClick={() => adjustStock(-1)}
             disabled={saving || stock === 0}
-            className="grid h-8 w-8 place-items-center rounded-md border border-border text-muted hover:bg-highlight disabled:opacity-40 transition-colors"
+            aria-label="Decrease stock"
+            className="grid h-11 w-11 place-items-center rounded-md border border-border text-muted hover:bg-highlight disabled:opacity-40 transition-colors"
           >
-            <Minus className="h-3.5 w-3.5" />
+            <Minus className="h-3.5 w-3.5 pointer-events-none" />
           </button>
           <button
             onClick={() => adjustStock(1)}
             disabled={saving}
-            className="grid h-8 w-8 place-items-center rounded-md border border-border text-muted hover:bg-highlight disabled:opacity-40 transition-colors"
+            aria-label="Increase stock"
+            className="grid h-11 w-11 place-items-center rounded-md border border-border text-muted hover:bg-highlight disabled:opacity-40 transition-colors"
           >
-            <Plus className="h-3.5 w-3.5" />
+            <Plus className="h-3.5 w-3.5 pointer-events-none" />
           </button>
         </div>
       </div>
@@ -616,10 +620,11 @@ export default function AdminToday() {
         </div>
         <button
           onClick={() => refetch()}
-          className={cn('grid h-9 w-9 place-items-center rounded-md border border-border text-muted hover:bg-highlight transition-colors', isFetching && 'text-accent')}
+          aria-label="Refresh"
+          className={cn('grid h-11 w-11 place-items-center rounded-md border border-border text-muted hover:bg-highlight transition-colors', isFetching && 'text-accent')}
           title="Refresh"
         >
-          <RefreshCw className={cn('h-4 w-4', isFetching && 'animate-spin')} />
+          <RefreshCw className={cn('h-4 w-4 pointer-events-none', isFetching && 'animate-spin')} />
         </button>
       </motion.div>
 

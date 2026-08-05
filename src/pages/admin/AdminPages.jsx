@@ -66,10 +66,11 @@ export default function AdminPages() {
                     <div className="flex items-center justify-end">
                       <Link
                         to={`/admin/pages/${p.slug}`}
-                        className="grid h-7 w-7 place-items-center rounded-md text-muted hover:bg-highlight transition-colors"
+                        aria-label={`Edit ${p.title}`}
+                        className="grid h-11 w-11 place-items-center rounded-md text-muted hover:bg-highlight transition-colors"
                         title="Edit"
                       >
-                        <Pencil className="h-3.5 w-3.5" />
+                        <Pencil className="h-3.5 w-3.5 pointer-events-none" />
                       </Link>
                     </div>
                   </td>

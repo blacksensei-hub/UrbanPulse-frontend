@@ -447,14 +447,14 @@ function NoteItem({ note: n, onPin, onEdit, onDelete, editingId, editText, setEd
           <div className="flex items-start justify-between gap-2">
             <p className="flex-1 whitespace-pre-wrap">{n.note}</p>
             <div className="flex items-center gap-1 shrink-0">
-              <button onClick={() => onPin(n)} className={`grid h-7 w-7 place-items-center rounded-md transition-colors ${n.pinned ? 'text-accent hover:bg-accent/10' : 'text-muted hover:bg-highlight'}`} title={n.pinned ? 'Unpin' : 'Pin'}>
-                <Pin className="h-3.5 w-3.5" />
+              <button onClick={() => onPin(n)} aria-label={n.pinned ? 'Unpin' : 'Pin'} title={n.pinned ? 'Unpin' : 'Pin'} className={`grid h-11 w-11 place-items-center rounded-md transition-colors ${n.pinned ? 'text-accent hover:bg-accent/10' : 'text-muted hover:bg-highlight'}`}>
+                <Pin className="h-3.5 w-3.5 pointer-events-none" />
               </button>
-              <button onClick={() => onEdit(n)} className="grid h-7 w-7 place-items-center rounded-md text-muted hover:bg-highlight transition-colors">
-                <Pencil className="h-3.5 w-3.5" />
+              <button onClick={() => onEdit(n)} aria-label="Edit note" className="grid h-11 w-11 place-items-center rounded-md text-muted hover:bg-highlight transition-colors">
+                <Pencil className="h-3.5 w-3.5 pointer-events-none" />
               </button>
-              <button onClick={() => onDelete(n)} className="grid h-7 w-7 place-items-center rounded-md text-error hover:bg-error/10 transition-colors">
-                <Trash2 className="h-3.5 w-3.5" />
+              <button onClick={() => onDelete(n)} aria-label="Delete note" className="grid h-11 w-11 place-items-center rounded-md text-error hover:bg-error/10 transition-colors">
+                <Trash2 className="h-3.5 w-3.5 pointer-events-none" />
               </button>
             </div>
           </div>
@@ -814,10 +814,16 @@ export default function AdminCustomerDetail() {
                 {f.label ?? f.flag}
                 <button
                   onClick={() => removeFlag(f.id)}
-                  className="hover:opacity-70 transition-opacity ml-0.5"
+                  aria-label="Remove flag"
                   title="Remove flag"
+                  className="relative ml-0.5 hover:opacity-70 transition-opacity"
                 >
-                  <X className="h-3 w-3" />
+                  {/* Invisible ~44px hit-slop — the pill itself is too small to
+                      grow the visible button without breaking its chip shape,
+                      so the tap target is expanded via this transparent overlay
+                      instead of by resizing the icon's own box. */}
+                  <span className="absolute -inset-4" aria-hidden="true" />
+                  <X className="h-3 w-3 pointer-events-none" />
                 </button>
               </span>
             ))}
