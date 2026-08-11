@@ -642,7 +642,7 @@ export default function AdminCustomerDetail() {
     {
       label: 'Send message',
       icon: Send,
-      onClick: () => { setMsgComposerOpen(true); setActionsOpen(false); },
+      onClick: () => { loadTab('orders'); setMsgComposerOpen(true); setActionsOpen(false); },
     },
     {
       label: 'Resend last confirmation',
@@ -863,6 +863,7 @@ export default function AdminCustomerDetail() {
               user={user}
               onAdjustCredit={() => setCreditModalOpen(true)}
               onAdjustLoyalty={() => setLoyaltyModalOpen(true)}
+              onSendMessage={() => { loadTab('orders'); setMsgComposerOpen(true); }}
             />
           )}
         </div>
@@ -913,10 +914,12 @@ export default function AdminCustomerDetail() {
       <MessageComposer
         open={msgComposerOpen}
         onClose={() => setMsgComposerOpen(false)}
+        onSent={() => { setTabData(p => ({ ...p, messages: null })); loadTab('messages', true); }}
         customerId={Number(id)}
         customerName={user.name}
         customerEmail={user.email}
         customerPhone={user.phone}
+        orders={tabData.orders}
       />
 
       {/* Add flag modal */}
@@ -971,7 +974,7 @@ export default function AdminCustomerDetail() {
 
 // ── Tab Section ──────────────────────────────────────────────────
 
-function TabSection({ tab, data, loading, stats, user, onAdjustCredit, onAdjustLoyalty }) {
+function TabSection({ tab, data, loading, stats, user, onAdjustCredit, onAdjustLoyalty, onSendMessage }) {
   if (loading || data === null) {
     return (
       <div className="space-y-3">
@@ -991,7 +994,7 @@ function TabSection({ tab, data, loading, stats, user, onAdjustCredit, onAdjustL
   if (tab === 'wishlist') return <WishlistTab items={data} />;
   if (tab === 'credit')   return <CreditTab entries={data} balance={stats.store_credit_balance_ghs} onAdjust={onAdjustCredit} />;
   if (tab === 'loyalty')  return <LoyaltyTab entries={data} user={user} onAdjust={onAdjustLoyalty} />;
-  if (tab === 'messages') return <MessagesTab data={data} />;
+  if (tab === 'messages') return <MessagesTab data={data} onSendMessage={onSendMessage} />;
   return null;
 }
 
@@ -1268,47 +1271,71 @@ const MSG_STATUS_STYLES = {
   pending_manual:  'bg-warning/15 text-warning',
 };
 
-function MessagesTab({ data }) {
+function MessagesTab({ data, onSendMessage }) {
   const messages = data?.messages ?? [];
-  if (!messages.length) return <EmptyState icon={Mail} label="No messages sent yet" />;
+
+  if (!messages.length) {
+    return (
+      <div className="card p-10 flex flex-col items-center gap-3">
+        <Mail className="h-10 w-10 text-muted opacity-40" />
+        <p className="text-eyebrow text-muted">No messages sent yet</p>
+        <Button size="sm" onClick={onSendMessage}>
+          <Send className="h-3.5 w-3.5 mr-1.5" />
+          Send message
+        </Button>
+      </div>
+    );
+  }
+
   return (
-    <div className="card overflow-hidden">
-      <table className="w-full text-sm">
-        <thead className="border-b border-border bg-surface text-xs uppercase tracking-wider text-muted">
-          <tr>
-            <th className="px-5 py-3 font-medium text-left">Date</th>
-            <th className="px-5 py-3 font-medium text-left">Channel</th>
-            <th className="px-5 py-3 font-medium text-left hidden md:table-cell">Subject / Preview</th>
-            <th className="px-5 py-3 font-medium text-left hidden md:table-cell">Sent by</th>
-            <th className="px-5 py-3 font-medium text-left">Status</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-border">
-          {messages.map(m => {
-            const Icon = CHANNEL_ICONS[m.channel] ?? Mail;
-            return (
-              <tr key={m.id} className="hover:bg-highlight transition-colors">
-                <td className="px-5 py-3 text-xs text-muted whitespace-nowrap">{formatRelativeDate(m.created_at)}</td>
-                <td className="px-5 py-3">
-                  <div className="flex items-center gap-1.5">
-                    <Icon className="h-3.5 w-3.5 text-muted" />
-                    <span className="capitalize text-xs">{m.channel}</span>
-                  </div>
-                </td>
-                <td className="px-5 py-3 hidden md:table-cell max-w-xs">
-                  <div className="truncate text-muted text-xs">{m.subject || m.body?.slice(0, 80)}</div>
-                </td>
-                <td className="px-5 py-3 hidden md:table-cell text-xs text-muted">{m.admin_name ?? '—'}</td>
-                <td className="px-5 py-3">
-                  <span className={`rounded-pill px-2.5 py-0.5 text-eyebrow capitalize ${MSG_STATUS_STYLES[m.status] ?? 'bg-border text-muted'}`}>
-                    {m.status?.replace('_', ' ')}
-                  </span>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+    <div className="space-y-3">
+      <div className="flex justify-end">
+        <Button size="sm" onClick={onSendMessage}>
+          <Send className="h-3.5 w-3.5 mr-1.5" />
+          Send message
+        </Button>
+      </div>
+      <div className="card overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="border-b border-border bg-surface text-xs uppercase tracking-wider text-muted">
+            <tr>
+              <th className="px-5 py-3 font-medium text-left">Date</th>
+              <th className="px-5 py-3 font-medium text-left">Channel</th>
+              <th className="px-5 py-3 font-medium text-left hidden md:table-cell">Subject / Preview</th>
+              <th className="px-5 py-3 font-medium text-left hidden md:table-cell">Sent by</th>
+              <th className="px-5 py-3 font-medium text-left">Status</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {messages.map(m => {
+              const Icon = CHANNEL_ICONS[m.channel] ?? Mail;
+              return (
+                <tr key={m.id} className="hover:bg-highlight transition-colors">
+                  <td className="px-5 py-3 text-xs text-muted whitespace-nowrap">{formatRelativeDate(m.created_at)}</td>
+                  <td className="px-5 py-3">
+                    <div className="flex items-center gap-1.5">
+                      <Icon className="h-3.5 w-3.5 text-muted" />
+                      <span className="capitalize text-xs">{m.channel}</span>
+                    </div>
+                  </td>
+                  <td className="px-5 py-3 hidden md:table-cell max-w-xs">
+                    <div className="truncate text-muted text-xs">{m.subject || m.body?.slice(0, 80)}</div>
+                    {m.status === 'failed' && m.error && (
+                      <div className="mt-0.5 truncate text-[11px] text-error" title={m.error}>{m.error}</div>
+                    )}
+                  </td>
+                  <td className="px-5 py-3 hidden md:table-cell text-xs text-muted">{m.admin_name ?? '—'}</td>
+                  <td className="px-5 py-3">
+                    <span className={`rounded-pill px-2.5 py-0.5 text-eyebrow capitalize ${MSG_STATUS_STYLES[m.status] ?? 'bg-border text-muted'}`}>
+                      {m.status?.replace('_', ' ')}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
