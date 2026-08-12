@@ -99,6 +99,15 @@ export default function AdminProductForm() {
     return () => window.removeEventListener('beforeunload', handler);
   }, [isDirty]);
 
+  // Release pre-order stock modal is hand-rolled (not the shared Modal), so it
+  // needs its own Escape handler — the backdrop click below is being added
+  // alongside this for the same reason.
+  useEffect(() => {
+    const onKey = (e) => e.key === 'Escape' && setReleaseModal(false);
+    if (releaseModal) window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [releaseModal]);
+
   function set(k, v) {
     setForm((f) => ({ ...f, [k]: v }));
     setIsDirty(true);
@@ -551,8 +560,14 @@ export default function AdminProductForm() {
 
       {/* Release pre-order stock modal */}
       {releaseModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md rounded-2xl border border-border bg-surface p-6 space-y-4">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={() => setReleaseModal(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl border border-border bg-surface p-6 space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h2 className="font-display text-lg font-semibold">Release pre-order stock</h2>
             <p className="text-sm text-muted">Enter the quantity of stock arriving for each variant.</p>
             <div className="space-y-2 max-h-60 overflow-y-auto">

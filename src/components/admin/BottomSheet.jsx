@@ -1,8 +1,15 @@
+import { useEffect } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { bottomSheetVariants, spring } from '../../lib/motion.js';
 
 export default function BottomSheet({ open, onClose, title, children }) {
   const prefersReduced = useReducedMotion();
+
+  useEffect(() => {
+    const onKey = (e) => e.key === 'Escape' && onClose?.();
+    if (open) window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, onClose]);
 
   const sheetVariants = prefersReduced
     ? { hidden: { opacity: 0 }, visible: { opacity: 1 } }

@@ -183,6 +183,13 @@ export default function Shop() {
     return () => clearTimeout(slowTimer);
   }, [params, refreshKey]);
 
+  // Close the mobile filter sheet on Escape — backdrop click already does, this was missing.
+  useEffect(() => {
+    const onKey = (e) => e.key === 'Escape' && setMobileOpen(false);
+    if (mobileOpen) window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [mobileOpen]);
+
   const { pulling, pullProgress, refreshing } = usePullToRefresh(
     () => setRefreshKey((k) => k + 1),
     { disabled: mobileOpen },

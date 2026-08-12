@@ -308,6 +308,13 @@ function AdminLayoutInner({ open, setOpen, collapsed, setCollapsed, pendingRetur
     try { localStorage.setItem('urbanpulse-admin-sidebar-collapsed', String(next)); } catch {}
   }
 
+  // Close the mobile drawer on Escape — backdrop click already does, this was missing.
+  useEffect(() => {
+    const onKey = (e) => e.key === 'Escape' && setOpen(false);
+    if (open) window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, setOpen]);
+
   return (
     <div className={`admin-theme-${adminTheme} flex min-h-screen bg-bg text-text`}>
       {/* Desktop sidebar */}

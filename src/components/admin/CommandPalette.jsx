@@ -59,6 +59,7 @@ export default function CommandPalette({ open, onClose }) {
   const prefersReduced = useReducedMotion();
   const inputRef = useRef(null);
   const listRef = useRef(null);
+  const triggerRef = useRef(null);
 
   const [q, setQ] = useState('');
   const [results, setResults] = useState([]);
@@ -113,6 +114,18 @@ export default function CommandPalette({ open, onClose }) {
       setActiveIndex(0);
       setRecent(getRecent());
       setTimeout(() => inputRef.current?.focus(), 0);
+    }
+  }, [open]);
+
+  // Remember whatever had focus when the palette opened, and restore it on
+  // close — same pattern as components/ui/Modal.jsx, so keyboard users land
+  // back where they started (e.g. the topbar button that opened it).
+  useEffect(() => {
+    if (open) {
+      triggerRef.current = document.activeElement;
+    } else if (triggerRef.current) {
+      triggerRef.current.focus?.();
+      triggerRef.current = null;
     }
   }, [open]);
 
