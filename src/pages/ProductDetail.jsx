@@ -10,7 +10,7 @@ import { useCartStore } from '../stores/cartStore.js';
 import { useAuthStore } from '../stores/authStore.js';
 import { useWishlistStore } from '../stores/wishlistStore.js';
 import { useViewAs } from '../hooks/useViewAs.js';
-import { useFeature } from '../stores/settingsStore.js';
+import { useFeature, useSetting } from '../stores/settingsStore.js';
 import { formatCurrency, formatDate, formatRelativeDate, cn } from '../utils/format.js';
 import { fadeIn, morph, spring, staggerContainer } from '../lib/motion.js';
 import FlashSaleTimer from '../components/product/FlashSaleTimer.jsx';
@@ -64,6 +64,7 @@ export default function ProductDetail() {
   const prefersReduced = useReducedMotion();
   const reviewsEnabled   = useFeature('reviews');
   const preordersEnabled = useFeature('preorders');
+  const freeShipThreshold = useSetting('free_shipping_threshold_ghs', '1000');
   const [flashDone, setFlashDone] = useState(false);
   const [zoomStyle, setZoomStyle] = useState({});
   const [showStickyATC, setShowStickyATC] = useState(false);
@@ -741,7 +742,7 @@ export default function ProductDetail() {
           {/* Perks */}
           <ul className="mt-8 grid grid-cols-1 gap-3 border-t border-border pt-6 sm:grid-cols-3">
             <li className="flex items-center gap-2 text-sm text-muted">
-              <Truck className="h-4 w-4 text-accent" /> Free shipping over GH&#8373; 1,000
+              <Truck className="h-4 w-4 text-accent" /> Free shipping over {formatCurrency(freeShipThreshold)}
             </li>
             <li className="flex items-center gap-2 text-sm text-muted">
               <RotateCcw className="h-4 w-4 text-accent" /> 30-day returns

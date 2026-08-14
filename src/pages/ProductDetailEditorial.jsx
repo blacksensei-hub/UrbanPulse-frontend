@@ -3,6 +3,7 @@ import { Star, Heart, Minus, Plus, Lock, ShieldCheck, Truck, RotateCcw } from 'l
 import { Helmet } from 'react-helmet-async';
 import { Button, Input } from '../components/ui/index.jsx';
 import { cn, formatCurrency, formatDate, formatRelativeDate } from '../utils/format.js';
+import { useSetting } from '../stores/settingsStore.js';
 import { spring } from '../lib/motion.js';
 import { swatchColor } from '../components/product/QuickView.jsx';
 import ProductCard from '../components/product/ProductCard.jsx';
@@ -95,6 +96,7 @@ export default function ProductDetailEditorial({
   preordersEnabled,
   wishlistBtnRef,
 }) {
+  const freeShipThreshold = useSetting('free_shipping_threshold_ghs', '1000');
   const meta = EDITORIAL_META[product.slug] ?? {
     eyebrow: product.category,
     annotation: { label: '', x: '50%', y: '50%' },
@@ -245,7 +247,7 @@ export default function ProductDetailEditorial({
 
       <ul className="space-y-2 border-t border-border pt-4">
         <li className="flex items-center gap-2 text-xs text-muted">
-          <Truck className="h-4 w-4 text-accent shrink-0" /> Free shipping over GH&#8373;&nbsp;1,000
+          <Truck className="h-4 w-4 text-accent shrink-0" /> Free shipping over {formatCurrency(freeShipThreshold)}
         </li>
         <li className="flex items-center gap-2 text-xs text-muted">
           <RotateCcw className="h-4 w-4 text-accent shrink-0" /> 30-day returns

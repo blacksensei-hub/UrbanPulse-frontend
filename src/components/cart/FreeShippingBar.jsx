@@ -1,13 +1,14 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { Check } from 'lucide-react';
-import { FREE_SHIPPING_THRESHOLD } from '../../utils/constants.js';
+import { useSetting } from '../../stores/settingsStore.js';
 import { formatCurrency } from '../../utils/format.js';
 
 export default function FreeShippingBar({ subtotal }) {
   const prefersReduced = useReducedMotion();
-  const pct = Math.min(100, (Number(subtotal) / FREE_SHIPPING_THRESHOLD) * 100);
-  const unlocked = Number(subtotal) >= FREE_SHIPPING_THRESHOLD;
-  const remaining = FREE_SHIPPING_THRESHOLD - Number(subtotal);
+  const threshold = Number(useSetting('free_shipping_threshold_ghs', '1000'));
+  const pct = Math.min(100, (Number(subtotal) / threshold) * 100);
+  const unlocked = Number(subtotal) >= threshold;
+  const remaining = threshold - Number(subtotal);
 
   return (
     <div className="mb-3">

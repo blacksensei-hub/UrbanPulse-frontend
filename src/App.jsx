@@ -119,11 +119,18 @@ export default function App() {
   useEffect(() => {
     initAuth();
     refreshCart();
-    loadSettings();
     // Capture referral code from URL on any page load and persist for 30 days
     const ref = new URLSearchParams(window.location.search).get('ref');
     if (ref) storeRefCode(ref);
-  }, [initAuth, refreshCart, loadSettings]);
+  }, [initAuth, refreshCart]);
+
+  // Re-check settings on mount and on every navigation — a cheap no-op while
+  // the cache is still fresh (see STALE_MS in settingsStore.js), but it's
+  // what makes an admin's change to shipping/tax/etc. show up on the
+  // storefront without requiring a hard refresh.
+  useEffect(() => {
+    loadSettings();
+  }, [location.pathname, loadSettings]);
 
   // Wishlist requires a real session — only fetch once auth resolves to a logged-in
   // user, never in parallel with the boot auth check (avoids a guaranteed 401 for

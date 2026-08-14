@@ -13,6 +13,8 @@ import { productService, referralService } from '../services/index.js';
 import RecentlyViewed from '../components/product/RecentlyViewed.jsx';
 import { getStoredRefCode } from '../utils/referral.js';
 import { useAuthStore } from '../stores/authStore.js';
+import { useSetting } from '../stores/settingsStore.js';
+import { formatCurrency } from '../utils/format.js';
 
 // TODO: Replace with real asset paths before launch
 const HERO = {
@@ -87,8 +89,11 @@ const COMMUNITY_PHOTOS = [
   'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=600&q=75',
 ];
 
+// The free-shipping perk's label is computed at render time from settings
+// (see `key: 'freeShipping'` below) rather than hardcoded here, so it stays
+// in sync with the admin-configurable free_shipping_threshold_ghs.
 const PERKS = [
-  { icon: Truck,       label: 'Free shipping over GH₵ 1,000' },
+  { icon: Truck,       key: 'freeShipping' },
   { icon: RotateCcw,   label: '30-day easy returns' },
   { icon: ShieldCheck, label: 'Secure checkout' },
   { icon: Sparkles,    label: 'New drops every Friday' },
@@ -122,6 +127,7 @@ export default function Home() {
   const [email, setEmail] = useState('');
   const [referrerName, setReferrerName] = useState(null);
   const user = useAuthStore((s) => s.user);
+  const freeShipThreshold = useSetting('free_shipping_threshold_ghs', '1000');
   // 'video' | 'image' | 'solid' — strict degradation order, never goes backward.
   // Reduced-motion is applied at render time rather than baked in here, because
   // useReducedMotion() can settle after the first render.
@@ -319,10 +325,12 @@ export default function Home() {
       {/* ─── PERKS BAR ───────────────────────────────────────────────────── */}
       <section ref={nextSectionRef} className="border-b border-border bg-surface">
         <div className="container-site grid grid-cols-2 gap-4 py-5 md:grid-cols-4">
-          {PERKS.map(({ icon: Icon, label }) => (
-            <div key={label} className="flex items-center gap-3 text-sm">
+          {PERKS.map(({ icon: Icon, key, label }) => (
+            <div key={key ?? label} className="flex items-center gap-3 text-sm">
               <Icon className="h-4 w-4 shrink-0 text-accent" />
-              <span className="text-muted">{label}</span>
+              <span className="text-muted">
+                {key === 'freeShipping' ? `Free shipping over ${formatCurrency(freeShipThreshold)}` : label}
+              </span>
             </div>
           ))}
         </div>

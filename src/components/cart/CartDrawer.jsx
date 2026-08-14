@@ -3,6 +3,7 @@ import { motion, AnimatePresence, useReducedMotion, useMotionValue, animate } fr
 import { Link } from 'react-router-dom';
 import { X, Minus, Plus, Trash2, ShoppingBag, Lock, Truck } from 'lucide-react';
 import { useCartStore } from '../../stores/cartStore.js';
+import { useSetting } from '../../stores/settingsStore.js';
 import { Button } from '../ui/index.jsx';
 import ProductImage from '../ui/ProductImage.jsx';
 import { formatCurrency, formatDate } from '../../utils/format.js';
@@ -114,6 +115,7 @@ export default function CartDrawer() {
   const prefersReduced  = useReducedMotion();
   const displaySubtotal = useCountUp(Number(cart.subtotal) || 0);
   const { getQuantity, setQuantity } = useDebouncedCartQuantity(update);
+  const freeShipThreshold = useSetting('free_shipping_threshold_ghs', '1000');
 
   function handleRemove(it) {
     remove(it.id);
@@ -244,7 +246,7 @@ export default function CartDrawer() {
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Truck size={12} className="flex-shrink-0" />
-                    <span>Free shipping over GH₵ 1,000</span>
+                    <span>Free shipping over {formatCurrency(freeShipThreshold)}</span>
                   </div>
                 </div>
 
