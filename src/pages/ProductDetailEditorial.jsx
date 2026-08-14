@@ -94,6 +94,7 @@ export default function ProductDetailEditorial({
   isPreorder,
   spotsLeft,
   preordersEnabled,
+  wishlistEnabled,
   wishlistBtnRef,
 }) {
   const freeShipThreshold = useSetting('free_shipping_threshold_ghs', '1000');
@@ -231,6 +232,7 @@ export default function ProductDetailEditorial({
         )}
       </div>
 
+      {wishlistEnabled && (
       <button
         ref={wishlistBtnRef}
         onClick={handleWishlist}
@@ -244,6 +246,7 @@ export default function ProductDetailEditorial({
         <Heart className={cn('h-4 w-4', wishlisted && 'fill-accent')} />
         {wishlisted ? 'Saved' : 'Save to wishlist'}
       </button>
+      )}
 
       <ul className="space-y-2 border-t border-border pt-4">
         <li className="flex items-center gap-2 text-xs text-muted">

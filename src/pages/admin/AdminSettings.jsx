@@ -29,6 +29,14 @@ const JOB_DEFS = [
   { id: 'backups',              label: 'Database backup',          desc: 'Creates a DB snapshot (not yet implemented)' },
 ];
 
+// site_settings.value is a jsonb column — pg decodes it into native JS types on
+// read (booleans as booleans), but the admin API also accepts/echoes the plain
+// strings 'true'/'false' on write. A flag is "off" only if it's explicitly one
+// of those two false-ish forms; anything else (including unset) reads as on.
+function isFlagOn(v) {
+  return v !== 'false' && v !== false;
+}
+
 function useSettingField(settings, key, transform = v => v) {
   const [val, setVal] = useState(transform(settings[key] ?? ''));
   useEffect(() => { setVal(transform(settings[key] ?? '')); }, [settings, key]);
@@ -80,7 +88,7 @@ export default function AdminSettings() {
         setStdShipping(data.shipping_standard_ghs ?? '30');
         setExpShipping(data.shipping_express_ghs ?? '80');
         setFreeThresh(data.free_shipping_threshold_ghs ?? '1000');
-        setMaintenanceMode(data.maintenance_mode === 'true');
+        setMaintenanceMode(data.maintenance_mode === 'true' || data.maintenance_mode === true);
         setMaintenanceMsg(data.maintenance_message ?? '');
         setEarnRate(data.loyalty_earn_rate ?? '1');
         setRedeemRateGhs(data.loyalty_redeem_rate_ghs ?? '0.1');
@@ -225,7 +233,7 @@ export default function AdminSettings() {
         <SectionLabel>Feature Flags</SectionLabel>
         <div className="divide-y divide-border">
           {FLAG_DEFS.map(({ key, label, desc }) => {
-            const enabled = settings[key] !== 'false';
+            const enabled = isFlagOn(settings[key]);
             return (
               <label key={key} className="flex cursor-pointer items-start gap-3 py-3">
                 <input

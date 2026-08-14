@@ -64,6 +64,7 @@ export default function ProductDetail() {
   const prefersReduced = useReducedMotion();
   const reviewsEnabled   = useFeature('reviews');
   const preordersEnabled = useFeature('preorders');
+  const wishlistEnabled  = useFeature('wishlist');
   const freeShipThreshold = useSetting('free_shipping_threshold_ghs', '1000');
   const [flashDone, setFlashDone] = useState(false);
   const [zoomStyle, setZoomStyle] = useState({});
@@ -394,6 +395,7 @@ export default function ProductDetail() {
           isPreorder={isPreorder}
           spotsLeft={spotsLeft}
           preordersEnabled={preordersEnabled}
+          wishlistEnabled={wishlistEnabled}
           wishlistBtnRef={wishlistBtnRef}
         />
       ) : (
@@ -690,6 +692,7 @@ export default function ProductDetail() {
                 {variant && variant.stock <= 0 ? 'Out of stock' : 'Add to cart'}
               </Button>
             )}
+            {wishlistEnabled && (
             <button
               ref={wishlistBtnRef}
               onClick={handleWishlist}
@@ -716,6 +719,7 @@ export default function ProductDetail() {
                 </motion.span>
               </AnimatePresence>
             </button>
+            )}
           </div>
 
           {isPreorder && product.preorder_ships_at && (

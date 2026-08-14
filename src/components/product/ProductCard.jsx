@@ -9,6 +9,7 @@ import { fadeInUp, morph, cardHover } from '../../lib/motion.js';
 import { useAuthStore } from '../../stores/authStore.js';
 import { useWishlistStore } from '../../stores/wishlistStore.js';
 import { useViewAs } from '../../hooks/useViewAs.js';
+import { useFeature } from '../../stores/settingsStore.js';
 import FlashSaleTimer from './FlashSaleTimer.jsx';
 import QuickView from './QuickView.jsx';
 import { swatchColor } from './QuickView.jsx';
@@ -20,6 +21,7 @@ export default function ProductCard({ product }) {
   const { user } = useAuthStore();
   const { isWishlisted, getItem, add, remove } = useWishlistStore();
   const { isViewAs } = useViewAs();
+  const wishlistEnabled = useFeature('wishlist');
   const [toggling, setToggling]         = useState(false);
   const [flashDone, setFlashDone]       = useState(false);
   const [quickViewOpen, setQuickViewOpen] = useState(false);
@@ -178,6 +180,7 @@ export default function ProductCard({ product }) {
           </button>
 
           {/* Wishlist heart */}
+          {wishlistEnabled && (
           <button
             ref={heartRef}
             onClick={handleWishlist}
@@ -198,6 +201,7 @@ export default function ProductCard({ product }) {
               </motion.span>
             </AnimatePresence>
           </button>
+          )}
         </div>
 
         {/* Info row */}
