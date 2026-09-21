@@ -2,7 +2,9 @@ import { createContext, useContext, useEffect, useState, useCallback } from 'rea
 
 const ThemeContext = createContext({ theme: 'light', toggleTheme: () => {}, setTheme: () => {} });
 const STORAGE_KEY = 'urbanpulse-theme';
-const THEME_COLORS = { light: '#F8F6F2', dark: '#12100E' };
+// Written to the theme-color meta at runtime, so these override whatever
+// index.html declares. They must stay equal to --color-bg in globals.css.
+const THEME_COLORS = { light: '#D9D5CC', dark: '#1F1D19' };
 
 export function ThemeProvider({ children }) {
   // Initial value taken from <html> class (set by no-FOUC script in index.html).
