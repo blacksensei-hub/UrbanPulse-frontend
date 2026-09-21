@@ -559,3 +559,162 @@ html, body { overflow-x: hidden; overflow-x: clip; }
   .plate > img,
   .group:hover .plate > img { transition: none !important; transform: none !important; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   THE SCROLL-SCRUB HERO
+   Scroll drives the film. Sizes, scrims and entrances were tuned
+   against the real footage: the caption lane sits where a luminance
+   map of the clip says it is dark, not where it looked right.
+   ═══════════════════════════════════════════════════════════════ */
+
+.ssh { position: relative; }
+.ssh-stage {
+  position: sticky; top: 0; height: 100vh; overflow: hidden; background: #141210;
+}
+.ssh-stage video {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  opacity: 0; transition: opacity 700ms var(--easing-out);
+  will-change: transform; transform: translateZ(0);
+}
+.ssh-stage.ssh-ready video { opacity: 1; }
+.ssh-poster { position: absolute; inset: 0; background-size: cover; background-position: center; }
+
+/* The base scrim: no frame is ever raw behind the page. */
+.ssh-scrim {
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 120% 90% at 50% 45%, rgba(10,9,7,0) 35%, rgba(10,9,7,.62) 100%);
+}
+
+.ssh-bands {
+  position: absolute; inset: 0; display: grid; align-content: start;
+  /* The floor has to clear the fixed chrome: the HUD strip plus the
+     navbar pill is about 6.6rem, so a vh-only value collides with it on
+     a short window. 8rem is the navbar plus breathing room. */
+  padding-top: clamp(8rem, 15vh, 10rem); pointer-events: none;
+}
+.ssh-band { grid-area: 1 / 1; position: relative; text-shadow: var(--tshadow-hero); }
+
+/* Sized in viewport units, not percentages of the band's own content box.
+   The band is only as tall as its headline, so a percentage ellipse gets
+   clipped by the box edge before reaching transparent and the scrim shows
+   as a hard rectangle over the footage. */
+.ssh-band::before {
+  content: ""; position: absolute; left: -14vw; top: -46vh; width: 96vw; height: 130vh;
+  pointer-events: none; opacity: calc(.25 + .75 * var(--k, 1));
+  background: radial-gradient(ellipse 42% 34% at 30% 52%,
+    rgba(5,5,10,.74) 0%, rgba(5,5,10,.5) 44%, rgba(5,5,10,0) 72%);
+}
+.ssh-band h1, .ssh-band h2 {
+  font-size: clamp(2.2rem, 5.2vw, 4.3rem); max-width: 11ch; width: min(46%, 34rem);
+  color: #EDE8DC; line-height: 1.02; letter-spacing: -.022em;
+}
+.ssh-band .ssh-sub {
+  margin-top: 1.1rem; max-width: 30ch; width: min(46%, 30rem);
+  color: #DCD6C8; font-size: clamp(.95rem, 1.5vw, 1.125rem);
+}
+.ssh-band .ssh-cta { margin-top: 1.8rem; display: flex; flex-wrap: wrap; gap: .75rem; pointer-events: auto; }
+.ssh-band .ssh-cta * { text-shadow: none; }
+
+:root { --tshadow-hero: 0 1px 2px rgba(5,5,10,.95), 0 3px 12px rgba(5,5,10,.78), 0 10px 44px rgba(5,5,10,.8); }
+
+.ssh-w { display: inline-block; white-space: pre; }
+/* Each entrance echoes what the footage is doing at that moment. */
+#ssh-b1 .ssh-w {                                   /* the fall: words drift down */
+  --kc: clamp(0, (var(--k,0) - var(--th,0)) * 2.8, 1);
+  opacity: var(--kc); transform: translateY(calc((1 - var(--kc)) * -26px));
+}
+#ssh-b2 .ssh-w {                                   /* the impact: punch and settle */
+  --kc: clamp(0, (var(--k,0) - var(--th,0)) * 3, 1);
+  --ks: clamp(0, (var(--k,0) - var(--th,0) - .12) * 3, 1);
+  opacity: var(--kc);
+  transform: scale(calc(.62 + .5 * var(--kc) - .12 * var(--ks)));
+}
+#ssh-b3 .ssh-w {                                   /* the settle: rise into rest */
+  --kc: clamp(0, (var(--k,0) - var(--th,0)) * 2.6, 1);
+  opacity: var(--kc); transform: translateY(calc((1 - var(--kc)) * 30px));
+}
+#ssh-b3 .ssh-sub { opacity: clamp(0, (var(--k,0) - .66) * 4, 1); }
+#ssh-b3 .ssh-cta { opacity: clamp(0, (var(--k,0) - .78) * 5, 1); }
+
+.ssh-ring {
+  position: absolute; right: clamp(1.25rem,4vw,2.5rem); bottom: clamp(1.25rem,4vw,2.5rem);
+  width: 34px; height: 34px; color: #A8A296; opacity: .8; transform: rotate(-90deg);
+}
+.ssh-stage.ssh-ready .ssh-ring { opacity: 0; transition: opacity .4s; }
+.ssh-cue {
+  position: absolute; right: clamp(1.25rem,4vw,2.5rem); bottom: clamp(1.25rem,4vw,2.5rem);
+  color: #A8A296;
+}
+@media (max-height: 560px) { .ssh-ring, .ssh-cue { display: none; } }
+
+/* The static hero. A designed layout, not an apology.
+   The ending frame is brightest exactly where a phone wants its text, so
+   the bottom-up scrim is what buys the contrast back. Measured 1.26:1 for
+   the headline without it, 8.22:1 with it. */
+.ssh-static {
+  position: relative; overflow: hidden;
+  /* The hero starts below the HUD strip and the navbar spacer, so a plain
+     100svh runs that far past the fold and pushes the headline and the CTA
+     under the cookie banner on a phone. Subtract the chrome above it. */
+  min-height: calc(100svh - 5rem - var(--hud-h));
+  /* The ending frame is 16:9 with the cloth right of centre. Cover-cropping
+     to a portrait phone keeps only the middle ~26% of the width, which is
+     bare wall. Bias the crop window onto the subject. */
+  background: #141210 62% center / cover no-repeat;
+}
+@media (min-width: 640px) { .ssh-static { background-position: center; } }
+.ssh-scrim-static {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(to top, rgba(10,9,7,.94) 0%, rgba(10,9,7,.88) 26%, rgba(10,9,7,.62) 46%, rgba(10,9,7,.18) 68%, rgba(10,9,7,0) 86%),
+    radial-gradient(ellipse 120% 90% at 50% 30%, rgba(10,9,7,0) 40%, rgba(10,9,7,.5) 100%);
+}
+.ssh-static h1 { color: #EDE8DC; text-shadow: var(--tshadow-hero); }
+/* Small text over footage gets a backing chip rather than a deeper scrim:
+   the kicker sits high in frame where a bottom-up scrim is weakest, and
+   deepening the scrim that far up would flatten the picture. */
+.ssh-chip {
+  display: inline-flex; align-items: center; gap: .55rem;
+  padding: .4rem .7rem; border-radius: 9px;
+  background: rgba(8,8,15,.58);
+  border: 1px solid rgba(237,232,220,.2);
+  backdrop-filter: blur(10px) saturate(130%);
+  -webkit-backdrop-filter: blur(10px) saturate(130%);
+  color: #EDE8DC; text-shadow: 0 1px 3px rgba(5,5,10,.85);
+}
+.ssh-chip .label-mono { color: inherit; }
+.ssh-static .ssh-sub { color: #DCD6C8; text-shadow: var(--tshadow-hero); }
+
+/* ── the weight gauge ── */
+.gauge-slab {
+  margin-top: 1.5rem; height: var(--slab, 26px); border-radius: 5px;
+  background: linear-gradient(180deg, #E7E1D3, #BFB7A4);
+  transition: height .12s linear; box-shadow: 0 10px 30px -12px rgba(0,0,0,.7);
+}
+.gauge-fill {
+  stroke-dashoffset: var(--len, 304);
+  transition: stroke-dashoffset 1.2s var(--easing-out) .2s;
+}
+.in .gauge-fill, .gauge-fill { stroke-dashoffset: var(--off, 60); }
+.gauge-tick {
+  font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 9px;
+  letter-spacing: .1em; fill: var(--color-muted);
+}
+.gauge-hold {
+  margin-top: 1.75rem; width: 100%; cursor: pointer; position: relative; overflow: hidden;
+  border: 1px solid var(--color-border-strong); background: transparent; color: var(--color-text);
+  border-radius: 999px; padding: .9rem 1.25rem; min-height: 48px;
+  font-family: inherit; font-size: .95rem; touch-action: none;
+  -webkit-user-select: none; user-select: none;
+}
+.gauge-hold::before {
+  content: ""; position: absolute; inset: 0;
+  background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+  transform: scaleX(var(--hold, 0)); transform-origin: left; transition: transform .1s linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ssh-w { opacity: 1 !important; transform: none !important; }
+  .gauge-slab { transition: none !important; }
+  .gauge-fill { transition: none !important; }
+}
