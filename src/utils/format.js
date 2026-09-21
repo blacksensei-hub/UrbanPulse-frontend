@@ -42,3 +42,15 @@ export const formatPhone = (raw) => {
 
 // Strips whitespace/dashes from phone input as the user types or pastes.
 export const sanitizePhone = (raw) => String(raw ?? '').replace(/[\s-]/g, '');
+
+/**
+ * Title-case a stored category for display.
+ *
+ * The `category` column is not normalised: rows hold 'bottoms' while the
+ * filter UI speaks 'Bottoms'. Reads tolerate both, and this keeps the
+ * lower-case rows from showing up lower-case on a card.
+ */
+export const titleCase = (value) =>
+  typeof value === 'string'
+    ? value.replace(/\w\S*/g, (w) => w[0].toUpperCase() + w.slice(1).toLowerCase())
+    : value;

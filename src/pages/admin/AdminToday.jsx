@@ -47,7 +47,7 @@ function QueueSection({ title, subtitle, count, totalCount, viewAllTo, children,
           <div className="flex items-center gap-2">
             <span className="text-eyebrow text-muted uppercase tracking-widest">{title}</span>
             {totalCount > 0 && (
-              <span className="rounded-full bg-error px-2 py-0.5 text-[10px] font-bold text-white tabular-nums">
+              <span className="rounded-full bg-error px-2 py-0.5 text-[10px] font-bold text-on-accent tabular-nums">
                 {totalCount}
               </span>
             )}
@@ -55,7 +55,7 @@ function QueueSection({ title, subtitle, count, totalCount, viewAllTo, children,
           {subtitle && <p className="mt-0.5 text-xs text-muted">{subtitle}</p>}
         </div>
         {showViewAll && (
-          <Link to={viewAllTo} className="flex items-center gap-1 text-xs text-accent hover:underline">
+          <Link to={viewAllTo} className="flex items-center gap-1 text-xs text-accent-text hover:underline">
             View all ({totalCount}) <ChevronRight className="h-3 w-3" />
           </Link>
         )}
@@ -137,16 +137,16 @@ function CodRow({ item, onDone }) {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span className="font-mono text-sm font-semibold">{item.order_number}</span>
-            <span className="text-sm text-muted">·</span>
+            <span className="text-sm text-muted">—</span>
             <span className="text-sm font-medium truncate">{item.customer_name}</span>
           </div>
           <div className="mt-0.5 flex items-center gap-2 text-xs text-muted">
             <span className="tabular-nums font-display font-bold text-text">{formatCurrency(item.total_ghs)}</span>
-            <span>·</span>
+            <span>—</span>
             <span>{item.items_count} item{item.items_count !== 1 ? 's' : ''}</span>
-            <span>·</span>
+            <span>—</span>
             <span>{formatRelativeDate(item.created_at)}</span>
-            {item.customer_phone && <><span>·</span><span className="font-mono">{item.customer_phone}</span></>}
+            {item.customer_phone && <><span>—</span><span className="font-mono">{item.customer_phone}</span></>}
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -239,7 +239,7 @@ function ShipRow({ item, onDone }) {
           <div className="flex items-center gap-2">
             <span className="font-mono text-sm font-semibold">{item.order_number}</span>
             {item.has_preorder && (
-              <span className="rounded-pill bg-accent/15 px-2 py-0.5 text-eyebrow text-accent">Pre-order</span>
+              <span className="rounded-pill bg-accent/15 px-2 py-0.5 text-eyebrow text-accent-text">Pre-order</span>
             )}
           </div>
           <div className="mt-0.5 text-xs text-muted">
@@ -402,7 +402,7 @@ function ReturnRefundRow({ item, onDone }) {
         <Button size="sm-dense" onClick={() => setModalOpen(true)} className="shrink-0">Issue refund</Button>
       </div>
 
-      <Modal open={modalOpen} onClose={() => !processing && setModalOpen(false)} title={`Refund — ${item.rma_number}`}>
+      <Modal open={modalOpen} onClose={() => !processing && setModalOpen(false)} title={`Refund · ${item.rma_number}`}>
         <div className="space-y-4">
           <p className="text-sm text-muted">Resolution: <strong>{resolutionLabel}</strong></p>
           <div>
@@ -452,7 +452,7 @@ function StockRow({ item }) {
     >
       <div className="min-w-0 flex-1">
         <Link to={`/admin/products/${item.product_id}/edit`}
-          className="text-sm font-semibold hover:text-accent transition-colors"
+          className="text-sm font-semibold hover:text-accent-text transition-colors"
           onClick={(e) => e.stopPropagation()}
         >
           {item.product_name}
@@ -621,7 +621,7 @@ export default function AdminToday() {
         <button
           onClick={() => refetch()}
           aria-label="Refresh"
-          className={cn('grid h-11 w-11 place-items-center rounded-md border border-border text-muted hover:bg-highlight transition-colors', isFetching && 'text-accent')}
+          className={cn('grid h-11 w-11 place-items-center rounded-md border border-border text-muted hover:bg-highlight transition-colors', isFetching && 'text-accent-text')}
           title="Refresh"
         >
           <RefreshCw className={cn('h-4 w-4 pointer-events-none', isFetching && 'animate-spin')} />
@@ -655,7 +655,7 @@ export default function AdminToday() {
         />
       </motion.div>
 
-      {/* Queue 1 — COD */}
+      {/* Queue 1 · COD */}
       <QueueSection
         title="Call to confirm"
         subtitle="Customers waiting to confirm their COD order."
@@ -669,10 +669,10 @@ export default function AdminToday() {
         ))}
       </QueueSection>
 
-      {/* Queue 2 — Ready to ship */}
+      {/* Queue 2 · Ready to ship */}
       <QueueSection
         title="Ready to ship"
-        subtitle="Paid orders in processing — pack and dispatch."
+        subtitle="Paid orders in processing. Pack and dispatch."
         count={shipItems.length}
         totalCount={shipCount}
         viewAllTo="/admin/orders"
@@ -683,7 +683,7 @@ export default function AdminToday() {
         ))}
       </QueueSection>
 
-      {/* Queue 3 — Returns to approve */}
+      {/* Queue 3 · Returns to approve */}
       <QueueSection
         title="Returns to review"
         subtitle="Customer return requests waiting for your decision."
@@ -697,7 +697,7 @@ export default function AdminToday() {
         ))}
       </QueueSection>
 
-      {/* Queue 4 — Returns to refund */}
+      {/* Queue 4 · Returns to refund */}
       <QueueSection
         title="Returns to refund"
         subtitle="Items received and ready for refund or credit."
@@ -711,10 +711,10 @@ export default function AdminToday() {
         ))}
       </QueueSection>
 
-      {/* Queue 5 — Low / out of stock */}
+      {/* Queue 5 · Low / out of stock */}
       <QueueSection
         title="Stock alerts"
-        subtitle="Variants at 0–5 units — consider restocking."
+        subtitle="Variants at 0 to 5 units. Consider restocking."
         count={(q.low_stock_variants ?? []).length}
         totalCount={stockCount}
         viewAllTo="/admin/products"
@@ -725,7 +725,7 @@ export default function AdminToday() {
         ))}
       </QueueSection>
 
-      {/* Queue 6 — Pre-orders */}
+      {/* Queue 6 · Pre-orders */}
       {(q.pending_preorders_ready_to_release ?? []).length > 0 && (
         <QueueSection
           title="Pre-orders shipping soon"
@@ -746,7 +746,7 @@ export default function AdminToday() {
         <motion.div variants={fadeInUp} className="flex items-center gap-2 rounded-xl border border-border px-5 py-3 text-sm text-muted">
           <ShoppingCart className="h-4 w-4 shrink-0" />
           <span>
-            <strong className="text-text tabular-nums">{q.abandoned_carts_72h}</strong> abandoned cart{q.abandoned_carts_72h !== 1 ? 's' : ''} in the last 72 hours — these customers may need a nudge.
+            <strong className="text-text tabular-nums">{q.abandoned_carts_72h}</strong> abandoned cart{q.abandoned_carts_72h !== 1 ? 's' : ''} in the last 72 hours · these customers may need a nudge.
           </span>
         </motion.div>
       )}

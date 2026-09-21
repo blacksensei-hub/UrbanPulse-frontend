@@ -4,7 +4,8 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Heart, Eye, Star } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-import { formatCurrency, formatDate } from '../../utils/format.js';
+import { formatCurrency, formatDate, titleCase } from '../../utils/format.js';
+import { Label } from '../ui/Instrument.jsx';
 import { fadeInUp, morph, cardHover } from '../../lib/motion.js';
 import { useAuthStore } from '../../stores/authStore.js';
 import { useWishlistStore } from '../../stores/wishlistStore.js';
@@ -94,8 +95,8 @@ export default function ProductCard({ product }) {
       className="group"
     >
       <Link to={`/products/${product.slug}`} className="block">
-        {/* Image container — 3:4 aspect, rounded-lg = 16px */}
-        <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-border">
+        {/* Image container · 3:4 aspect, rounded-lg = 16px */}
+        <div className="plate relative aspect-[3/4]">
           {primarySrc && !imgError ? (
             <motion.img
               layoutId={imageLayoutId}
@@ -109,12 +110,12 @@ export default function ProductCard({ product }) {
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-accent/10 font-display font-semibold text-accent">
+            <div className="flex h-full w-full items-center justify-center bg-accent/10 font-display font-semibold text-accent-text">
               {product.name?.[0]?.toUpperCase() ?? '?'}
             </div>
           )}
 
-          {/* Second image crossfade on hover — desktop only */}
+          {/* Second image crossfade on hover · desktop only */}
           {hoverSrc && !prefersReduced && (
             <motion.img
               src={hoverSrc}
@@ -144,7 +145,7 @@ export default function ProductCard({ product }) {
             </div>
           )}
 
-          {/* Sale corner ribbon — non-flash discounts only */}
+          {/* Sale corner ribbon · non-flash discounts only */}
           {!product.is_preorder && hasDiscount && !flashActive && discountPct > 0 && (
             <div className="absolute top-0 left-0 w-[72px] h-[72px] pointer-events-none overflow-hidden rounded-tl-lg">
               <div
@@ -160,7 +161,7 @@ export default function ProductCard({ product }) {
             </div>
           )}
 
-          {/* Quick Shop pill — desktop hover */}
+          {/* Quick Shop pill · desktop hover */}
           <div className="absolute inset-x-0 bottom-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-200 hidden md:flex justify-center">
             <button
               onClick={(e) => { e.preventDefault(); setQuickViewOpen(true); }}
@@ -170,7 +171,7 @@ export default function ProductCard({ product }) {
             </button>
           </div>
 
-          {/* Quick Shop icon — mobile always-visible */}
+          {/* Quick Shop icon · mobile always-visible */}
           <button
             onClick={(e) => { e.preventDefault(); setQuickViewOpen(true); }}
             aria-label="Quick shop"
@@ -197,7 +198,7 @@ export default function ProductCard({ product }) {
                 transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                 className="flex"
               >
-                <Heart className={wishlisted ? 'h-4 w-4 fill-accent text-accent' : 'h-4 w-4 text-muted'} />
+                <Heart className={wishlisted ? 'h-4 w-4 fill-accent text-accent-text' : 'h-4 w-4 text-muted'} />
               </motion.span>
             </AnimatePresence>
           </button>
@@ -205,28 +206,28 @@ export default function ProductCard({ product }) {
         </div>
 
         {/* Info row */}
-        <div className="mt-3 flex items-start justify-between gap-3">
+        <div className="mt-3 flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
           <div className="min-w-0">
             <motion.h3
               layoutId={nameLayoutId}
               transition={morph}
               title={product.name}
-              className="font-medium line-clamp-2 min-h-[2.3em]"
+              className="font-display text-[0.95rem] font-semibold leading-snug line-clamp-2 min-h-[2.4em]"
             >
               {product.name}
             </motion.h3>
             <div className="flex items-center gap-2 mt-0.5">
-              <p className="text-small text-muted">{product.category}</p>
+              <Label>{titleCase(product.category)}</Label>
               {Number(product.rating) > 0 && (
                 <span className="flex items-center gap-0.5 eyebrow" style={{ textTransform: 'none' }}>
-                  <Star className="h-3 w-3 fill-accent text-accent flex-shrink-0" />
+                  <Star className="h-3 w-3 fill-accent text-accent-text flex-shrink-0" />
                   {Number(product.rating).toFixed(1)}
                 </span>
               )}
             </div>
           </div>
-          <div className="text-right flex-shrink-0">
-            <p className="font-display font-semibold">{formatCurrency(product.price)}</p>
+          <div className="flex-shrink-0 sm:text-right">
+            <p className="font-mono text-sm font-semibold tabular-nums">{formatCurrency(product.price)}</p>
             {hasDiscount && !product.is_preorder && (
               <p className="text-small text-muted line-through">
                 {formatCurrency(product.compare_at_price)}
@@ -239,7 +240,7 @@ export default function ProductCard({ product }) {
         </div>
       </Link>
 
-      {/* Color swatches — outside Link so clicks don't navigate */}
+      {/* Color swatches · outside Link so clicks don't navigate */}
       {colors.length > 1 && (
         <div className="mt-2 flex gap-1.5 px-0.5">
           {colors.slice(0, 5).map((c) => {

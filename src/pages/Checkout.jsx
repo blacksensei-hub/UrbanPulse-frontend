@@ -10,6 +10,7 @@ import { useCartStore } from '../stores/cartStore.js';
 import { useAuthStore } from '../stores/authStore.js';
 import { orderService, loyaltyService, addressService } from '../services/index.js';
 import { useViewAs } from '../hooks/useViewAs.js';
+import { Label } from '../components/ui/Instrument.jsx';
 import { formatCurrency, cn, sanitizePhone } from '../utils/format.js';
 import { getErrorMessage } from '../utils/errors.js';
 import { fadeInUp } from '../lib/motion.js';
@@ -38,7 +39,7 @@ export default function Checkout() {
   const phoneRef = useRef(null);
   const [pendingPhoneFocus, setPendingPhoneFocus] = useState(false);
   const [submitting, setSubmitting]     = useState(false);
-  // Set once order creation succeeds but payment init fails — the retry button
+  // Set once order creation succeeds but payment init fails · the retry button
   // then re-attempts payment for THIS order instead of re-posting the cart.
   const [pendingOrder, setPendingOrder] = useState(null);
   const [couponPreview, setCouponPreview] = useState(null);
@@ -69,7 +70,7 @@ export default function Checkout() {
 
   // Mirrors the server's math in orders.js exactly: tax on subtotal only, and a
   // free-shipping coupon flows through `discount` (which the server sets equal to
-  // the shipping cost) — the shipping term itself is never zeroed, or the benefit
+  // the shipping cost) · the shipping term itself is never zeroed, or the benefit
   // would be counted twice and the display would undershoot the stored total.
   const subtotal         = items.reduce((sum, i) => sum + Number(i.price) * i.quantity, 0);
   const shippingCost     = form.shipping === 'express' ? expRate : subtotal >= freeThresh ? 0 : stdRate;
@@ -138,7 +139,7 @@ export default function Checkout() {
   }, [form.coupon]);
 
   // Re-check an already-applied coupon whenever the subtotal changes (e.g. an item
-  // is removed via the cart drawer while on this page) — the server enforces the
+  // is removed via the cart drawer while on this page) · the server enforces the
   // coupon's minimum order amount, so this just surfaces that rule earlier.
   useEffect(() => {
     if (form.coupon.trim() && couponPreview) handleCouponBlur();
@@ -194,7 +195,7 @@ export default function Checkout() {
     }
     setSubmitting(true);
 
-    // Step 1 — create the order (skipped entirely when retrying payment for an
+    // Step 1 · create the order (skipped entirely when retrying payment for an
     // order that already exists: the cart survives a failed payment init, but
     // re-posting it would create a duplicate order).
     let order = pendingOrder;
@@ -229,7 +230,7 @@ export default function Checkout() {
       }
     }
 
-    // Step 2 — start payment for the (now-guaranteed) existing order. A failure
+    // Step 2 · start payment for the (now-guaranteed) existing order. A failure
     // here is NOT a failed order: say so, and let the button retry this step only.
     try {
       const session = await orderService.checkout(order.id, form.paymentMethod);
@@ -237,7 +238,7 @@ export default function Checkout() {
       else { navigate(`/order-success?id=${order.id}`); }
     } catch (err) {
       // Never let a raw server message swallow the crucial context: the order
-      // exists — only the payment init failed.
+      // exists · only the payment init failed.
       const detail = err?.response?.data?.message;
       toast.error(`Your order is saved, but payment couldn't start${detail ? `: ${detail}` : ''}. Use "Retry payment" when ready.`);
       setSubmitting(false);
@@ -250,7 +251,7 @@ export default function Checkout() {
     return (
       <div className="container-site py-24 text-center">
         <h1 className="font-display text-h2 font-bold">Your cart is empty</h1>
-        <Link to="/shop" className="mt-4 inline-block text-accent">Browse the shop</Link>
+        <Link to="/shop" className="mt-4 inline-block text-accent-text">Browse the shop</Link>
       </div>
     );
   }
@@ -267,7 +268,10 @@ export default function Checkout() {
         <div className="mt-6 grid gap-10 lg:grid-cols-[1fr_400px]">
           <div>
             {/* Pill stepper */}
-            <ol className="mb-10 flex items-center">
+            {/* The numbered pills are wider than the labels they replaced,
+                so below sm the step name drops and the index carries the
+                progress. Keeping the words here overflowed a 375px phone. */}
+            <ol className="mb-10 flex min-w-0 items-center">
               {STEPS.map((s, i) => (
                 <li key={s} className={cn('flex items-center', i < STEPS.length - 1 && 'flex-1')}>
                   <motion.button
@@ -277,19 +281,23 @@ export default function Checkout() {
                     animate={justCompleted === i && !prefersReduced ? { scale: [1, 1.15, 1] } : { scale: 1 }}
                     transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                     className={cn(
-                      'inline-flex items-center gap-1.5 rounded-pill px-4 py-1.5 text-xs font-semibold transition-all',
-                      i <= step ? 'bg-accent text-white' : 'bg-border text-muted cursor-default',
+                      'label-mono inline-flex shrink-0 items-center gap-2 rounded-pill px-2.5 py-1.5 transition-all sm:px-3.5',
+                      i <= step
+                        ? '!text-on-accent bg-accent'
+                        : 'cursor-default bg-highlight',
                       i < step && 'cursor-pointer hover:bg-accent-hover',
                     )}
                   >
-                    {i < step && <Check className="h-3 w-3" />}
-                    {i === step && !prefersReduced && (
-                      <span className="h-1.5 w-1.5 rounded-full bg-white/80" />
+                    {i < step ? (
+                      <Check className="h-3 w-3" />
+                    ) : (
+                      <span className="tabular-nums opacity-70">{String(i + 1).padStart(2, '0')}</span>
                     )}
-                    {s}
+                    <span className="hidden sm:inline">{s}</span>
+                    <span className="sr-only sm:hidden">{s}</span>
                   </motion.button>
                   {i < STEPS.length - 1 && (
-                    <div className="mx-2 h-px flex-1 overflow-hidden bg-border relative">
+                    <div className="relative mx-1.5 h-px min-w-[8px] flex-1 overflow-hidden bg-border sm:mx-2">
                       <motion.div
                         className="absolute inset-y-0 left-0 bg-accent"
                         initial={{ width: 0 }}
@@ -335,7 +343,7 @@ export default function Checkout() {
                             <div>
                               <div className="font-medium">
                                 {a.label || a.name}
-                                {a.is_default && <span className="ml-2 text-xs font-semibold text-accent">Default</span>}
+                                {a.is_default && <span className="ml-2 text-xs font-semibold text-accent-text">Default</span>}
                               </div>
                               <div className="text-xs text-muted">
                                 {a.line1}{a.line2 ? `, ${a.line2}` : ''}, {a.city}
@@ -356,7 +364,7 @@ export default function Checkout() {
                         </label>
                       </div>
                     )}
-                    {/* TODO: Future enhancement — integrate GhanaPostGPS digital address (GA-123-4567 format) lookup */}
+                    {/* TODO: Future enhancement · integrate GhanaPostGPS digital address (GA-123-4567 format) lookup */}
                     <div className="grid gap-4 sm:grid-cols-2">
                       <Input floating label="First name" value={form.firstName} autoComplete="given-name"
                         onChange={(e) => setField('firstName', e.target.value)} />
@@ -435,7 +443,7 @@ export default function Checkout() {
                               </div>
                               {form.paymentMethod === 'mobile_money' && (
                                 <p className="mt-2 text-xs text-muted">
-                                  You&rsquo;ll be redirected to Paystack to complete payment via mobile money — securely.
+                                  You&rsquo;ll be redirected to Paystack to complete payment via mobile money, securely.
                                 </p>
                               )}
                             </div>
@@ -454,7 +462,7 @@ export default function Checkout() {
                               <div className="font-semibold">Card / Bank transfer</div>
                               {form.paymentMethod === 'card' && (
                                 <p className="mt-2 text-xs text-muted">
-                                  You&rsquo;ll be redirected to Paystack to complete payment via card or bank transfer — securely.
+                                  You&rsquo;ll be redirected to Paystack to complete payment via card or bank transfer, securely.
                                 </p>
                               )}
                             </div>
@@ -499,7 +507,7 @@ export default function Checkout() {
                         <label className="flex cursor-pointer items-center justify-between gap-3">
                           <div>
                             <div className="text-sm font-medium">
-                              Apply store credit — <span className="font-mono">{formatCurrency(availableCredit)}</span> available
+                              Apply store credit. <span className="font-mono tabular-nums">{formatCurrency(availableCredit)}</span> available
                             </div>
                             {applyCredit && (
                               <div className="mt-2">
@@ -525,7 +533,7 @@ export default function Checkout() {
                         <label className="flex cursor-pointer items-center justify-between gap-3">
                           <div>
                             <div className="text-sm font-medium">
-                              Redeem loyalty points — <span className="font-mono">{loyalty.balance}</span> pts available
+                              Redeem loyalty points. <span className="font-mono tabular-nums">{loyalty.balance}</span> pts available
                             </div>
                             {applyPoints && (
                               <>
@@ -593,7 +601,7 @@ export default function Checkout() {
                     </span>
                   </div>
                   <Button size="lg" onClick={placeOrder} loading={submitting} className="w-full">
-                    {pendingOrder ? 'Retry payment' : 'Place order'} · <span className="font-mono">{formatCurrency(pendingOrder ? pendingOrder.total : total)}</span>
+                    {pendingOrder ? 'Retry payment' : 'Place order'} · <span className="font-mono tabular-nums">{formatCurrency(pendingOrder ? pendingOrder.total : total)}</span>
                   </Button>
                 </div>
               )}
@@ -628,45 +636,45 @@ export default function Checkout() {
               </ul>
               <dl className="mt-5 space-y-2 border-t border-border pt-4 text-sm">
                 <div className="flex justify-between">
-                  <dt className="text-muted">Subtotal</dt>
-                  <dd className="font-mono">{formatCurrency(subtotal)}</dd>
+                  <dt><Label>Subtotal</Label></dt>
+                  <dd className="font-mono tabular-nums">{formatCurrency(subtotal)}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-muted">Shipping</dt>
+                  <dt><Label>Shipping</Label></dt>
                   <dd>
                     {couponPreview?.type === 'free_shipping' ? (
                       <>
-                        <span className="line-through text-muted font-mono">{formatCurrency(shippingCost)}</span>
+                        <span className="font-mono tabular-nums line-through text-muted">{formatCurrency(shippingCost)}</span>
                         <span className="ml-1 font-medium text-success">Free</span>
                       </>
-                    ) : shippingCost === 0 ? 'Free' : <span className="font-mono">{formatCurrency(shippingCost)}</span>}
+                    ) : shippingCost === 0 ? 'Free' : <span className="font-mono tabular-nums">{formatCurrency(shippingCost)}</span>}
                   </dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-muted">VAT ({taxPct}%)</dt>
-                  <dd className="font-mono">{formatCurrency(tax)}</dd>
+                  <dt><Label>VAT ({taxPct}%)</Label></dt>
+                  <dd className="font-mono tabular-nums">{formatCurrency(tax)}</dd>
                 </div>
                 {couponPreview && couponPreview.type !== 'free_shipping' && (
                   <div className="flex justify-between text-success">
-                    <dt className="text-muted">Discount</dt>
-                    <dd className="font-medium font-mono">− {formatCurrency(couponPreview.discount)}</dd>
+                    <dt><Label>Discount</Label></dt>
+                    <dd className="font-mono font-medium tabular-nums">− {formatCurrency(couponPreview.discount)}</dd>
                   </div>
                 )}
                 {creditUsed > 0 && (
                   <div className="flex justify-between text-success">
-                    <dt className="text-muted">Store credit</dt>
-                    <dd className="font-medium font-mono">− {formatCurrency(creditUsed)}</dd>
+                    <dt><Label>Store credit</Label></dt>
+                    <dd className="font-mono font-medium tabular-nums">− {formatCurrency(creditUsed)}</dd>
                   </div>
                 )}
                 {pointsCediUsed > 0 && (
                   <div className="flex justify-between text-success">
-                    <dt className="text-muted">Points redeemed</dt>
-                    <dd className="font-medium font-mono">− {formatCurrency(pointsCediUsed)}</dd>
+                    <dt><Label>Points redeemed</Label></dt>
+                    <dd className="font-mono font-medium tabular-nums">− {formatCurrency(pointsCediUsed)}</dd>
                   </div>
                 )}
                 <div className="flex justify-between border-t border-border pt-3 text-base">
-                  <dt className="font-semibold">Total</dt>
-                  <dd className="font-mono text-lg font-bold">{formatCurrency(total)}</dd>
+                  <dt><Label className="!text-text">Total</Label></dt>
+                  <dd className="font-mono text-lg font-bold tabular-nums">{formatCurrency(total)}</dd>
                 </div>
               </dl>
             </div>

@@ -20,7 +20,7 @@ export default function Login() {
   const { setUser, login, loginWithGoogle } = useAuthStore();
 
   // Honor `next` when present, except a non-admin landing on an admin `next`
-  // would just bounce straight back to this same wrong-account redirect —
+  // would just bounce straight back to this same wrong-account redirect ·
   // fall through to the normal role-based destination instead.
   function destinationFor(user) {
     if (next && !(next.startsWith('/admin') && user.role !== 'admin')) return next;
@@ -63,7 +63,7 @@ export default function Login() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      // Go through the store's login action (not authService directly) — it's
+      // Go through the store's login action (not authService directly) · it's
       // the one place that sets the session hint alongside the user, same as
       // loginWithGoogle below. Calling authService.login() directly here was
       // the bug: it set the user but never the hint, so refresh saw no hint,
@@ -103,7 +103,7 @@ export default function Login() {
   }
 
   // Recovery-code alphabet must match backend/src/routes/auth.js's
-  // RECOVERY_CODE_ALPHABET (uppercase letters + digits, excluding 0/O/1/I) —
+  // RECOVERY_CODE_ALPHABET (uppercase letters + digits, excluding 0/O/1/I) ·
   // the frontend can't import the backend constant directly (separate app),
   // so keep these two in sync if either changes.
   const RECOVERY_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -111,7 +111,7 @@ export default function Login() {
   function handleTotpChange(e) {
     const raw = e.target.value.replace(/\s/g, '').toUpperCase();
     const maxLen = useRecovery ? 8 : 6;
-    // Only filter to the allowed alphabet in recovery mode — TOTP's numeric
+    // Only filter to the allowed alphabet in recovery mode · TOTP's numeric
     // input stays untouched.
     const val = useRecovery
       ? raw.split('').filter((ch) => RECOVERY_CODE_ALPHABET.includes(ch)).join('')
@@ -127,7 +127,7 @@ export default function Login() {
   return (
     <>
       <Helmet>
-        <title>Sign in — UrbanPulse</title>
+        <title>Sign in · UrbanPulse</title>
       </Helmet>
       <div className="container-site grid place-items-center py-12 md:py-20">
         <AnimatePresence mode="wait">
@@ -140,8 +140,9 @@ export default function Login() {
               exit={{ opacity: 0, y: -10 }}
               className="w-full max-w-md rounded-xl border border-border bg-surface p-8 md:p-10"
             >
-              <h1 className="font-display text-h2 font-bold">Sign in</h1>
-              <p className="mt-2 text-sm text-muted">Good to have you back.</p>
+              <p className="eyebrow mb-2">Account / Sign in</p>
+              <h1 className="font-display text-h2 font-bold tracking-tight">Welcome back.</h1>
+              <p className="mt-2 text-sm text-muted">Pick up where you left off.</p>
 
               {notice === 'wrong-account' && (
                 <div className="mt-4 flex items-start gap-2 rounded-lg bg-highlight px-3 py-2.5 text-xs text-muted">
@@ -191,7 +192,7 @@ export default function Login() {
 
               <p className="mt-6 text-center text-sm text-muted">
                 Don&apos;t have an account?{' '}
-                <Link to="/register" className="text-accent hover:text-accent-hover">
+                <Link to="/register" className="text-accent-text hover:text-accent-hover">
                   Create one
                 </Link>
               </p>
@@ -212,7 +213,8 @@ export default function Login() {
                 <ArrowLeft className="h-4 w-4" /> Back
               </button>
 
-              <h1 className="font-display text-h2 font-bold">Two-factor authentication</h1>
+              <p className="eyebrow mb-2">Account / Verify</p>
+              <h1 className="font-display text-h2 font-bold tracking-tight">Two-factor authentication</h1>
               <p className="mt-2 text-sm text-muted">
                 {useRecovery
                   ? 'Enter one of your 8-character recovery codes.'

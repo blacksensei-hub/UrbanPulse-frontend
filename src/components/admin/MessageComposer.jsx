@@ -90,7 +90,7 @@ export default function MessageComposer({
         ...(effectiveOrderId ? { order_id: effectiveOrderId } : {}),
       };
       const result = await adminService.sendMessage(payload);
-      // The request succeeding (200) doesn't mean delivery succeeded — the backend
+      // The request succeeding (200) doesn't mean delivery succeeded · the backend
       // records failed sends too. Refresh the history either way so a failed
       // attempt is never invisible, and never claim success it didn't have.
       onSent?.();
@@ -100,7 +100,7 @@ export default function MessageComposer({
       }
       if (channel === 'whatsapp' && result.wa_url) {
         window.open(result.wa_url, '_blank', 'noopener,noreferrer');
-        toast.success('WhatsApp opened — message logged');
+        toast.success('WhatsApp opened. Message logged.');
       } else {
         toast.success('Message sent');
       }
@@ -132,7 +132,7 @@ export default function MessageComposer({
                   onClick={() => handleChannelChange(ch.id)}
                   className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
                     channel === ch.id
-                      ? 'border-accent bg-accent/10 text-accent'
+                      ? 'border-accent bg-accent/10 text-accent-text'
                       : reason
                         ? 'border-border text-muted opacity-40 cursor-not-allowed'
                         : 'border-border text-muted hover:bg-highlight'
@@ -153,7 +153,7 @@ export default function MessageComposer({
           )}
         </div>
 
-        {/* Recipient — read-only, always the customer's own contact info */}
+        {/* Recipient · read-only, always the customer's own contact info */}
         <div>
           <span className="text-eyebrow text-muted mb-1.5 block">Recipient</span>
           <div className="input bg-highlight text-muted cursor-not-allowed">

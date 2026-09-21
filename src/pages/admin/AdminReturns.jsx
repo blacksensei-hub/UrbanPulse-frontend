@@ -24,7 +24,7 @@ const STATUS_COLORS = {
   requested: 'bg-warning/15 text-warning',
   approved:  'bg-info/15 text-info',
   rejected:  'bg-error/15 text-error',
-  received:  'bg-accent/15 text-accent',
+  received:  'bg-accent/15 text-accent-text',
   refunded:  'bg-success/15 text-success',
 };
 
@@ -46,7 +46,7 @@ function ReturnDetail({ returnId, onBack }) {
   const [restock, setRestock] = useState(true);
   const [acting, setActing] = useState(false);
 
-  // Post-action refresh (approve/receive/refund) — a direct, one-off reload, not
+  // Post-action refresh (approve/receive/refund) · a direct, one-off reload, not
   // subject to the mount effect's cancellation below.
   function reload() {
     setLoading(true);
@@ -235,7 +235,7 @@ function ReturnDetail({ returnId, onBack }) {
       {/* Reject modal */}
       <Modal open={rejectModal} onClose={() => setRejectModal(false)} title="Reject return">
         <div className="space-y-4">
-          <p className="text-sm text-muted">Provide a reason — it will be sent to the customer.</p>
+          <p className="text-sm text-muted">Provide a reason. It will be sent to the customer.</p>
           <textarea
             value={rejectNote}
             onChange={(e) => setRejectNote(e.target.value)}
@@ -268,7 +268,7 @@ function ReturnDetail({ returnId, onBack }) {
           <p className="text-sm text-muted">
             Resolution: <strong>{RESOLUTION_LABELS[ret.resolution] ?? ret.resolution ?? '—'}</strong>
             {ret.resolution === 'refund' && ret.payment_method !== 'cod' && ' via Paystack'}
-            {ret.resolution === 'refund' && ret.payment_method === 'cod' && ' — cash handled manually'}
+            {ret.resolution === 'refund' && ret.payment_method === 'cod' && ' · cash handled manually'}
           </p>
           <div>
             <label className="text-sm font-medium">Amount (GH₵)</label>
@@ -327,7 +327,7 @@ function MobileReturnCard({ r, onClick, onLongPress, isSelected }) {
 
   return (
     <div className={cn('relative overflow-hidden rounded-xl', isSelected && 'ring-2 ring-accent')}>
-      {/* Actions behind the card — only for "requested" status */}
+      {/* Actions behind the card · only for "requested" status */}
       {showActions && (
         <div className="absolute right-0 top-0 h-full flex items-center gap-2 px-3 bg-highlight">
           <span className="text-xs text-muted font-medium">→</span>
@@ -360,9 +360,9 @@ function MobileReturnCard({ r, onClick, onLongPress, isSelected }) {
         </div>
         <div className="flex items-center gap-2 text-xs text-muted flex-wrap">
           <span>{RESOLUTION_LABELS[r.resolution] ?? r.resolution}</span>
-          <span>·</span>
+          <span>—</span>
           <span>{r.item_count} item{r.item_count !== 1 ? 's' : ''}</span>
-          <span>·</span>
+          <span>—</span>
           <span>{formatDate(r.created_at)}</span>
         </div>
       </motion.div>
@@ -416,14 +416,14 @@ export default function AdminReturns() {
     { label: 'Reject',  icon: XCircle,     destructive: true, onClick: () => setConfirmAction({ action: 'reject', label: `Reject ${count} return${count !== 1 ? 's' : ''}?` }) },
   ];
 
-  // Hooks must run unconditionally on every render — keep this above the
+  // Hooks must run unconditionally on every render · keep this above the
   // `selectedId` early return below (it stays inert on the detail view via `disabled`).
   const { isPulling, isRefreshing } = usePullToRefresh(loadList, { disabled: !!selectedId });
 
   if (selectedId) {
     return (
       <div className="space-y-6">
-        <Helmet><title>Return detail — UrbanPulse Admin</title></Helmet>
+        <Helmet><title>Return detail · UrbanPulse Admin</title></Helmet>
         <ReturnDetail
           returnId={selectedId}
           onBack={() => { setSelectedId(null); navigate('/admin/returns'); loadList(); }}
@@ -434,7 +434,7 @@ export default function AdminReturns() {
 
   return (
     <div className="space-y-6">
-      <Helmet><title>Returns — UrbanPulse Admin</title></Helmet>
+      <Helmet><title>Returns · UrbanPulse Admin</title></Helmet>
 
       {(isPulling || isRefreshing) && (
         <div className="flex justify-center py-2 md:hidden" style={{ marginTop: -16 }}>
@@ -446,13 +446,13 @@ export default function AdminReturns() {
         title="Returns"
         subtitle="Manage customer return requests."
         actions={requestedCount > 0 ? (
-          <span className="rounded-full bg-error px-3 py-1 text-xs font-semibold text-white">
+          <span className="rounded-full bg-error px-3 py-1 text-xs font-semibold text-on-accent">
             {requestedCount} pending review
           </span>
         ) : undefined}
       />
 
-      {/* Status filter — scrollable on mobile */}
+      {/* Status filter · scrollable on mobile */}
       <div className="flex gap-2 overflow-x-auto pb-1 md:flex-wrap md:pb-0">
         {STATUSES.map((s) => (
           <button
@@ -461,7 +461,7 @@ export default function AdminReturns() {
             className={cn(
               'rounded-full px-4 py-1.5 text-sm font-medium capitalize transition-colors',
               statusFilter === s
-                ? 'bg-accent text-white'
+                ? 'bg-accent text-on-accent'
                 : 'bg-surface border border-border text-text/70 hover:border-accent',
             )}
           >
@@ -583,7 +583,7 @@ export default function AdminReturns() {
         <div className="flex justify-end gap-3">
           <Button variant="ghost" onClick={() => setConfirmAction(null)}>Cancel</Button>
           <Button
-            className="bg-error text-white hover:bg-error/90"
+            className="bg-error text-on-accent hover:bg-error/90"
             onClick={() => { handleBulkReturns(confirmAction.action); setConfirmAction(null); }}
           >
             Confirm

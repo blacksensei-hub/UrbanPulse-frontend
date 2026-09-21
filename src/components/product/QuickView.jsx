@@ -111,7 +111,7 @@ export default function QuickView({ slug, open, onClose }) {
           <p>Couldn&apos;t load product.</p>
           <Link
             to={`/products/${slug}`}
-            className="mt-2 inline-block text-accent text-sm hover:text-accent-hover"
+            className="mt-2 inline-block text-accent-text text-sm hover:text-accent-hover"
           >
             View full page →
           </Link>
@@ -165,7 +165,7 @@ export default function QuickView({ slug, open, onClose }) {
               <Link
                 to={`/products/${product.slug}`}
                 onClick={onClose}
-                className="font-display text-h3 font-bold hover:text-accent transition-colors"
+                className="font-display text-h3 font-bold hover:text-accent-text transition-colors"
               >
                 {product.name}
               </Link>
@@ -245,7 +245,7 @@ export default function QuickView({ slug, open, onClose }) {
                         key={s}
                         onClick={() => {
                           if (oos) {
-                            toast('Notify me when back in stock — coming soon', { icon: '🔔' });
+                            toast('Notify me when back in stock, coming soon', { icon: '🔔' });
                             return;
                           }
                           setSelectedSize(s);
@@ -253,7 +253,7 @@ export default function QuickView({ slug, open, onClose }) {
                         className={cn(
                           'rounded-full border px-3 py-1 text-sm font-medium transition-all',
                           selectedSize === s
-                            ? 'border-accent bg-accent text-white'
+                            ? 'border-accent bg-accent text-on-accent'
                             : 'border-border hover:border-text',
                           oos && 'opacity-40 line-through',
                         )}
@@ -301,7 +301,7 @@ export default function QuickView({ slug, open, onClose }) {
             <Link
               to={`/products/${product.slug}`}
               onClick={onClose}
-              className="text-center text-xs text-muted hover:text-accent transition-colors"
+              className="text-center text-xs text-muted hover:text-accent-text transition-colors"
             >
               View full details →
             </Link>

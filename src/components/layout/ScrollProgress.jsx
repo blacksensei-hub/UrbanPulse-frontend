@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useLoadingStore } from '../../stores/loadingStore.js';
 
-// Below this, scrollY > this is required before the bar can show — never any
+// Below this, scrollY > this is required before the bar can show · never any
 // bar while sitting at the top, which alone eliminates the frozen-on-load symptom.
 const HIDE_THRESHOLD_PX = 64;
-// Below this range, the page isn't meaningfully scrollable — progress stays 0
+// Below this range, the page isn't meaningfully scrollable · progress stays 0
 // instead of dividing by a near-zero/negative max (NaN or a stale fraction).
 const MIN_SCROLLABLE_PX = 60;
 
@@ -37,7 +37,7 @@ export default function ScrollProgress() {
       rafRef.current = requestAnimationFrame(update);
     }
 
-    update(); // initial measurement — correct before any listener fires
+    update(); // initial measurement · correct before any listener fires
 
     window.addEventListener('scroll', onScrollOrResize, { passive: true });
     window.addEventListener('resize', onScrollOrResize);
@@ -68,7 +68,7 @@ export default function ScrollProgress() {
         height: 3,
         background: 'linear-gradient(90deg, var(--color-accent), var(--color-accent-hover))',
         borderRadius: '0 2px 2px 0',
-        // Glow implies motion energy — skipped under reduced motion.
+        // Glow implies motion energy · skipped under reduced motion.
         ...(prefersReduced ? {} : {
           boxShadow: '0 0 8px color-mix(in srgb, var(--color-accent) var(--progress-glow), transparent)',
         }),

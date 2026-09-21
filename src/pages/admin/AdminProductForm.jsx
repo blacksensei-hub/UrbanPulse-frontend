@@ -100,7 +100,7 @@ export default function AdminProductForm() {
   }, [isDirty]);
 
   // Release pre-order stock modal is hand-rolled (not the shared Modal), so it
-  // needs its own Escape handler — the backdrop click below is being added
+  // needs its own Escape handler · the backdrop click below is being added
   // alongside this for the same reason.
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && setReleaseModal(false);
@@ -234,7 +234,7 @@ export default function AdminProductForm() {
         ]}
       />
 
-      {/* Section nav pills — mobile only */}
+      {/* Section nav pills · mobile only */}
       <div className="sticky top-0 z-10 flex gap-2 overflow-x-auto bg-bg py-2 -mx-4 px-4 md:hidden">
         {SECTIONS.map((s) => (
           <button
@@ -249,7 +249,7 @@ export default function AdminProductForm() {
       </div>
 
       <form onSubmit={save} className="grid gap-6 lg:grid-cols-[1fr_300px]">
-        {/* Left column — main content */}
+        {/* Left column · main content */}
         <div className="space-y-6">
           {/* Basics */}
           <section id="section-basics" className="card p-6">
@@ -277,7 +277,7 @@ export default function AdminProductForm() {
                   className="select"
                   required
                 >
-                  <option value="">— select —</option>
+                  <option value="">· select ·</option>
                   {form.category && !CATEGORIES.includes(form.category) && (
                     <option value={form.category}>{form.category} (current)</option>
                   )}
@@ -325,7 +325,7 @@ export default function AdminProductForm() {
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => { e.preventDefault(); handleFiles(e.dataTransfer.files); }}
                 onClick={() => fileRef.current?.click()}
-                className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border py-8 text-sm text-muted transition-colors hover:border-accent hover:text-accent"
+                className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border py-8 text-sm text-muted transition-colors hover:border-accent hover:text-accent-text"
               >
                 {uploading ? (
                   <span>Uploading…</span>
@@ -333,7 +333,7 @@ export default function AdminProductForm() {
                   <>
                     <Upload className="h-6 w-6" />
                     <span>Drag & drop images here, or click to upload</span>
-                    <span className="text-xs opacity-60">JPEG, PNG, WebP — max 10 MB each</span>
+                    <span className="text-xs opacity-60">JPEG, PNG, WebP. Max 10 MB each.</span>
                   </>
                 )}
               </div>
@@ -419,7 +419,7 @@ export default function AdminProductForm() {
                     <button
                       type="button"
                       onClick={() => { setAdjustTarget(v); setAdjustDelta(''); setAdjustReason(''); setAdjustNote(''); }}
-                      className="grid h-11 w-11 place-items-center rounded-lg border border-border text-muted hover:text-accent hover:border-accent transition-colors"
+                      className="grid h-11 w-11 place-items-center rounded-lg border border-border text-muted hover:text-accent-text hover:border-accent transition-colors"
                       aria-label="Adjust stock"
                       title="Adjust stock"
                     >
@@ -471,7 +471,7 @@ export default function AdminProductForm() {
           )}
         </div>
 
-        {/* Right sidebar — meta */}
+        {/* Right sidebar · meta */}
         <div className="space-y-6">
           {/* Publishing */}
           <section id="section-publishing" className="card p-5">
@@ -532,7 +532,7 @@ export default function AdminProductForm() {
                     <button
                       type="button"
                       onClick={() => setReleaseModal(true)}
-                      className="flex items-center gap-1.5 text-sm text-accent underline underline-offset-2"
+                      className="flex items-center gap-1.5 text-sm text-accent-text underline underline-offset-2"
                     >
                       <Package className="h-4 w-4" />
                       Release pre-order stock
@@ -544,7 +544,7 @@ export default function AdminProductForm() {
           </section>
         </div>
 
-        {/* Sticky save bar — spans full grid */}
+        {/* Sticky save bar · spans full grid */}
         <div className="lg:col-span-2 sticky bottom-0 z-20 -mx-4 sm:-mx-6 lg:-mx-8 border-t border-border bg-surface/90 backdrop-blur px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-3">
           {isDirty && <span className="text-xs text-muted italic">Unsaved changes</span>}
           <div className="ml-auto flex gap-3">
@@ -624,7 +624,7 @@ export default function AdminProductForm() {
           <div>
             <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">Reason <span className="text-error">*</span></label>
             <select value={adjustReason} onChange={e => setAdjustReason(e.target.value)} className="select">
-              <option value="">— select —</option>
+              <option value="">· select ·</option>
               {['damaged', 'found', 'audit', 'theft', 'restock', 'manual_correction', 'other'].map(r => (
                 <option key={r} value={r}>{r.replace('_', ' ')}</option>
               ))}

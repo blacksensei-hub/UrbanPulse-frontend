@@ -34,7 +34,7 @@ export default function FlashSaleTimer({ endsAt, onExpire, className = '' }) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full bg-accent px-2 py-0.5 text-xs font-semibold text-white tabular-nums ${className}`}
+      className={`inline-flex items-center gap-1 rounded-full bg-accent px-2 py-0.5 text-xs font-semibold text-on-accent tabular-nums ${className}`}
     >
       ⚡ {display}
     </span>

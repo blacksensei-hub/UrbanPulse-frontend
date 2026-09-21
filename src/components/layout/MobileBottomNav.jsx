@@ -41,7 +41,7 @@ export default function MobileBottomNav() {
                 to={to}
                 className={cn(
                   'flex flex-1 flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-semibold transition-colors',
-                  isActive ? 'text-accent' : 'text-muted hover:text-text',
+                  isActive ? 'text-accent-text' : 'text-muted hover:text-text',
                 )}
                 aria-label={label}
               >
@@ -57,7 +57,7 @@ export default function MobileBottomNav() {
           );
         })}
 
-        {/* Cart — opens drawer */}
+        {/* Cart · opens drawer */}
         <motion.button
           onClick={openDrawer}
           whileTap={prefersReduced ? undefined : { scale: 0.88 }}
@@ -67,7 +67,7 @@ export default function MobileBottomNav() {
           <span className="relative">
             <ShoppingBag size={20} />
             {itemCount > 0 && (
-              <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-0.5 rounded-full bg-accent text-white text-[10px] font-bold flex items-center justify-center">
+              <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-0.5 rounded-full bg-accent text-on-accent text-[10px] font-bold flex items-center justify-center">
                 {itemCount > 9 ? '9+' : itemCount}
               </span>
             )}

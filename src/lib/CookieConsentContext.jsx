@@ -15,7 +15,7 @@ export function CookieConsentProvider({ children }) {
     setConsent(next);
     setCustomizeOpen(false);
     if (user) {
-      // Audit-trail only — enforcement stays entirely client-side (localStorage).
+      // Audit-trail only · enforcement stays entirely client-side (localStorage).
       authService.logConsentUpdate({
         functional: next.functional, analytics: next.analytics, marketing: next.marketing,
       }).catch(() => {});

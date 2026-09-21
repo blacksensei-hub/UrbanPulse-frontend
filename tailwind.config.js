@@ -21,9 +21,16 @@ export default {
         muted: 'var(--color-muted)',
         accent: 'var(--color-accent)',
         'accent-hover': 'var(--color-accent-hover)',
+        'accent-text': 'var(--color-accent-text)',
         secondary: 'var(--color-secondary)',
         highlight: 'var(--color-highlight)',
         border: 'var(--color-border)',
+        'border-strong': 'var(--color-border-strong)',
+        'on-accent': 'var(--color-on-accent)',
+        // Fixed pair for surfaces that sit over footage, where the
+        // theme tokens flip but the context is always dark.
+        bone: '#EDE8DC',
+        ink:  '#191713',
         success: 'var(--color-success)',
         error: 'var(--color-error)',
         warning: 'var(--color-warning)',

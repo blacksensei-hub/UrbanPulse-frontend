@@ -18,7 +18,7 @@ export default function StarPicker({ value, onChange }) {
           <Star
             className={cn(
               'h-6 w-6 transition-colors',
-              n <= (hovered || value) ? 'fill-accent text-accent' : 'text-border',
+              n <= (hovered || value) ? 'fill-accent text-accent-text' : 'text-border',
             )}
           />
         </button>

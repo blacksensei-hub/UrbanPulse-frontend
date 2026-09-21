@@ -7,7 +7,8 @@ import ProductCard from '../components/product/ProductCard.jsx';
 import { Button } from '../components/ui/index.jsx';
 import SEO from '../components/SEO.jsx';
 import { productService } from '../services/index.js';
-import { formatCurrency } from '../utils/format.js';
+import { MetaRow } from '../components/ui/Instrument.jsx';
+import { formatCurrency, titleCase } from '../utils/format.js';
 import { staggerContainer, bottomSheetVariants } from '../lib/motion.js';
 import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
 import PullToRefreshIndicator from '../components/ui/PullToRefreshIndicator.jsx';
@@ -48,7 +49,7 @@ function FilterPanel({ filters, setFilters, onApply }) {
               key={c}
               onClick={() => setFilters((f) => ({ ...f, category: c === 'All' ? '' : c }))}
               className={`rounded-md px-3 py-2 text-left text-sm transition-colors ${
-                (filters.category || 'All') === c ? 'bg-accent text-white' : 'hover:bg-highlight'
+                (filters.category || 'All') === c ? 'bg-accent text-on-accent' : 'hover:bg-highlight'
               }`}
             >
               {c}
@@ -76,7 +77,7 @@ function FilterPanel({ filters, setFilters, onApply }) {
             <button key={s}
               onClick={() => setFilters((f) => ({ ...f, size: f.size === s ? '' : s }))}
               className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${
-                filters.size === s ? 'border-accent bg-accent text-white' : 'border-border hover:border-text'
+                filters.size === s ? 'border-accent bg-accent text-on-accent' : 'border-border hover:border-text'
               }`}
             >
               {s}
@@ -92,7 +93,7 @@ function FilterPanel({ filters, setFilters, onApply }) {
             <button key={c}
               onClick={() => setFilters((f) => ({ ...f, color: f.color === c ? '' : c }))}
               className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${
-                filters.color === c ? 'border-accent bg-accent text-white' : 'border-border hover:border-text'
+                filters.color === c ? 'border-accent bg-accent text-on-accent' : 'border-border hover:border-text'
               }`}
             >
               {c}
@@ -105,7 +106,7 @@ function FilterPanel({ filters, setFilters, onApply }) {
         <button
           onClick={() => setFilters((f) => ({ ...f, inStock: f.inStock ? '' : 'true' }))}
           className={`flex w-full items-center justify-between rounded-md border px-3 py-2.5 text-sm transition-colors ${
-            filters.inStock ? 'border-accent bg-accent/10 text-accent' : 'border-border hover:border-text'
+            filters.inStock ? 'border-accent bg-accent/10 text-accent-text' : 'border-border hover:border-text'
           }`}
         >
           In stock only
@@ -127,7 +128,7 @@ function FilterPanel({ filters, setFilters, onApply }) {
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // The URL is the single source of truth for filters — derived fresh every render
+  // The URL is the single source of truth for filters · derived fresh every render
   // instead of mirrored into separate useState+effects. React Router doesn't remount
   // Shop on a query-only navigation (e.g. the mega-menu linking to /shop?category=X
   // while already on /shop), so a one-time useState initializer would go stale the
@@ -183,7 +184,7 @@ export default function Shop() {
     return () => clearTimeout(slowTimer);
   }, [params, refreshKey]);
 
-  // Close the mobile filter sheet on Escape — backdrop click already does, this was missing.
+  // Close the mobile filter sheet on Escape · backdrop click already does, this was missing.
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && setMobileOpen(false);
     if (mobileOpen) window.addEventListener('keydown', onKey);
@@ -219,31 +220,35 @@ export default function Shop() {
       <PullToRefreshIndicator pulling={pulling} pullProgress={pullProgress} refreshing={refreshing} />
       <SEO
         title={filters.category ? `Shop ${filters.category}` : 'Shop'}
-        description="Browse all UrbanPulse products — clothing, accessories, and more. Filter by category, size, and colour."
+        description="Browse all UrbanPulse products: clothing, accessories, and more. Filter by category, size, and colour."
         url="/shop"
       />
 
       <div className="container-site py-8 md:py-12">
         {/* Page header */}
+        <MetaRow
+          className="mb-7"
+          left={filters.category ? `Catalogue / ${titleCase(filters.category)}` : 'Catalogue / Everything'}
+          right={loading ? 'Counting' : `${total} ${total === 1 ? 'piece' : 'pieces'} in rotation`}
+        />
         <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="eyebrow mb-1">Catalogue</p>
-            <h1 className="font-display text-h1 font-bold">Shop everything</h1>
-            <p className="mt-1 text-sm text-muted">
-              {loading ? 'Loading…' : `${total} pieces in rotation`}
-            </p>
+            <h1 className="font-display text-h1 font-bold leading-[1.02] tracking-tight">
+              <span className="block">{filters.category ? titleCase(filters.category) : 'Everything'}</span>
+              <span className="block text-muted">in rotation.</span>
+            </h1>
           </div>
           {/* Mobile controls */}
           <div className="flex items-center gap-2 lg:hidden">
             <SortSelect />
             <button
               onClick={() => setMobileOpen(true)}
-              className="inline-flex items-center gap-2 rounded-pill border border-border px-4 py-2 text-sm font-medium hover:border-accent hover:text-accent transition-colors"
+              className="inline-flex items-center gap-2 rounded-pill border border-border px-4 py-2 text-sm font-medium hover:border-accent hover:text-accent-text transition-colors"
             >
               <SlidersHorizontal className="h-4 w-4" />
               Filters
               {activeChips.length > 0 && (
-                <span className="grid h-4 min-w-[16px] place-items-center rounded-full bg-accent px-1 text-[10px] font-bold text-white">
+                <span className="grid h-4 min-w-[16px] place-items-center rounded-full bg-accent px-1 text-[10px] font-bold text-on-accent">
                   {activeChips.length}
                 </span>
               )}
@@ -269,7 +274,7 @@ export default function Shop() {
                     <button
                       key={key}
                       onClick={() => setFilters((f) => ({ ...f, [key]: '' }))}
-                      className="inline-flex items-center gap-1.5 rounded-pill border border-border bg-surface px-3 py-1.5 text-xs font-medium hover:border-accent hover:text-accent transition-colors"
+                      className="inline-flex items-center gap-1.5 rounded-pill border border-border bg-surface px-3 py-1.5 text-xs font-medium hover:border-accent hover:text-accent-text transition-colors"
                     >
                       {label}
                       <X className="h-3 w-3" />
@@ -278,7 +283,7 @@ export default function Shop() {
                   {activeChips.length > 1 && (
                     <button
                       onClick={() => setFilters({ ...EMPTY_FILTERS, sort: filters.sort })}
-                      className="px-1 text-xs text-muted hover:text-accent transition-colors"
+                      className="px-1 text-xs text-muted hover:text-accent-text transition-colors"
                     >
                       Clear all
                     </button>
@@ -300,7 +305,7 @@ export default function Shop() {
                   ))}
                 </div>
                 {slowLoad && (
-                  <p className="text-center text-sm text-muted">Still loading — hang tight.</p>
+                  <p className="text-center text-sm text-muted">Still loading. Hang tight.</p>
                 )}
               </div>
             ) : fetchFailed ? (
@@ -345,7 +350,7 @@ export default function Shop() {
         </div>
       </div>
 
-      {/* Mobile bottom sheet — glass treatment */}
+      {/* Mobile bottom sheet · glass treatment */}
       <AnimatePresence>
         {mobileOpen && (
           <>

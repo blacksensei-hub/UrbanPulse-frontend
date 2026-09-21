@@ -133,19 +133,19 @@ function NavItem({ item, collapsed, onNavigate, pendingReturns }) {
         >
           {({ isActive }) => (
             <>
-              <Icon className={`h-4 w-4 shrink-0 ${collapsed ? '' : ''} ${isActive ? 'text-accent' : ''}`} />
+              <Icon className={`h-4 w-4 shrink-0 ${collapsed ? '' : ''} ${isActive ? 'text-accent-text' : ''}`} />
               {!collapsed && (
                 <>
                   <span className="flex-1">{label}</span>
                   {badge && pendingReturns > 0 && (
-                    <span className="grid h-5 min-w-[20px] place-items-center rounded-full bg-error px-1.5 text-[10px] font-bold text-white">
+                    <span className="grid h-5 min-w-[20px] place-items-center rounded-full bg-error px-1.5 text-[10px] font-bold text-on-accent">
                       {pendingReturns}
                     </span>
                   )}
                 </>
               )}
               {collapsed && badge && pendingReturns > 0 && (
-                <span className="absolute right-1 top-1 grid h-4 min-w-[16px] place-items-center rounded-full bg-error px-1 text-[9px] font-bold text-white">
+                <span className="absolute right-1 top-1 grid h-4 min-w-[16px] place-items-center rounded-full bg-error px-1 text-[9px] font-bold text-on-accent">
                   {pendingReturns}
                 </span>
               )}
@@ -169,7 +169,7 @@ function SidebarBody({ onNavigate, pendingReturns, collapsed, onToggleCollapse }
     <div className="flex h-full flex-col relative">
       {/* Brand + collapse toggle. The toggle used to float via `position:
           absolute` pinned to the sidebar's edge, straddling/overlapping this
-          row and the nav below it — turns out that a sibling with a lower
+          row and the nav below it · turns out that a sibling with a lower
           z-index can still win hit-testing over an absolutely-positioned,
           higher z-index sibling once several of this codebase's ambient
           effects stack up (backdrop-filter + overflow-hidden context on the
@@ -181,7 +181,7 @@ function SidebarBody({ onNavigate, pendingReturns, collapsed, onToggleCollapse }
           collapsed ? 'flex-col items-center gap-2 px-2' : 'items-center gap-3 px-4'
         }`}
       >
-        <div className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-accent text-white">
+        <div className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-accent text-on-accent">
           <Store className="h-4 w-4" />
         </div>
         {!collapsed && (
@@ -238,7 +238,7 @@ function SidebarBody({ onNavigate, pendingReturns, collapsed, onToggleCollapse }
             <Link
               to="/account/security"
               onClick={onNavigate}
-              className="mt-1.5 inline-block text-xs font-semibold text-accent underline underline-offset-2"
+              className="mt-1.5 inline-block text-xs font-semibold text-accent-text underline underline-offset-2"
             >
               Enable 2FA →
             </Link>
@@ -251,7 +251,7 @@ function SidebarBody({ onNavigate, pendingReturns, collapsed, onToggleCollapse }
             {user?.avatar_url ? (
               <img src={user.avatar_url} alt="" className="h-8 w-8 rounded-full object-cover" />
             ) : (
-              <div className="grid h-8 w-8 place-items-center rounded-full bg-accent/15 text-sm font-semibold text-accent">
+              <div className="grid h-8 w-8 place-items-center rounded-full bg-accent/15 text-sm font-semibold text-accent-text">
                 {user?.name?.[0]?.toUpperCase() ?? 'A'}
               </div>
             )}
@@ -261,7 +261,7 @@ function SidebarBody({ onNavigate, pendingReturns, collapsed, onToggleCollapse }
             {user?.avatar_url ? (
               <img src={user.avatar_url} alt="" className="h-8 w-8 shrink-0 rounded-full object-cover" />
             ) : (
-              <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-accent/15 text-sm font-semibold text-accent">
+              <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-accent/15 text-sm font-semibold text-accent-text">
                 {user?.name?.[0]?.toUpperCase() ?? 'A'}
               </div>
             )}
@@ -308,7 +308,7 @@ function AdminLayoutInner({ open, setOpen, collapsed, setCollapsed, pendingRetur
     try { localStorage.setItem('urbanpulse-admin-sidebar-collapsed', String(next)); } catch {}
   }
 
-  // Close the mobile drawer on Escape — backdrop click already does, this was missing.
+  // Close the mobile drawer on Escape · backdrop click already does, this was missing.
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && setOpen(false);
     if (open) window.addEventListener('keydown', onKey);
@@ -361,30 +361,39 @@ function AdminLayoutInner({ open, setOpen, collapsed, setCollapsed, pendingRetur
       {/* Main */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Mobile topbar */}
-        <header className="sticky top-0 z-30 flex items-center glass-strong border-b border-border px-4 py-3 lg:hidden">
-          <button
-            onClick={() => setOpen(true)}
-            aria-label="Open menu"
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-md border border-border hover:bg-highlight transition-colors"
-          >
-            <Menu className="h-5 w-5 pointer-events-none" />
-          </button>
-          <span className="flex-1 px-3 text-center font-display text-base font-semibold truncate">
-            {getPageTitle(location.pathname)}
-          </span>
-          <div className="flex items-center gap-1 shrink-0">
+        {/* Mobile topbar.
+            Page actions get their own scrollable row rather than sharing
+            one with the title: a page supplying two wide buttons (Export
+            CSV, Import CSV) used to push them past the right edge, where
+            nothing could reach them. */}
+        <header className="sticky top-0 z-30 glass-strong border-b border-border lg:hidden">
+          <div className="flex items-center px-4 py-3">
+            <button
+              onClick={() => setOpen(true)}
+              aria-label="Open menu"
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-md border border-border hover:bg-highlight transition-colors"
+            >
+              <Menu className="h-5 w-5 pointer-events-none" />
+            </button>
+            <span className="min-w-0 flex-1 truncate px-3 text-center font-display text-base font-semibold tracking-tight">
+              {getPageTitle(location.pathname)}
+            </span>
             <button
               onClick={onOpenPalette}
               aria-label="Open command palette"
-              className="grid h-11 w-11 place-items-center rounded-md border border-border hover:bg-highlight transition-colors"
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-md border border-border hover:bg-highlight transition-colors"
             >
               <Search className="h-4 w-4 pointer-events-none" />
             </button>
-            {mobileAction}
           </div>
+          {mobileAction && (
+            <div className="flex items-center gap-2 overflow-x-auto border-t border-border/60 px-4 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {mobileAction}
+            </div>
+          )}
         </header>
 
-        {/* AnimatePresence must directly parent the keyed, exit-animated element — the
+        {/* AnimatePresence must directly parent the keyed, exit-animated element · the
             outer Routes-level key+AnimatePresence pairing was too far away to ever
             correctly detect this motion.main's exit completion. */}
         <AnimatePresence mode="wait" initial={false}>

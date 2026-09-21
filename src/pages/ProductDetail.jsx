@@ -11,7 +11,8 @@ import { useAuthStore } from '../stores/authStore.js';
 import { useWishlistStore } from '../stores/wishlistStore.js';
 import { useViewAs } from '../hooks/useViewAs.js';
 import { useFeature, useSetting } from '../stores/settingsStore.js';
-import { formatCurrency, formatDate, formatRelativeDate, cn } from '../utils/format.js';
+import { Label, Slashes } from '../components/ui/Instrument.jsx';
+import { titleCase, formatCurrency, formatDate, formatRelativeDate, cn } from '../utils/format.js';
 import { fadeIn, morph, spring, staggerContainer } from '../lib/motion.js';
 import FlashSaleTimer from '../components/product/FlashSaleTimer.jsx';
 import { swatchColor } from '../components/product/QuickView.jsx';
@@ -82,11 +83,11 @@ export default function ProductDetail() {
   const [mainImgError, setMainImgError] = useState(false);
 
   useEffect(() => {
-    // `user` deliberately isn't a dependency here — it's only needed for the
+    // `user` deliberately isn't a dependency here · it's only needed for the
     // hasReviewed check (a separate memo above), and including it meant this whole
     // fetch re-ran (resetting loading back to true) whenever the auth store's
     // one-time init() resolved after this component had already mounted and started
-    // fetching — invisible on a fast connection where both settle in the same tick,
+    // fetching · invisible on a fast connection where both settle in the same tick,
     // but a real "renders then reverts to stuck loading" bug under throttling.
     let cancelled = false;
     setLoading(true);
@@ -243,7 +244,7 @@ export default function ProductDetail() {
     return (
       <div className="container-site grid place-items-center gap-3 py-24 text-center">
         <Spinner />
-        {slowLoad && <p className="text-sm text-muted">Still loading — hang tight.</p>}
+        {slowLoad && <p className="text-sm text-muted">Still loading. Hang tight.</p>}
       </div>
     );
   }
@@ -256,12 +257,12 @@ export default function ProductDetail() {
         {fetchFailed ? (
           <button
             onClick={() => setRetryToken((n) => n + 1)}
-            className="mt-3 inline-block text-accent hover:text-accent-hover"
+            className="mt-3 inline-block text-accent-text hover:text-accent-hover"
           >
             Retry
           </button>
         ) : (
-          <Link to="/shop" className="mt-3 inline-block text-accent hover:text-accent-hover">
+          <Link to="/shop" className="mt-3 inline-block text-accent-text hover:text-accent-hover">
             Back to shop
           </Link>
         )}
@@ -291,7 +292,7 @@ export default function ProductDetail() {
     <>
       <SEO
         title={product.name}
-        description={product.description?.slice(0, 155) || `${product.name} — ${product.category}`}
+        description={product.description?.slice(0, 155) || `${product.name} · ${product.category}`}
         image={product.images?.[0]}
         url={`/products/${product.slug}`}
         type="product"
@@ -400,13 +401,27 @@ export default function ProductDetail() {
         />
       ) : (
     <div className="container-site py-6 md:py-10 pb-20 lg:pb-10">
-      {/* Breadcrumb */}
-      <nav className="mb-6 flex items-center gap-1 text-xs text-muted">
-        <Link to="/" className="hover:text-accent transition-colors">Home</Link>
-        <ChevronRight className="h-3 w-3" />
-        <Link to={`/shop?category=${product.category}`} className="hover:text-accent transition-colors">{product.category}</Link>
-        <ChevronRight className="h-3 w-3" />
-        <span className="text-text truncate">{product.name}</span>
+      {/* The breadcrumb, in the system's mono meta voice. */}
+      <nav aria-label="Breadcrumb" className="mb-7">
+        <div className="flex items-baseline justify-between gap-4 py-3">
+          <Label className="flex min-w-0 items-center gap-2">
+            <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+            <Link to="/" className="shrink-0 hover:text-accent-text">Home</Link>
+            <span aria-hidden className="text-muted/50">/</span>
+            <Link
+              to={`/shop?category=${encodeURIComponent(product.category ?? '')}`}
+              className="shrink-0 hover:text-accent-text"
+            >
+              {titleCase(product.category)}
+            </Link>
+            <span aria-hidden className="text-muted/50">/</span>
+            <span className="truncate text-text">{product.name}</span>
+          </Label>
+          <Label className="hidden shrink-0 text-muted/80 sm:block">
+            {product.is_featured ? 'Object study' : 'In rotation'}
+          </Label>
+        </div>
+        <span aria-hidden className="block h-px w-full bg-border-strong/60" />
       </nav>
 
       <div className="grid gap-10 lg:grid-cols-2 lg:gap-14">
@@ -425,7 +440,7 @@ export default function ProductDetail() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="flex aspect-[4/5] w-full items-center justify-center bg-accent/10 font-display text-2xl font-semibold text-accent"
+                  className="flex aspect-[4/5] w-full items-center justify-center bg-accent/10 font-display text-2xl font-semibold text-accent-text"
                 >
                   {product.name?.[0]?.toUpperCase() ?? '?'}
                 </motion.div>
@@ -451,7 +466,7 @@ export default function ProductDetail() {
             </AnimatePresence>
             {onSale && (
               <div className="absolute left-4 top-4 flex flex-col gap-1.5">
-                <span className="inline-flex items-center rounded-full bg-accent px-3 py-1 text-xs font-semibold uppercase text-white">
+                <span className="inline-flex items-center rounded-full bg-accent px-3 py-1 text-xs font-semibold uppercase text-on-accent">
                   {flashActive ? 'Flash Sale' : 'Sale'}
                 </span>
                 {flashActive && (
@@ -529,11 +544,11 @@ export default function ProductDetail() {
 
         {/* Details */}
         <motion.div variants={fadeIn} initial="hidden" animate="show" className="flex flex-col">
-          <p className="eyebrow">{product.category}</p>
+          <Slashes items={[titleCase(product.category), product.is_preorder ? 'Pre-order' : 'In stock'].filter(Boolean)} />
           <motion.h1
             layoutId={prefersReduced ? undefined : `product-name-${product.id}`}
             transition={morph}
-            className="mt-1 font-display text-h1 font-bold leading-tight"
+            className="mt-2 font-display text-h1 font-bold leading-[1.04] tracking-tight"
           >
             {product.name}
           </motion.h1>
@@ -552,9 +567,9 @@ export default function ProductDetail() {
             {Number(product.rating) > 0 && (
               <button
                 onClick={() => reviewsRef.current?.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth' })}
-                className="flex items-center gap-1 text-sm text-muted hover:text-accent transition-colors"
+                className="flex items-center gap-1 text-sm text-muted hover:text-accent-text transition-colors"
               >
-                <Star className="h-4 w-4 fill-accent text-accent" />
+                <Star className="h-4 w-4 fill-accent text-accent-text" />
                 {Number(product.rating).toFixed(1)}
                 <span>({product.reviews?.length ?? 0})</span>
               </button>
@@ -625,7 +640,7 @@ export default function ProductDetail() {
                       key={s}
                       onClick={() => {
                         if (oos) {
-                          toast('Notify me when back in stock — coming soon', { icon: '🔔' });
+                          toast('Notify me when back in stock, coming soon', { icon: '🔔' });
                           return;
                         }
                         setSelectedSize(s);
@@ -633,7 +648,7 @@ export default function ProductDetail() {
                       className={cn(
                         'rounded-md border py-2.5 text-sm font-medium transition-colors',
                         s === selectedSize
-                          ? 'border-accent bg-accent text-white'
+                          ? 'border-accent bg-accent text-on-accent'
                           : 'border-border hover:border-text',
                         oos && 'opacity-40 line-through',
                       )}
@@ -673,7 +688,7 @@ export default function ProductDetail() {
             ) : isPreorder ? (
               <Button
                 size="lg"
-                className="flex-1 min-w-[160px] bg-accent text-white"
+                className="flex-1 min-w-[160px] bg-accent text-on-accent"
                 onClick={handleAdd}
                 loading={adding}
                 disabled={!variant || (spotsLeft !== null && spotsLeft <= 0)}
@@ -701,8 +716,8 @@ export default function ProductDetail() {
               className={cn(
                 'flex h-12 items-center gap-2 rounded-lg border px-4 text-sm font-medium transition-colors disabled:opacity-60',
                 wishlisted
-                  ? 'border-accent bg-accent/10 text-accent'
-                  : 'border-border hover:border-accent hover:text-accent',
+                  ? 'border-accent bg-accent/10 text-accent-text'
+                  : 'border-border hover:border-accent hover:text-accent-text',
               )}
             >
               <AnimatePresence mode="wait" initial={false}>
@@ -723,7 +738,7 @@ export default function ProductDetail() {
           </div>
 
           {isPreorder && product.preorder_ships_at && (
-            <p className="mt-3 text-sm font-medium text-accent">
+            <p className="mt-3 text-sm font-medium text-accent-text">
               Ships {formatDate(product.preorder_ships_at)}
             </p>
           )}
@@ -746,26 +761,26 @@ export default function ProductDetail() {
           {/* Perks */}
           <ul className="mt-8 grid grid-cols-1 gap-3 border-t border-border pt-6 sm:grid-cols-3">
             <li className="flex items-center gap-2 text-sm text-muted">
-              <Truck className="h-4 w-4 text-accent" /> Free shipping over {formatCurrency(freeShipThreshold)}
+              <Truck className="h-4 w-4 text-accent-text" /> Free shipping over {formatCurrency(freeShipThreshold)}
             </li>
             <li className="flex items-center gap-2 text-sm text-muted">
-              <RotateCcw className="h-4 w-4 text-accent" /> 30-day returns
+              <RotateCcw className="h-4 w-4 text-accent-text" /> 30-day returns
             </li>
             <li className="flex items-center gap-2 text-sm text-muted">
-              <ShieldCheck className="h-4 w-4 text-accent" /> Secure checkout
+              <ShieldCheck className="h-4 w-4 text-accent-text" /> Secure checkout
             </li>
           </ul>
 
           <div className="mt-6">
             <ShareButtons
               url={canonicalUrl}
-              text={`Check this out from UrbanPulse: ${product.name} — ${canonicalUrl}`}
+              text={`Check this out from UrbanPulse: ${product.name} · ${canonicalUrl}`}
             />
           </div>
         </motion.div>
       </div>
 
-      {/* Tabs — Description / Size Guide / Reviews */}
+      {/* Tabs · Description / Size Guide / Reviews */}
       <section className="mt-16 border-t border-border pt-10">
         <div role="tablist" className="flex gap-6 border-b border-border">
           {[
@@ -892,9 +907,9 @@ export default function ProductDetail() {
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {product.reviews.slice(0, 6).map((r) => (
                       <div key={r.id} className="card p-5">
-                        <div className="flex items-center gap-1 text-accent">
+                        <div className="flex items-center gap-1 text-accent-text">
                           {Array.from({ length: r.rating }).map((_, i) => (
-                            <Star key={i} className="h-4 w-4 fill-accent text-accent" />
+                            <Star key={i} className="h-4 w-4 fill-accent text-accent-text" />
                           ))}
                         </div>
                         <p className="mt-2 text-sm">{r.comment}</p>

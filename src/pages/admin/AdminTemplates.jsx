@@ -16,12 +16,12 @@ const VARIABLES = [
 ];
 
 const STARTERS = [
-  { name: 'Order shipped — tracking available', channel: 'email', subject: 'Your order {{order_number}} is on its way!', body: 'Hi {{customer_name}},\n\nGreat news — your order {{order_number}} has shipped!\n\nTracking number: {{tracking_number}}\n\nThanks for shopping with UrbanPulse.' },
-  { name: 'Apology + store credit', channel: 'email', subject: 'We\'re sorry — here\'s a credit for you', body: 'Hi {{customer_name}},\n\nWe\'re sorry for the inconvenience. As a token of our apology, we\'ve added {{store_credit_ghs}} to your account.\n\nThank you for your patience.\n\nThe UrbanPulse Team' },
+  { name: 'Order shipped · tracking available', channel: 'email', subject: 'Your order {{order_number}} is on its way!', body: 'Hi {{customer_name}},\n\nGreat news · your order {{order_number}} has shipped!\n\nTracking number: {{tracking_number}}\n\nThanks for shopping with UrbanPulse.' },
+  { name: 'Apology + store credit', channel: 'email', subject: 'We\'re sorry · here\'s a credit for you', body: 'Hi {{customer_name}},\n\nWe\'re sorry for the inconvenience. As a token of our apology, we\'ve added {{store_credit_ghs}} to your account.\n\nThank you for your patience.\n\nThe UrbanPulse Team' },
   { name: 'Order delayed', channel: 'email', subject: 'Update on your order {{order_number}}', body: 'Hi {{customer_name}},\n\nWe want to let you know that your order {{order_number}} has been slightly delayed. We\'re working to get it to you as soon as possible.\n\nWe apologise for the inconvenience.\n\nThe UrbanPulse Team' },
   { name: 'Order confirmed', channel: 'sms', body: 'UrbanPulse: Your order {{order_number}} is confirmed! We\'ll update you when it ships.' },
   { name: 'Out for delivery', channel: 'sms', body: 'UrbanPulse: Your order {{order_number}} is out for delivery today. Stay close!' },
-  { name: 'Delivered — thank you', channel: 'sms', body: 'UrbanPulse: Hi {{customer_name}}, your order has been delivered. Thanks for shopping with us!' },
+  { name: 'Delivered · thank you', channel: 'sms', body: 'UrbanPulse: Hi {{customer_name}}, your order has been delivered. Thanks for shopping with us!' },
   { name: 'Confirm COD call', channel: 'whatsapp', body: 'Hi {{customer_name}} 👋, this is UrbanPulse confirming your cash-on-delivery order {{order_number}}. Can you confirm you\'ll be available to receive it? Thank you!' },
   { name: 'Order ready for pickup', channel: 'whatsapp', body: 'Hi {{customer_name}}, your order {{order_number}} is ready for pickup at our location. Please bring your order confirmation. See you soon!' },
   { name: 'Restock alert', channel: 'whatsapp', body: 'Hi! 👋 We wanted to let you know that an item you\'ve been waiting for is back in stock. Shop now at urbanpulse.com before it sells out!' },
@@ -30,7 +30,7 @@ const STARTERS = [
 const CHANNEL_STYLES = {
   email:     'bg-info/15 text-info',
   sms:       'bg-success/15 text-success',
-  whatsapp:  'bg-accent/15 text-accent',
+  whatsapp:  'bg-accent/15 text-accent-text',
 };
 
 function TemplateModal({ open, onClose, template, onSaved }) {
@@ -221,7 +221,7 @@ export default function AdminTemplates() {
             onClick={() => setActiveTab(t)}
             className={`rounded-full px-4 py-1.5 text-xs font-semibold whitespace-nowrap transition-colors ${
               activeTab === t
-                ? 'bg-accent text-white'
+                ? 'bg-accent text-on-accent'
                 : 'bg-surface border border-border text-muted hover:bg-highlight hover:text-text'
             }`}
           >
@@ -237,9 +237,9 @@ export default function AdminTemplates() {
       ) : visible.length === 0 ? (
         <div className="card p-10 text-center text-muted text-sm">
           No templates yet.{' '}
-          <button className="text-accent underline" onClick={() => { setEditing(null); setModalOpen(true); }}>Create one</button>{' '}
+          <button className="text-accent-text underline" onClick={() => { setEditing(null); setModalOpen(true); }}>Create one</button>{' '}
           or{' '}
-          <button className="text-accent underline" onClick={handleInstallStarters}>install starters</button>.
+          <button className="text-accent-text underline" onClick={handleInstallStarters}>install starters</button>.
         </div>
       ) : (
         <div className="card overflow-hidden">

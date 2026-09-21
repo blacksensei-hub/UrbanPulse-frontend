@@ -22,7 +22,7 @@ const ORDER_STATUS_STYLES = {
   awaiting_confirmation: 'bg-info/15 text-info',
   paid:                  'bg-info/15 text-info',
   processing:            'bg-info/15 text-info',
-  shipped:               'bg-accent/15 text-accent',
+  shipped:               'bg-accent/15 text-accent-text',
   delivered:             'bg-success/15 text-success',
   cancelled:             'bg-error/15 text-error',
   refunded:              'bg-muted/15 text-muted',
@@ -32,7 +32,7 @@ const RETURN_STATUS_STYLES = {
   requested: 'bg-warning/15 text-warning',
   approved:  'bg-info/15 text-info',
   rejected:  'bg-error/15 text-error',
-  received:  'bg-accent/15 text-accent',
+  received:  'bg-accent/15 text-accent-text',
   refunded:  'bg-success/15 text-success',
 };
 
@@ -260,7 +260,7 @@ function ApologyModal({ open, onClose, customerId, customerEmail, customerName, 
       await adminService.sendMessage({
         customer_id: customerId,
         channel: 'email',
-        subject: 'We\'re sorry — here\'s a store credit for you',
+        subject: "We're sorry. Here's a store credit for you",
         body: apologyBody,
       });
       toast.success('Credit added and apology email sent');
@@ -447,7 +447,7 @@ function NoteItem({ note: n, onPin, onEdit, onDelete, editingId, editText, setEd
           <div className="flex items-start justify-between gap-2">
             <p className="flex-1 whitespace-pre-wrap">{n.note}</p>
             <div className="flex items-center gap-1 shrink-0">
-              <button onClick={() => onPin(n)} aria-label={n.pinned ? 'Unpin' : 'Pin'} title={n.pinned ? 'Unpin' : 'Pin'} className={`grid h-11 w-11 place-items-center rounded-md transition-colors ${n.pinned ? 'text-accent hover:bg-accent/10' : 'text-muted hover:bg-highlight'}`}>
+              <button onClick={() => onPin(n)} aria-label={n.pinned ? 'Unpin' : 'Pin'} title={n.pinned ? 'Unpin' : 'Pin'} className={`grid h-11 w-11 place-items-center rounded-md transition-colors ${n.pinned ? 'text-accent-text hover:bg-accent/10' : 'text-muted hover:bg-highlight'}`}>
                 <Pin className="h-3.5 w-3.5 pointer-events-none" />
               </button>
               <button onClick={() => onEdit(n)} aria-label="Edit note" className="grid h-11 w-11 place-items-center rounded-md text-muted hover:bg-highlight transition-colors">
@@ -508,10 +508,10 @@ export default function AdminCustomerDetail() {
   }
 
   useEffect(() => {
-    // Reset per-customer state on navigation to a different customer — without this,
+    // Reset per-customer state on navigation to a different customer · without this,
     // loadTab()'s "already loaded" guard (tabData[tab] !== null) would keep showing
     // the PREVIOUS customer's cached tab data under the new customer's page. Force-load
-    // 'orders' here (in the same effect as the reset) rather than in a separate effect —
+    // 'orders' here (in the same effect as the reset) rather than in a separate effect ·
     // a separate effect with the same [id] deps would close over the pre-reset tabData
     // from this same render and could skip the fetch if the old customer's 'orders' was
     // already loaded.
@@ -620,7 +620,7 @@ export default function AdminCustomerDetail() {
     return (
       <div className="py-10 text-center text-sm text-muted">
         Couldn't load this customer.{' '}
-        <button onClick={() => navigate('/admin/users')} className="text-accent hover:text-accent-hover underline">
+        <button onClick={() => navigate('/admin/users')} className="text-accent-text hover:text-accent-hover underline">
           Back to customers
         </button>
       </div>
@@ -723,7 +723,7 @@ export default function AdminCustomerDetail() {
 
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="font-display text-h1 font-bold leading-tight truncate">{user.name}</h1>
+            <h1 className="font-display text-h1 font-bold leading-tight tracking-tight truncate">{user.name}</h1>
             <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted">
               <span>{user.email}</span>
               {user.phone && <span>· {user.phone}</span>}
@@ -732,7 +732,7 @@ export default function AdminCustomerDetail() {
               <span className={cn('rounded-pill px-2.5 py-0.5 text-eyebrow', user.is_blocked ? 'bg-error/15 text-error' : 'bg-success/15 text-success')}>
                 {user.is_blocked ? 'Blocked' : 'Active'}
               </span>
-              <span className={cn('rounded-pill px-2.5 py-0.5 text-eyebrow', user.role === 'admin' ? 'bg-accent/15 text-accent' : 'bg-surface border border-border text-muted')}>
+              <span className={cn('rounded-pill px-2.5 py-0.5 text-eyebrow', user.role === 'admin' ? 'bg-accent/15 text-accent-text' : 'bg-surface border border-border text-muted')}>
                 {user.role}
               </span>
               {user.totp_enabled && (
@@ -818,7 +818,7 @@ export default function AdminCustomerDetail() {
                   title="Remove flag"
                   className="relative ml-0.5 hover:opacity-70 transition-opacity"
                 >
-                  {/* Invisible ~44px hit-slop — the pill itself is too small to
+                  {/* Invisible ~44px hit-slop · the pill itself is too small to
                       grow the visible button without breaking its chip shape,
                       so the tap target is expanded via this transparent overlay
                       instead of by resizing the icon's own box. */}
@@ -842,7 +842,7 @@ export default function AdminCustomerDetail() {
             onClick={() => selectTab(t.id)}
             className={cn(
               'flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold whitespace-nowrap transition-colors',
-              activeTab === t.id ? 'bg-accent text-white' : 'bg-surface border border-border text-muted hover:bg-highlight hover:text-text'
+              activeTab === t.id ? 'bg-accent text-on-accent' : 'bg-surface border border-border text-muted hover:bg-highlight hover:text-text'
             )}
           >
             <t.icon className="h-3.5 w-3.5" />
@@ -1012,8 +1012,8 @@ function OrdersTab({ orders }) {
             </div>
             <div className="flex items-center gap-2 text-xs text-muted">
               <span className="font-display font-bold text-text tabular-nums">{formatCurrency(o.total)}</span>
-              <span>·</span><span>{o.item_count} item{o.item_count !== 1 ? 's' : ''}</span>
-              <span>·</span><span>{formatRelativeDate(o.created_at)}</span>
+              <span>—</span><span>{o.item_count} item{o.item_count !== 1 ? 's' : ''}</span>
+              <span>—</span><span>{formatRelativeDate(o.created_at)}</span>
             </div>
           </div>
         ))}
@@ -1099,7 +1099,7 @@ function ReviewsTab({ reviews }) {
       {reviews.map(rv => (
         <div key={rv.id} className="card p-4 space-y-2">
           <div className="flex items-start justify-between gap-2">
-            <Link to={`/admin/products/${rv.product_id}/edit`} className="font-semibold hover:text-accent transition-colors">{rv.product_name}</Link>
+            <Link to={`/admin/products/${rv.product_id}/edit`} className="font-semibold hover:text-accent-text transition-colors">{rv.product_name}</Link>
             <div className="flex items-center gap-1 shrink-0">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star key={i} className={`h-3.5 w-3.5 ${i < rv.rating ? 'fill-warning text-warning' : 'text-border'}`} />
@@ -1209,7 +1209,7 @@ function LoyaltyTab({ entries, user, onAdjust }) {
           <div className="text-eyebrow text-muted mb-1">Current balance</div>
           <div className="flex items-baseline gap-2">
             <div className="font-display text-3xl font-bold tabular-nums">{user?.loyalty_points ?? 0} pts</div>
-            <span className="rounded-pill bg-accent/15 px-2.5 py-0.5 text-eyebrow text-accent">
+            <span className="rounded-pill bg-accent/15 px-2.5 py-0.5 text-eyebrow text-accent-text">
               {TIER_LABELS[user?.loyalty_tier] ?? 'Bronze'}
             </span>
           </div>

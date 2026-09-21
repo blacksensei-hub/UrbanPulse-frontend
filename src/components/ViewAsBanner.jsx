@@ -24,15 +24,15 @@ export default function ViewAsBanner() {
 
   return (
     <div className="fixed top-0 inset-x-0 z-[200] flex items-center justify-between gap-4 border-b-2 border-accent bg-accent/10 px-4 py-2 backdrop-blur-sm">
-      <div className="flex items-center gap-2 text-sm font-medium text-accent">
+      <div className="flex items-center gap-2 text-sm font-medium text-accent-text">
         <Eye className="h-4 w-4 shrink-0" />
         <span>
-          Viewing as <strong>{customerName}</strong> — read-only
+          Viewing as <strong>{customerName}</strong>, read-only
         </span>
       </div>
       <button
         onClick={exit}
-        className="flex items-center gap-1.5 rounded-md border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent transition-colors hover:bg-accent hover:text-white"
+        className="flex items-center gap-1.5 rounded-md border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent-text transition-colors hover:bg-accent hover:text-on-accent"
       >
         <X className="h-3 w-3" />
         Exit

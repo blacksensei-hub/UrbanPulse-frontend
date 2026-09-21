@@ -28,7 +28,7 @@ const LOOKBOOKS = {
       {
         type: 'text',
         heading: 'Weight you can feel.',
-        body: `Every tee in the collection starts at 300gsm. We believe fabric weight is the single most honest indicator of quality — you feel it the moment you pull it on. The Boxy Heavyweight is our core piece: dropped shoulders, boxy silhouette, built to outlast seasons.`,
+        body: `Every tee in the collection starts at 300gsm. We believe fabric weight is the single most honest indicator of quality. You feel it the moment you pull it on. The Boxy Heavyweight is our core piece: dropped shoulders, boxy silhouette, built to outlast seasons.`,
       },
       {
         type: 'duo',
@@ -44,7 +44,7 @@ const LOOKBOOKS = {
       {
         type: 'text',
         heading: 'Built for the city.',
-        body: `Accra moves fast. The accessories line — caps, totes, and utility pouches — were designed to move with it. Durable hardware, minimal branding, maximum function.`,
+        body: `Accra moves fast. The accessories line, caps, totes and utility pouches, was designed to move with it. Durable hardware, minimal branding, maximum function.`,
       },
     ],
     // TODO: Replace with real product slugs
@@ -60,7 +60,7 @@ const LOOKBOOKS = {
       {
         type: 'image',
         src: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=1400&q=80',
-        caption: 'The Field Jacket — our most-requested restock.',
+        caption: 'The Field Jacket, our most-requested restock.',
       },
       {
         type: 'text',
@@ -101,7 +101,7 @@ const LOOKBOOKS = {
       {
         type: 'text',
         heading: 'Small batches. Always.',
-        body: `We never overproduce. Every drop is a limited batch — enough to satisfy demand without flooding the market. When something sells out, it's gone. We bring it back only when the quality can be maintained or improved.`,
+        body: `We never overproduce. Every drop is a limited batch, enough to satisfy demand without flooding the market. When something sells out, it's gone. We bring it back only when the quality can be maintained or improved.`,
       },
     ],
     productSlugs: [],
@@ -171,7 +171,9 @@ export function LookbookIndex() {
       <div className="container-site py-12 md:py-20">
         <Reveal>
           <p className="eyebrow">Editorial</p>
-          <h1 className="mt-2 font-display text-hero font-bold">Lookbook</h1>
+          <h1 className="mt-2 font-display text-hero font-bold leading-[1.02] tracking-tight">
+            <span className="block">The lookbook.</span>
+          </h1>
           <p className="mt-4 prose-editorial">
             Campaign stories, field guides, and the ideas behind the drops.
           </p>
@@ -183,7 +185,7 @@ export function LookbookIndex() {
           {entries.map(([slug, lb], i) => (
             <Reveal key={slug} delay={i * 0.07}>
               <Link to={`/lookbook/${slug}`} className="group block">
-                <div className="relative aspect-[3/2] overflow-hidden rounded-2xl bg-border">
+                <div className="plate relative aspect-[3/2]">
                   <img
                     src={lb.hero}
                     alt={lb.title}
@@ -198,7 +200,7 @@ export function LookbookIndex() {
                     <p className="mt-1 font-display text-h3 font-semibold">{lb.title}</p>
                   </div>
                 </div>
-                <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
+                <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent-text">
                   Read story
                   <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
                 </span>
@@ -222,7 +224,7 @@ export function LookbookDetail() {
     return (
       <div className="container-site py-24 text-center">
         <h1 className="font-display text-h1 font-bold">Story not found</h1>
-        <Link to="/lookbook" className="mt-4 inline-block text-accent hover:text-accent-hover">
+        <Link to="/lookbook" className="mt-4 inline-block text-accent-text hover:text-accent-hover">
           ← Back to lookbook
         </Link>
       </div>
@@ -232,7 +234,7 @@ export function LookbookDetail() {
   return (
     <>
       <SEO
-        title={`${lb.title} — UrbanPulse Lookbook`}
+        title={`${lb.title} · UrbanPulse Lookbook`}
         suffix={false}
         description={lb.intro.slice(0, 155)}
         image={lb.hero}
@@ -339,14 +341,14 @@ export function LookbookDetail() {
       <Divider />
 
       {/* Shop the look */}
-      {/* TODO: Wire productSlugs to real product data — currently empty until DB join exists */}
+      {/* TODO: Wire productSlugs to real product data · currently empty until DB join exists */}
       <div className="container-site pb-16 md:pb-24">
         <Reveal>
           <p className="eyebrow">Shop the look</p>
           <h2 className="mt-2 font-display text-display font-bold">Pieces featured</h2>
           <p className="mt-3 text-sm text-muted">
             {lb.productSlugs.length === 0
-              ? 'Products coming soon — browse the full collection in the meantime.'
+              ? 'Products coming soon. Browse the full collection in the meantime.'
               : 'Tap any piece to add it to your cart.'}
           </p>
         </Reveal>
@@ -374,7 +376,7 @@ export function LookbookDetail() {
           </Link>
           <Link
             to="/shop"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-accent hover:text-accent-hover transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-accent-text hover:text-accent-hover transition-colors"
           >
             Shop the collection <ArrowRight className="h-4 w-4" />
           </Link>
@@ -384,7 +386,7 @@ export function LookbookDetail() {
   );
 }
 
-// Default export — router reads the slug param to choose which view
+// Default export · router reads the slug param to choose which view
 export default function Lookbook() {
   const { slug } = useParams();
   return slug ? <LookbookDetail /> : <LookbookIndex />;

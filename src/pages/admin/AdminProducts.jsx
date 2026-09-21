@@ -36,7 +36,7 @@ function MobileProductCard({ p, onEdit, onRemove, onLongPress, isSelected }) {
           <div className="flex items-center gap-2">
             <span className="font-semibold truncate">{p.name}</span>
             {p.is_preorder && (
-              <span className="rounded-pill bg-accent/15 px-2 py-0.5 text-eyebrow text-accent shrink-0">Pre</span>
+              <span className="rounded-pill bg-accent/15 px-2 py-0.5 text-eyebrow text-accent-text shrink-0">Pre</span>
             )}
           </div>
           <div className="text-xs text-muted">{p.category}</div>
@@ -345,12 +345,12 @@ export default function AdminProducts() {
                           <div className="flex items-center gap-2 font-semibold">
                             {p.name}
                             {p.is_preorder && (
-                              <span className="rounded-pill bg-accent/15 px-2 py-0.5 text-eyebrow text-accent">
+                              <span className="rounded-pill bg-accent/15 px-2 py-0.5 text-eyebrow text-accent-text">
                                 Pre-order
                               </span>
                             )}
                             {p.is_featured && (
-                              <span className="rounded-pill bg-accent/15 px-2 py-0.5 text-eyebrow text-accent">
+                              <span className="rounded-pill bg-accent/15 px-2 py-0.5 text-eyebrow text-accent-text">
                                 Featured
                               </span>
                             )}
@@ -416,7 +416,7 @@ export default function AdminProducts() {
               className="select mb-4"
               autoFocus
             >
-              <option value="">— select —</option>
+              <option value="">· select ·</option>
               {CATEGORIES.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
@@ -428,7 +428,7 @@ export default function AdminProducts() {
         <div className="flex justify-end gap-3">
           <Button variant="ghost" onClick={() => setConfirmAction(null)}>Cancel</Button>
           <Button
-            className={confirmAction?.action === 'delete' ? 'bg-error text-white hover:bg-error/90' : ''}
+            className={confirmAction?.action === 'delete' ? 'bg-error text-on-accent hover:bg-error/90' : ''}
             disabled={confirmAction?.action === 'set_category' && !categoryInput.trim()}
             onClick={() => {
               const extra = confirmAction?.action === 'set_category' ? { category: categoryInput.trim() } : undefined;
@@ -443,14 +443,14 @@ export default function AdminProducts() {
 
       <Modal open={!!importResult} onClose={() => setImportResult(null)}>
         <div className="w-full max-w-lg space-y-4 p-6">
-          <h2 className="font-display text-xl font-bold">Import complete</h2>
+          <h2 className="font-display text-xl font-bold tracking-tight">Import complete</h2>
           <div className="flex gap-6 text-center text-sm">
             <div>
               <p className="text-2xl font-bold text-success">{importResult?.created ?? 0}</p>
               <p className="text-muted">Created</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-accent">{importResult?.updated ?? 0}</p>
+              <p className="text-2xl font-bold text-accent-text">{importResult?.updated ?? 0}</p>
               <p className="text-muted">Updated</p>
             </div>
             <div>

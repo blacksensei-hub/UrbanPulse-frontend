@@ -14,6 +14,7 @@ import RecentlyViewed from '../components/product/RecentlyViewed.jsx';
 import { getStoredRefCode } from '../utils/referral.js';
 import { useAuthStore } from '../stores/authStore.js';
 import { useSetting } from '../stores/settingsStore.js';
+import { Chapter, Statement, Label } from '../components/ui/Instrument.jsx';
 import { formatCurrency } from '../utils/format.js';
 
 // TODO: Replace with real asset paths before launch
@@ -28,7 +29,7 @@ const HERO = {
 const DROP_ITEMS = [
   {
     label: 'The flagship drop',
-    name: 'Pulse Hoodie — Bone White',
+    name: 'Pulse Hoodie, Bone White',
     href: '/shop?category=Tops',
     image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=1400&q=80',
     large: true,
@@ -61,7 +62,7 @@ const STORIES = [
     slug: 'field-essentials',
     eyebrow: 'Editorial',
     title: 'Field Essentials',
-    desc: 'Technical outerwear for transitional weather — minimal meets functional.',
+    desc: 'Technical outerwear for the in-between weather. Minimal, and it works.',
     image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80',
   },
   {
@@ -128,7 +129,7 @@ export default function Home() {
   const [referrerName, setReferrerName] = useState(null);
   const user = useAuthStore((s) => s.user);
   const freeShipThreshold = useSetting('free_shipping_threshold_ghs', '1000');
-  // 'video' | 'image' | 'solid' — strict degradation order, never goes backward.
+  // 'video' | 'image' | 'solid' · strict degradation order, never goes backward.
   // Reduced-motion is applied at render time rather than baked in here, because
   // useReducedMotion() can settle after the first render.
   const [heroStage, setHeroStage] = useState(() => (HERO.video ? 'video' : 'image'));
@@ -182,7 +183,7 @@ export default function Home() {
   return (
     <>
       <SEO
-        title="UrbanPulse — Premium streetwear & accessories"
+        title="UrbanPulse · Premium streetwear and accessories"
         suffix={false}
         description="Shop premium streetwear, accessories, and basics. Curated drops. Fast delivery across Ghana."
         image={HERO.fallback}
@@ -190,9 +191,9 @@ export default function Home() {
         jsonLd={[buildOrganizationSchema(), buildWebsiteSchema()]}
       />
 
-      {/* Referral banner — shown only when the visitor arrived via a referral link */}
+      {/* Referral banner · shown only when the visitor arrived via a referral link */}
       {!user && referrerName && (
-        <div className="border-b border-accent/20 bg-accent/8 py-2.5 text-center text-sm text-accent">
+        <div className="border-b border-accent/20 bg-accent/8 py-2.5 text-center text-sm text-accent-text">
           You were referred by <strong>{referrerName}</strong>. Sign up to get GH₵ 50 off your first order.{' '}
           <Link to="/register" className="underline underline-offset-2">
             Create account
@@ -205,10 +206,12 @@ export default function Home() {
         className="relative overflow-hidden h-[80vh] md:h-[92vh]"
         style={{ minHeight: '560px' }}
       >
-        {/* Background — extends 80px above section to absorb parallax translation without gaps */}
+        {/* Background · extends 80px above section to absorb parallax translation without gaps */}
         <motion.div
           className="absolute left-0 right-0"
-          style={{ top: '-80px', height: 'calc(100% + 80px)', y: bgY }}
+          /* The ink base sits under every stage. Without it a slow or failed
+             image leaves the white hero type on the light dust canvas. */
+          style={{ top: '-80px', height: 'calc(100% + 80px)', y: bgY, background: '#141210' }}
         >
           {heroStage === 'video' && !prefersReduced ? (
             <video
@@ -241,6 +244,12 @@ export default function Home() {
             />
           )}
           <div className="absolute inset-0 bg-gradient-to-tr from-black/70 via-black/30 to-transparent" />
+          {/* Base scrim: dims the corners without flattening the picture. */}
+          <div
+            aria-hidden
+            className="absolute inset-0"
+            style={{ background: 'radial-gradient(ellipse 120% 90% at 50% 45%, rgba(10,9,7,0) 38%, rgba(10,9,7,0.58) 100%)' }}
+          />
         </motion.div>
 
         {/* Content */}
@@ -287,7 +296,9 @@ export default function Home() {
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.62 }}
           >
             <Link to="/shop?collection=spring-26" aria-label="Shop the Spring 26 drop">
-              <Button size="lg" className="group gap-2 bg-white text-text hover:bg-white/90">
+              {/* The accent gets one of its rare doses here: the single primary
+                  action on the page, over the footage. */}
+              <Button size="lg" className="group gap-2">
                 Shop the drop
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>
@@ -296,7 +307,7 @@ export default function Home() {
               <Button
                 variant="outline"
                 size="lg"
-                className="border-white/40 text-white hover:border-white hover:bg-white/10"
+                className="border-bone/50 text-bone hover:border-bone hover:bg-bone/10"
               >
                 Watch the film
               </Button>
@@ -324,24 +335,23 @@ export default function Home() {
 
       {/* ─── PERKS BAR ───────────────────────────────────────────────────── */}
       <section ref={nextSectionRef} className="border-b border-border bg-surface">
-        <div className="container-site grid grid-cols-2 gap-4 py-5 md:grid-cols-4">
-          {PERKS.map(({ icon: Icon, key, label }) => (
-            <div key={key ?? label} className="flex items-center gap-3 text-sm">
-              <Icon className="h-4 w-4 shrink-0 text-accent" />
-              <span className="text-muted">
-                {key === 'freeShipping' ? `Free shipping over ${formatCurrency(freeShipThreshold)}` : label}
-              </span>
+        <div className="container-site grid grid-cols-2 gap-x-4 gap-y-3 py-4 md:grid-cols-4">
+          {PERKS.map(({ icon: Icon, key, label }, i) => (
+            <div key={key ?? label} className="flex items-center gap-2.5">
+              <Icon aria-hidden className="h-3.5 w-3.5 shrink-0 text-accent-text" />
+              <Label className="truncate">
+                {key === 'freeShipping'
+                  ? `Free delivery over ${formatCurrency(freeShipThreshold)}`
+                  : label}
+              </Label>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ─── (b) NEW DROP — ASYMMETRIC GRID ─────────────────────────────── */}
+      {/* ─── (b) NEW DROP · ASYMMETRIC GRID ─────────────────────────────── */}
       <section className="container-site pt-16 pb-10 md:pt-24 md:pb-14">
-        <Reveal>
-          <p className="eyebrow">The Drop</p>
-          <h2 className="mt-2 font-display text-display font-bold">New arrivals</h2>
-        </Reveal>
+        <Chapter n={1} kicker="The drop" title={['New in', 'rotation.']} />
 
         <div className="mt-8 grid gap-3 md:grid-cols-3 md:gap-4">
           {/* Large 2/3 item */}
@@ -399,14 +409,16 @@ export default function Home() {
         </div>
       </section>
 
-      <Divider />
+      <Statement>Heavyweight cotton / cut in Accra / made to outlast the season</Statement>
 
       {/* ─── (c) STORY STRIP ─────────────────────────────────────────────── */}
       <section className="container-site py-10 md:py-16">
-        <Reveal>
-          <p className="eyebrow">Stories</p>
-          <h2 className="mt-2 font-display text-display font-bold">The edit</h2>
-        </Reveal>
+        <Chapter
+          n={2}
+          kicker="Stories"
+          title={['The edit.']}
+          lead="How the pieces get worn once they leave here."
+        />
 
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {STORIES.map((story, i) => (
@@ -425,11 +437,11 @@ export default function Home() {
                 </div>
                 <div className="mt-4">
                   <p className="eyebrow">{story.eyebrow}</p>
-                  <h3 className="mt-1.5 font-display text-h3 font-semibold leading-tight group-hover:text-accent transition-colors">
+                  <h3 className="mt-1.5 font-display text-h3 font-semibold leading-tight group-hover:text-accent-text transition-colors">
                     {story.title}
                   </h3>
                   <p className="mt-2 text-sm text-muted leading-relaxed">{story.desc}</p>
-                  <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
+                  <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-accent-text">
                     Read story
                     <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
                   </span>
@@ -440,18 +452,15 @@ export default function Home() {
         </div>
       </section>
 
-      <Divider />
+      <Statement>We make fewer things, and we make them properly.</Statement>
 
       {/* ─── (d) BEST-SELLERS ────────────────────────────────────────────── */}
       <section className="py-10 md:py-16">
-        <div className="container-site mb-8 flex items-end justify-between gap-4">
-          <Reveal>
-            <p className="eyebrow">Best-sellers</p>
-            <h2 className="mt-2 font-display text-display font-bold">As worn</h2>
-          </Reveal>
+        <div className="container-site mb-8 flex items-end justify-between gap-6">
+          <Chapter n={3} kicker="Best-sellers" title={['As worn', 'in Accra.']} />
           <Link
             to="/shop"
-            className="hidden shrink-0 text-sm font-semibold text-accent hover:text-accent-hover sm:inline-flex sm:items-center sm:gap-1"
+            className="hidden shrink-0 pb-1.5 text-sm font-semibold text-accent-text hover:text-accent-hover sm:inline-flex sm:items-center sm:gap-1"
           >
             See all <ArrowRight className="h-4 w-4" />
           </Link>
@@ -469,7 +478,7 @@ export default function Home() {
               ))}
             </div>
             {slowLoad && (
-              <p className="text-center text-sm text-muted">Still loading — hang tight.</p>
+              <p className="text-center text-sm text-muted">Still loading. Hang tight.</p>
             )}
           </div>
         ) : fetchFailed ? (
@@ -518,19 +527,18 @@ export default function Home() {
         )}
       </section>
 
-      <Divider />
+      <Statement>Pay with Mobile Money, card, or cash at your door.</Statement>
 
       {/* ─── (e) COMMUNITY PHOTO WALL ────────────────────────────────────── */}
       <section className="container-site py-10 md:py-16">
-        <Reveal className="text-center mb-10">
-          <p className="eyebrow">As Worn By</p>
-          <h2 className="mt-2 font-display text-display font-bold">The community</h2>
-          <p className="mt-3 text-sm text-muted">
-            Tag{' '}
-            <a href="#" className="font-semibold text-accent">@urbanpulse</a>
-            {' '}to be featured.
-          </p>
-        </Reveal>
+        <Chapter
+          align="center"
+          className="mb-10"
+          n={4}
+          kicker="As worn by"
+          title={['Tagged', '@urbanpulse.']}
+          lead="Tag us and you might end up on this wall."
+        />
 
         <div className="grid grid-cols-3 gap-1.5 sm:gap-2 md:grid-cols-4 lg:gap-3">
           {COMMUNITY_PHOTOS.map((src, i) => (
@@ -623,7 +631,7 @@ export default function Home() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="flex-1 rounded-xl border border-bg/20 bg-bg/10 px-4 py-3.5 text-bg placeholder:text-bg/45 focus:border-accent focus:outline-none transition-colors"
               />
-              <Button type="submit" size="lg" className="bg-accent hover:bg-accent-hover text-white shrink-0">
+              <Button type="submit" size="lg" className="bg-accent hover:bg-accent-hover text-on-accent shrink-0">
                 Subscribe
               </Button>
             </motion.form>

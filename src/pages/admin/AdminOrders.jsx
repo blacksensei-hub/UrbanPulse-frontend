@@ -22,7 +22,7 @@ const ORDER_STATUS_STYLES = {
   awaiting_confirmation: 'bg-info/15 text-info',
   paid:                  'bg-info/15 text-info',
   processing:            'bg-info/15 text-info',
-  shipped:               'bg-accent/15 text-accent',
+  shipped:               'bg-accent/15 text-accent-text',
   delivered:             'bg-success/15 text-success',
   cancelled:             'bg-error/15 text-error',
   refunded:              'bg-muted/15 text-muted',
@@ -294,7 +294,7 @@ export default function AdminOrders() {
       {/* Pull-to-refresh indicator */}
       {(isPulling || isRefreshing) && (
         <div className="flex justify-center py-2 md:hidden" style={{ marginTop: -16 }}>
-          <Loader2 className={`h-5 w-5 text-accent ${isRefreshing ? 'animate-spin' : 'opacity-50'}`} />
+          <Loader2 className={`h-5 w-5 text-accent-text ${isRefreshing ? 'animate-spin' : 'opacity-50'}`} />
         </div>
       )}
 
@@ -317,7 +317,7 @@ export default function AdminOrders() {
               className={cn(
                 'rounded-full px-3 py-1.5 text-xs font-semibold uppercase transition-colors',
                 status === s
-                  ? 'bg-accent text-white'
+                  ? 'bg-accent text-on-accent'
                   : 'bg-bg text-muted hover:bg-surface hover:text-text',
               )}
             >
@@ -329,13 +329,13 @@ export default function AdminOrders() {
             className={cn(
               'relative rounded-full px-3 py-1.5 text-xs font-semibold uppercase transition-colors',
               status === '__cod_queue__'
-                ? 'bg-accent text-white'
+                ? 'bg-accent text-on-accent'
                 : 'bg-bg text-muted hover:bg-surface hover:text-text',
             )}
           >
             Awaiting (COD)
             {codQueueCount > 0 && (
-              <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-error text-[10px] font-bold text-white">
+              <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-error text-[10px] font-bold text-on-accent">
                 {codQueueCount}
               </span>
             )}
@@ -345,7 +345,7 @@ export default function AdminOrders() {
             className={cn(
               'rounded-full px-3 py-1.5 text-xs font-semibold uppercase transition-colors',
               status === '__preorders__'
-                ? 'bg-accent text-white'
+                ? 'bg-accent text-on-accent'
                 : 'bg-bg text-muted hover:bg-surface hover:text-text',
             )}
           >
@@ -356,7 +356,7 @@ export default function AdminOrders() {
             className={cn(
               'rounded-full px-3 py-1.5 text-xs font-semibold uppercase transition-colors',
               status === '__preorder_items__'
-                ? 'bg-accent text-white'
+                ? 'bg-accent text-on-accent'
                 : 'bg-bg text-muted hover:bg-surface hover:text-text',
             )}
           >
@@ -365,13 +365,13 @@ export default function AdminOrders() {
         </div>
       </div>
 
-      {/* Filter chip — shown when a non-default status is active */}
+      {/* Filter chip · shown when a non-default status is active */}
       {status !== 'all' && status !== '__preorder_items__' && (
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-eyebrow text-muted">Filters:</span>
           <button
             onClick={() => setStatus('all')}
-            className="inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-3 py-1 text-xs font-semibold text-accent hover:bg-accent/25 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-3 py-1 text-xs font-semibold text-accent-text hover:bg-accent/25 transition-colors"
           >
             {status === '__cod_queue__' ? 'Awaiting COD' : status === '__preorders__' ? 'Pre-orders' : status}
             <X className="h-3 w-3" />
@@ -406,7 +406,7 @@ export default function AdminOrders() {
                     <td className="px-4 py-3">{item.quantity}</td>
                     <td className="px-4 py-3 font-mono text-xs">{item.order_number}</td>
                     <td className="px-4 py-3 text-muted">{item.customer_name}</td>
-                    <td className="px-4 py-3 text-accent text-xs">
+                    <td className="px-4 py-3 text-accent-text text-xs">
                       {item.preorder_ships_at ? formatDate(item.preorder_ships_at) : '—'}
                     </td>
                   </tr>
@@ -440,7 +440,7 @@ export default function AdminOrders() {
               {/* Header row */}
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <Link to={`/admin/orders/${o.id}`} className="font-mono text-sm font-semibold hover:text-accent transition-colors" onClick={e => e.stopPropagation()}>{o.order_number}</Link>
+                  <Link to={`/admin/orders/${o.id}`} className="font-mono text-sm font-semibold hover:text-accent-text transition-colors" onClick={e => e.stopPropagation()}>{o.order_number}</Link>
                   <div className="text-xs text-muted truncate">
                     <CustomerLink customerId={o.user_id} name={o.customer_email ?? o.email} />
                   </div>
@@ -466,16 +466,16 @@ export default function AdminOrders() {
               {/* Data row */}
               <div className="flex items-center gap-2 text-xs text-muted flex-wrap">
                 <span className="font-display font-bold text-text tabular-nums">{formatCurrency(o.total)}</span>
-                <span>·</span>
+                <span>—</span>
                 <span>{formatRelativeDate(o.created_at)}</span>
-                <span>·</span>
+                <span>—</span>
                 <span className={o.payment_method === 'cod' ? 'font-semibold text-text' : ''}>{o.payment_method === 'cod' ? 'COD' : 'Paystack'}</span>
               </div>
               {/* Status update */}
               <select value={o.status} onChange={(e) => update(o.id, e.target.value)} className="select text-xs py-1.5 w-full">
                 {STATUS_NEXT.map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
-              {/* Primary COD/action buttons — always visible on mobile */}
+              {/* Primary COD/action buttons · always visible on mobile */}
               {o.payment_method === 'cod' && o.status === 'awaiting_confirmation' && (
                 <div className="flex gap-2">
                   <Button size="sm" className="flex-1" onClick={() => setCodConfirmTarget(o)}>Confirm COD</Button>
@@ -566,9 +566,9 @@ export default function AdminOrders() {
                       />
                     </td>
                     <td className="px-5 py-3 font-mono text-xs font-semibold">
-                      <Link to={`/admin/orders/${o.id}`} className="hover:text-accent transition-colors">{o.order_number}</Link>
+                      <Link to={`/admin/orders/${o.id}`} className="hover:text-accent-text transition-colors">{o.order_number}</Link>
                       {o.source === 'admin_manual' && (
-                        <span className="ml-1.5 rounded-full bg-accent/10 text-accent px-1.5 py-0.5 text-[10px] font-semibold uppercase">Manual</span>
+                        <span className="ml-1.5 rounded-full bg-accent/10 text-accent-text px-1.5 py-0.5 text-[10px] font-semibold uppercase">Manual</span>
                       )}
                     </td>
                     <td className="px-5 py-3 text-muted">
@@ -602,7 +602,7 @@ export default function AdminOrders() {
                         {o.payment_method === 'cod' && o.status === 'awaiting_confirmation' && (
                           <>
                             <button onClick={() => setCodConfirmTarget(o)}
-                              className="rounded-md px-2.5 py-1.5 text-xs font-semibold bg-accent text-white hover:bg-accent-hover transition-colors min-h-[30px]">
+                              className="rounded-md px-2.5 py-1.5 text-xs font-semibold bg-accent text-on-accent hover:bg-accent-hover transition-colors min-h-[30px]">
                               Confirm COD
                             </button>
                             <button onClick={() => setCodCancelTarget(o)}
@@ -650,7 +650,7 @@ export default function AdminOrders() {
       )}
 
       {/* Manual order modal */}
-      <Modal open={manualOpen} onClose={() => !manualCreating && (setManualOpen(false), resetManualOrder())} title={`New order — Step ${manualStep} of 5`} maxWidth="max-w-lg">
+      <Modal open={manualOpen} onClose={() => !manualCreating && (setManualOpen(false), resetManualOrder())} title={`New order · Step ${manualStep} of 5`} maxWidth="max-w-lg">
         <div className="space-y-4">
           {/* Progress */}
           <div className="flex gap-1">
@@ -801,7 +801,7 @@ export default function AdminOrders() {
                 <div className="px-4 py-3">
                   <span className="text-muted text-xs uppercase tracking-wider">Items ({manualItems.length})</span>
                   {manualItems.map((item, i) => (
-                    <div key={i} className="mt-0.5">{item.product_name} × {item.quantity} — {formatCurrency(item.unit_price * item.quantity)}</div>
+                    <div key={i} className="mt-0.5">{item.product_name} × {item.quantity} · {formatCurrency(item.unit_price * item.quantity)}</div>
                   ))}
                 </div>
                 <div className="px-4 py-3">
@@ -845,7 +845,7 @@ export default function AdminOrders() {
         <div className="flex justify-end gap-3">
           <Button variant="ghost" onClick={() => setConfirmAction(null)}>Cancel</Button>
           <Button
-            className="bg-error text-white hover:bg-error/90"
+            className="bg-error text-on-accent hover:bg-error/90"
             onClick={() => { handleBulkOrders(confirmAction.action); setConfirmAction(null); }}
           >
             Confirm
@@ -855,7 +855,7 @@ export default function AdminOrders() {
 
       <Modal open={!!refundTarget} onClose={() => !refunding && setRefundTarget(null)}>
         <div className="w-full max-w-sm space-y-4 p-6">
-          <h2 className="font-display text-xl font-bold">Refund order?</h2>
+          <h2 className="font-display text-xl font-bold tracking-tight">Refund order?</h2>
           <p className="text-sm text-muted">
             This will refund <strong>{formatCurrency(refundTarget?.total)}</strong> for order{' '}
             <strong>{refundTarget?.order_number}</strong> to the customer's original payment
@@ -872,7 +872,7 @@ export default function AdminOrders() {
             <Button
               onClick={confirmRefund}
               loading={refunding}
-              className="bg-error text-white hover:bg-error/90"
+              className="bg-error text-on-accent hover:bg-error/90"
             >
               Confirm refund
             </Button>
@@ -882,7 +882,7 @@ export default function AdminOrders() {
 
       <Modal open={!!codConfirmTarget} onClose={() => !codConfirming && setCodConfirmTarget(null)}>
         <div className="w-full max-w-sm space-y-4 p-6">
-          <h2 className="font-display text-xl font-bold">Confirm COD order?</h2>
+          <h2 className="font-display text-xl font-bold tracking-tight">Confirm COD order?</h2>
           <p className="text-sm text-muted">
             Confirm order <strong>{codConfirmTarget?.order_number}</strong>. This will notify the
             customer that their order is being prepared for dispatch.
@@ -896,14 +896,14 @@ export default function AdminOrders() {
 
       <Modal open={!!codCancelTarget} onClose={() => !codCancelling && setCodCancelTarget(null)}>
         <div className="w-full max-w-sm space-y-4 p-6">
-          <h2 className="font-display text-xl font-bold">Cancel COD order?</h2>
+          <h2 className="font-display text-xl font-bold tracking-tight">Cancel COD order?</h2>
           <p className="text-sm text-muted">
             Cancel order <strong>{codCancelTarget?.order_number}</strong>. Reserved stock will be
             returned to inventory. This cannot be undone.
           </p>
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="ghost" onClick={() => setCodCancelTarget(null)} disabled={codCancelling}>Back</Button>
-            <Button onClick={cancelCOD} loading={codCancelling} className="bg-error text-white hover:bg-error/90">
+            <Button onClick={cancelCOD} loading={codCancelling} className="bg-error text-on-accent hover:bg-error/90">
               Cancel order
             </Button>
           </div>
@@ -912,7 +912,7 @@ export default function AdminOrders() {
 
       <Modal open={!!cashTarget} onClose={() => !cashCollecting && setCashTarget(null)}>
         <div className="w-full max-w-sm space-y-4 p-6">
-          <h2 className="font-display text-xl font-bold">Mark cash collected?</h2>
+          <h2 className="font-display text-xl font-bold tracking-tight">Mark cash collected?</h2>
           <p className="text-sm text-muted">
             Confirm that <strong>{formatCurrency(cashTarget?.total)}</strong> cash was collected for
             order <strong>{cashTarget?.order_number}</strong>. This marks the order as paid and delivered.

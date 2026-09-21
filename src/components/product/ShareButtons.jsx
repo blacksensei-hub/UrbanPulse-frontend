@@ -22,7 +22,7 @@ export default function ShareButtons({ url, text }) {
       <button
         type="button"
         onClick={copyLink}
-        className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:border-accent hover:text-accent"
+        className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:border-accent hover:text-accent-text"
       >
         {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
         {copied ? 'Copied' : 'Copy link'}
@@ -30,7 +30,7 @@ export default function ShareButtons({ url, text }) {
       <button
         type="button"
         onClick={shareWhatsApp}
-        className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:border-accent hover:text-accent"
+        className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:border-accent hover:text-accent-text"
       >
         Share on WhatsApp
       </button>

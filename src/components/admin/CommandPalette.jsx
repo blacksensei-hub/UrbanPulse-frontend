@@ -118,7 +118,7 @@ export default function CommandPalette({ open, onClose }) {
   }, [open]);
 
   // Remember whatever had focus when the palette opened, and restore it on
-  // close — same pattern as components/ui/Modal.jsx, so keyboard users land
+  // close · same pattern as components/ui/Modal.jsx, so keyboard users land
   // back where they started (e.g. the topbar button that opened it).
   useEffect(() => {
     if (open) {
@@ -280,7 +280,7 @@ export default function CommandPalette({ open, onClose }) {
                   </div>
                 )}
 
-                {/* Empty state — quick actions + recent */}
+                {/* Empty state · quick actions + recent */}
                 {showEmpty && !loading && (
                   <>
                     <div>
@@ -355,7 +355,7 @@ function ResultRow({ item, Icon, active, onSelect, onHover }) {
       }`}
       style={{ width: 'calc(100% - 8px)' }}
     >
-      <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-md ${active ? 'bg-accent/15 text-accent' : 'bg-border/60 text-muted'}`}>
+      <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-md ${active ? 'bg-accent/15 text-accent-text' : 'bg-border/60 text-muted'}`}>
         <Icon className="h-3.5 w-3.5" />
       </span>
       <span className="min-w-0 flex-1">

@@ -77,7 +77,7 @@ function ProtectedRoute({ children, adminOnly = false }) {
   // The session hint is an optimization, never the source of truth: init()
   // skips /auth/me entirely when the hint is missing (fast path for genuinely
   // anonymous visitors on public pages, which never render this component).
-  // But a missing hint doesn't mean a missing session — localStorage can be
+  // But a missing hint doesn't mean a missing session · localStorage can be
   // cleared while the httpOnly cookie is still valid. On a protected route,
   // try exactly one /auth/me before trusting "logged out" and redirecting;
   // success also repairs the hint so this doesn't recur next load.
@@ -124,7 +124,7 @@ export default function App() {
     if (ref) storeRefCode(ref);
   }, [initAuth, refreshCart]);
 
-  // Re-check settings on mount and on every navigation — a cheap no-op while
+  // Re-check settings on mount and on every navigation · a cheap no-op while
   // the cache is still fresh (see STALE_MS in settingsStore.js), but it's
   // what makes an admin's change to shipping/tax/etc. show up on the
   // storefront without requiring a hard refresh.
@@ -132,7 +132,7 @@ export default function App() {
     loadSettings();
   }, [location.pathname, loadSettings]);
 
-  // Wishlist requires a real session — only fetch once auth resolves to a logged-in
+  // Wishlist requires a real session · only fetch once auth resolves to a logged-in
   // user, never in parallel with the boot auth check (avoids a guaranteed 401 for
   // anonymous visitors, and as a side effect now also refreshes on a mid-session login).
   useEffect(() => {
@@ -169,7 +169,7 @@ export default function App() {
 
   // Arms the route-loading bar system. Deferred a tick so the one start() call
   // that fires synchronously on mount (below) always sees hasCompletedFirstLoad
-  // still false and is correctly suppressed — the splash owns the first load.
+  // still false and is correctly suppressed · the splash owns the first load.
   useEffect(() => {
     const t = setTimeout(completeFirstLoad, 0);
     return () => clearTimeout(t);
@@ -186,7 +186,7 @@ export default function App() {
     <ViewAsBanner />
     <CookieConsent />
     <Suspense fallback={<PageSkeleton />}>
-        {/* No `key` here — MainLayout/AdminLayout own the page-transition animation via
+        {/* No `key` here · MainLayout/AdminLayout own the page-transition animation via
             their own locally-scoped AnimatePresence wrapping their motion.main directly.
             A `key` here previously forced this whole Routes subtree (Navbar, Footer, the
             works) to hard-remount every navigation, while ALSO being wrapped by an

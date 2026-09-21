@@ -22,7 +22,7 @@ const STATUS_STYLES = {
   awaiting_confirmation: 'bg-info/15 text-info',
   paid:                  'bg-info/15 text-info',
   processing:            'bg-info/15 text-info',
-  shipped:               'bg-accent/15 text-accent',
+  shipped:               'bg-accent/15 text-accent-text',
   delivered:             'bg-success/15 text-success',
   cancelled:             'bg-error/15 text-error',
   refunded:              'bg-muted/15 text-muted',
@@ -101,7 +101,7 @@ export default function AdminOrderDetail() {
   }
 
   useEffect(() => {
-    // Skip StrictMode's second dev-mode invocation for the same id — otherwise it
+    // Skip StrictMode's second dev-mode invocation for the same id · otherwise it
     // fires a redundant duplicate request that can resolve after the current one
     // under a slow connection, briefly showing a stale/empty state (confirmed live
     // under Slow-3G-equivalent throttling in AdminReturns.jsx's identical pattern).
@@ -285,7 +285,7 @@ export default function AdminOrderDetail() {
     return (
       <div className="card p-10 text-center space-y-2">
         <p className="text-muted">Order not found.</p>
-        <Link to="/admin/orders" className="text-accent text-sm">← Back to orders</Link>
+        <Link to="/admin/orders" className="text-accent-text text-sm">← Back to orders</Link>
       </div>
     );
   }
@@ -320,7 +320,7 @@ export default function AdminOrderDetail() {
             {order.status}
           </span>
           {order.source === 'admin_manual' && (
-            <span className="rounded-pill bg-accent/10 text-accent px-2 py-0.5 text-eyebrow">Manual</span>
+            <span className="rounded-pill bg-accent/10 text-accent-text px-2 py-0.5 text-eyebrow">Manual</span>
           )}
           <span className="text-xs text-muted">{formatRelativeDate(order.created_at)}</span>
         </div>
@@ -486,7 +486,7 @@ export default function AdminOrderDetail() {
             <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">
               Reason <span className="text-error">*</span>
             </label>
-            <textarea value={editReason} onChange={e => setEditReason(e.target.value)} rows={2} className="textarea" placeholder="Required — logged to audit trail" />
+            <textarea value={editReason} onChange={e => setEditReason(e.target.value)} rows={2} className="textarea" placeholder="Required. Logged to the audit trail." />
           </div>
 
           <div className="flex justify-end gap-3">
@@ -542,7 +542,7 @@ export default function AdminOrderDetail() {
           <div>
             <label className="text-xs text-muted uppercase tracking-wider block mb-1">Set to</label>
             <select value={forceStatus} onChange={e => setForceStatus(e.target.value)} className="select">
-              <option value="">— pick —</option>
+              <option value="">· pick ·</option>
               {ALL_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
@@ -552,7 +552,7 @@ export default function AdminOrderDetail() {
           </div>
           <Button
             disabled={!forceStatus || !forceReason.trim()}
-            className="bg-error text-white hover:bg-error/90"
+            className="bg-error text-on-accent hover:bg-error/90"
             onClick={() => setShowForceModal(true)}
           >
             Force
@@ -624,7 +624,7 @@ export default function AdminOrderDetail() {
           <p className="text-sm text-muted">You are about to make the following changes:</p>
           <ul className="space-y-1 text-sm">
             {pendingDiff.map((d, i) => (
-              <li key={i} className="flex gap-2"><span className="text-accent">•</span>{d}</li>
+              <li key={i} className="flex gap-2"><span className="text-accent-text">•</span>{d}</li>
             ))}
           </ul>
           <div className="flex justify-end gap-3 pt-2">
@@ -643,7 +643,7 @@ export default function AdminOrderDetail() {
           <p className="text-sm"><span className="text-muted">Reason:</span> {forceReason}</p>
           <div className="flex justify-end gap-3">
             <Button variant="ghost" onClick={() => setShowForceModal(false)} disabled={forcing}>Cancel</Button>
-            <Button className="bg-error text-white hover:bg-error/90" onClick={handleForce} loading={forcing}>Confirm</Button>
+            <Button className="bg-error text-on-accent hover:bg-error/90" onClick={handleForce} loading={forcing}>Confirm</Button>
           </div>
         </div>
       </Modal>
@@ -672,7 +672,7 @@ export default function AdminOrderDetail() {
           </div>
           <div>
             <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">Reason <span className="text-error">*</span></label>
-            <textarea value={refundReason} onChange={e => setRefundReason(e.target.value)} rows={2} className="textarea" placeholder="Required — logged to audit trail" />
+            <textarea value={refundReason} onChange={e => setRefundReason(e.target.value)} rows={2} className="textarea" placeholder="Required. Logged to the audit trail." />
           </div>
           <div className="flex justify-end gap-3">
             <Button variant="ghost" onClick={() => setRefundOpen(false)} disabled={refunding}>Cancel</Button>
@@ -680,7 +680,7 @@ export default function AdminOrderDetail() {
               onClick={handleRefund}
               loading={refunding}
               disabled={!refundAmount || !refundReason.trim()}
-              className="bg-error text-white hover:bg-error/90"
+              className="bg-error text-on-accent hover:bg-error/90"
             >
               Issue refund
             </Button>
