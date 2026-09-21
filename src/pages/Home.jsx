@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
-import { ArrowRight, ArrowDown, Truck, ShieldCheck, RotateCcw, Sparkles } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { ArrowRight, Truck, ShieldCheck, RotateCcw, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 import ProductCard from '../components/product/ProductCard.jsx';
@@ -15,17 +15,74 @@ import { getStoredRefCode } from '../utils/referral.js';
 import { useAuthStore } from '../stores/authStore.js';
 import { useSetting } from '../stores/settingsStore.js';
 import { Chapter, Statement, Label } from '../components/ui/Instrument.jsx';
+import ScrollScrubHero from '../components/home/ScrollScrubHero.jsx';
+import WeightGauge from '../components/home/WeightGauge.jsx';
 import { formatCurrency } from '../utils/format.js';
 
 // A 5.3s loop with no visible seam: the camera drifts left past bolts of
 // heavy cotton in the workroom, dust turning in the raking light. The left
 // third stays dark on purpose, which is where the headline sits. 439KB.
 const HERO = {
-  video:    '/hero/spring-26.mp4',
-  poster:   '/hero/spring-26.jpg',
-  fallback: '/media/room-wide.jpg',
+  scrub:  '/hero/drop-scrub.mp4',
+  poster: '/hero/drop-poster.jpg',
+  ending: '/hero/drop-ending.jpg',
+  // The share card. The resting frame is the composed one, so it is the
+  // right thing to show in a WhatsApp or Instagram preview.
+  share:  '/hero/drop-ending.jpg',
 };
 
+/* The band ranges come from the footage's measured motion curve, not from
+   the storyboard: the impact peaks at 1.21s of 6.04s, which is progress
+   0.20, so the beats sit where the motion actually is. Each entrance
+   echoes what the film is doing underneath it. */
+const HERO_BANDS = [
+  {
+    id: 'ssh-b1',
+    a: 0,
+    b: 0.17,
+    render: (Split) => (
+      <h1 className="font-display font-bold">
+        <Split text="Photos flatter." />
+      </h1>
+    ),
+  },
+  {
+    id: 'ssh-b2',
+    a: 0.2,
+    b: 0.44,
+    render: (Split) => (
+      <h2 className="font-display font-bold">
+        <Split text="Weight tells the truth." seed={41} />
+      </h2>
+    ),
+  },
+  {
+    id: 'ssh-b3',
+    a: 0.5,
+    b: 1,
+    render: (Split) => (
+      <>
+        <h2 className="font-display font-bold">
+          <Split text="320gsm. Cut in Accra." seed={7} />
+        </h2>
+        <p className="ssh-sub">Built to outlast the season.</p>
+        <div className="ssh-cta">
+          <Link to="/shop?collection=spring-26">
+            <Button size="lg" className="group gap-2">
+              Shop the drop
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Button>
+          </Link>
+          <Link to="/lookbook/spring-26">
+            <Button variant="outline" size="lg" className="border-bone/50 text-bone hover:border-bone hover:bg-bone/10">
+              Watch the film
+            </Button>
+          </Link>
+        </div>
+      </>
+    ),
+  },
+];
 // ─── Data ───────────────────────────────────────────────────────────────────
 
 const DROP_ITEMS = [
@@ -132,14 +189,7 @@ export default function Home() {
   // 'video' | 'image' | 'solid' · strict degradation order, never goes backward.
   // Reduced-motion is applied at render time rather than baked in here, because
   // useReducedMotion() can settle after the first render.
-  const [heroStage, setHeroStage] = useState(() => (HERO.video ? 'video' : 'image'));
-  const [heroImgSrc, setHeroImgSrc] = useState(HERO.poster || HERO.fallback);
   const prefersReduced = useReducedMotion();
-  const nextSectionRef = useRef(null);
-  const { scrollY } = useScroll();
-  const bgY = useTransform(scrollY, [0, 600], prefersReduced ? [0, 0] : [0, 80]);
-  const contentY = useTransform(scrollY, [0, 400], prefersReduced ? [0, 0] : [0, -40]);
-  const contentOpacity = useTransform(scrollY, [0, 300], prefersReduced ? [1, 1] : [1, 0]);
 
   useEffect(() => {
     setLoading(true);
@@ -170,23 +220,13 @@ export default function Home() {
     setEmail('');
   }
 
-  function handleHeroImgError() {
-    // One more real-image chance: if the poster failed and a distinct fallback
-    // exists, try it; otherwise degrade to the solid brand background.
-    if (heroImgSrc !== HERO.fallback && HERO.fallback) {
-      setHeroImgSrc(HERO.fallback);
-    } else {
-      setHeroStage('solid');
-    }
-  }
-
   return (
     <>
       <SEO
         title="UrbanPulse · Premium streetwear and accessories"
         suffix={false}
         description="Shop premium streetwear, accessories, and basics. Curated drops. Fast delivery across Ghana."
-        image={HERO.fallback}
+        image={HERO.share}
         url=""
         jsonLd={[buildOrganizationSchema(), buildWebsiteSchema()]}
       />
@@ -201,140 +241,49 @@ export default function Home() {
         </div>
       )}
 
-      {/* ─── (a) FULL-BLEED HERO ─────────────────────────────────────────── */}
-      <section
-        className="relative overflow-hidden h-[80vh] md:h-[92vh]"
-        style={{ minHeight: '560px' }}
-      >
-        {/* Background · extends 80px above section to absorb parallax translation without gaps */}
-        <motion.div
-          className="absolute left-0 right-0"
-          /* The ink base sits under every stage. Without it a slow or failed
-             image leaves the white hero type on the light dust canvas. */
-          style={{ top: '-80px', height: 'calc(100% + 80px)', y: bgY, background: '#141210' }}
-        >
-          {heroStage === 'video' && !prefersReduced ? (
-            <video
-              autoPlay muted loop playsInline
-              poster={HERO.poster || HERO.fallback}
-              src={HERO.video}
-              width={1600}
-              height={900}
-              className="h-full w-full object-cover"
-              aria-hidden="true"
-              onError={() => setHeroStage('image')}
-            />
-          ) : heroStage !== 'solid' ? (
-            <img
-              src={heroImgSrc}
-              alt=""
-              width={1600}
-              height={900}
-              className="h-full w-full object-cover"
-              aria-hidden="true"
-              onError={handleHeroImgError}
-            />
-          ) : (
-            <div
-              aria-hidden="true"
-              className="h-full w-full"
-              // Theme-independent charcoal→stone: --color-secondary flips to cream in
-              // dark mode, which would risk white-on-light for the hero text.
-              style={{ background: 'linear-gradient(160deg, #2A2A2A 0%, #57504A 100%)' }}
-            />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-tr from-black/70 via-black/30 to-transparent" />
-          {/* Base scrim: dims the corners without flattening the picture. */}
-          <div
-            aria-hidden
-            className="absolute inset-0"
-            style={{ background: 'radial-gradient(ellipse 120% 90% at 50% 45%, rgba(10,9,7,0) 38%, rgba(10,9,7,0.58) 100%)' }}
-          />
-        </motion.div>
-
-        {/* Content */}
-        <motion.div
-          className="relative z-10 container-site flex h-full flex-col justify-end pb-16 md:pb-24 lg:pb-28"
-          style={{ y: contentY, opacity: contentOpacity }}
-        >
-          <motion.p
-            className="eyebrow text-white/60 tracking-[0.18em]"
-            initial={prefersReduced ? false : { opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
-          >
-            Spring &#39;26 Collection
-          </motion.p>
-
-          <h1 className="mt-4 max-w-3xl font-display text-display font-bold leading-[1.02] tracking-tight text-white">
-            {['Built for the', 'street. Made', 'to last.'].map((line, i) => (
-              <motion.span
-                key={i}
-                className="block"
-                initial={prefersReduced ? false : { opacity: 0, y: 28, scale: 0.97 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.15 + i * 0.12 }}
-              >
-                {line}
-              </motion.span>
-            ))}
-          </h1>
-
-          <motion.p
-            className="mt-5 max-w-md text-base text-white/70 leading-relaxed"
-            initial={prefersReduced ? false : { opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.52 }}
-          >
-            Heavyweight tees, technical outerwear, and accessories engineered for movement.
-          </motion.p>
-
-          <motion.div
-            className="mt-8 flex flex-wrap gap-3"
-            initial={prefersReduced ? false : { opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.62 }}
-          >
-            <Link to="/shop?collection=spring-26" aria-label="Shop the Spring 26 drop">
-              {/* The accent gets one of its rare doses here: the single primary
-                  action on the page, over the footage. */}
-              <Button size="lg" className="group gap-2">
-                Shop the drop
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Button>
-            </Link>
-            <Link to="/lookbook/spring-26" aria-label="Watch the Spring 26 film">
-              <Button
-                variant="outline"
-                size="lg"
-                className="border-bone/50 text-bone hover:border-bone hover:bg-bone/10"
-              >
-                Watch the film
-              </Button>
-            </Link>
-          </motion.div>
-        </motion.div>
-
-        {/* Scroll cue */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-white/50">
-          <button
-            onClick={() => nextSectionRef.current?.scrollIntoView({ behavior: prefersReduced ? 'instant' : 'smooth' })}
-            aria-label="Scroll to next section"
-            className="flex flex-col items-center gap-1.5 hover:text-white/80 transition-colors"
-          >
-            <span className="eyebrow text-[0.6rem]">Scroll</span>
-            <motion.div
-              animate={prefersReduced ? {} : { y: [0, 7, 0] }}
-              transition={{ repeat: Infinity, duration: 1.6, ease: 'easeInOut' }}
-            >
-              <ArrowDown className="h-4 w-4" />
-            </motion.div>
-          </button>
-        </div>
-      </section>
+      {/* ─── (a) THE SCROLL-SCRUB HERO ───────────────────────────────────
+          Scroll drives the film: the cloth falls, lands, throws dust and
+          settles, and the page comes to rest exactly when the footage does.
+          Phones and reduced motion get the composed still instead, and
+          never download the video. */}
+      <ScrollScrubHero
+        videoSrc={HERO.scrub}
+        posterSrc={HERO.poster}
+        /* Frame one, not the ending frame: a portrait phone crops to the
+           middle ~26% of a 16:9 image, and the ending has its cloth low and
+           right, so the crop lands on bare wall or puts the bright cloth
+           under the headline. Frame one holds the cloth high with empty
+           dark floor beneath it, which is the shape a phone wants. */
+        staticSrc={HERO.poster}
+        videoBytes={2689411}
+        heroVh={640}
+        bands={HERO_BANDS}
+        staticHero={
+          <>
+            <span className="ssh-chip mb-4">
+              <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+              <Label>Spring &apos;26 / Accra</Label>
+            </span>
+            <h1 className="font-display text-[clamp(2.5rem,11vw,4.2rem)] font-bold leading-[1.02] tracking-tight">
+              Built for the street. Made to last.
+            </h1>
+            <p className="ssh-sub mt-4 max-w-[34ch] text-sm">
+              320gsm ring-spun cotton. Cut in Accra, built to outlast the season.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link to="/shop?collection=spring-26">
+                <Button size="lg" className="group gap-2">
+                  Shop the drop
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </Link>
+            </div>
+          </>
+        }
+      />
 
       {/* ─── PERKS BAR ───────────────────────────────────────────────────── */}
-      <section ref={nextSectionRef} className="border-b border-border bg-surface">
+      <section className="border-b border-border bg-surface">
         <div className="container-site grid grid-cols-2 gap-x-4 gap-y-3 py-4 md:grid-cols-4">
           {PERKS.map(({ icon: Icon, key, label }, i) => (
             <div key={key ?? label} className="flex items-center gap-2.5">
@@ -410,6 +359,21 @@ export default function Home() {
       </section>
 
       <Statement>Heavyweight cotton / cut in Accra / made to outlast the season</Statement>
+
+      {/* ─── (b2) THE WEIGHT, PERFORMED ──────────────────────────────────
+          The one thing a visitor does rather than reads. Holding the
+          button turns 180gsm into 320, which is the claim enacted rather
+          than asserted. */}
+      <section className="container-site py-12 md:py-20">
+        <div className="mb-10 flex items-baseline gap-3">
+          <span aria-hidden className="h-1.5 w-1.5 shrink-0 self-center rounded-full bg-accent" />
+          <Label>02 / The weight</Label>
+          <span aria-hidden className="h-px flex-1 bg-border-strong/50" />
+        </div>
+        <WeightGauge />
+      </section>
+
+      <Statement>Pay with Mobile Money, card, or cash at your door.</Statement>
 
       {/* ─── (c) STORY STRIP ─────────────────────────────────────────────── */}
       <section className="container-site py-10 md:py-16">
