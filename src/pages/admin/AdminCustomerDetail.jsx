@@ -1012,8 +1012,8 @@ function OrdersTab({ orders }) {
             </div>
             <div className="flex items-center gap-2 text-xs text-muted">
               <span className="font-display font-bold text-text tabular-nums">{formatCurrency(o.total)}</span>
-              <span>—</span><span>{o.item_count} item{o.item_count !== 1 ? 's' : ''}</span>
-              <span>—</span><span>{formatRelativeDate(o.created_at)}</span>
+              <span>·</span><span>{o.item_count} item{o.item_count !== 1 ? 's' : ''}</span>
+              <span>·</span><span>{formatRelativeDate(o.created_at)}</span>
             </div>
           </div>
         ))}

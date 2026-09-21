@@ -137,16 +137,16 @@ function CodRow({ item, onDone }) {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span className="font-mono text-sm font-semibold">{item.order_number}</span>
-            <span className="text-sm text-muted">—</span>
+            <span className="text-sm text-muted">·</span>
             <span className="text-sm font-medium truncate">{item.customer_name}</span>
           </div>
           <div className="mt-0.5 flex items-center gap-2 text-xs text-muted">
             <span className="tabular-nums font-display font-bold text-text">{formatCurrency(item.total_ghs)}</span>
-            <span>—</span>
+            <span>·</span>
             <span>{item.items_count} item{item.items_count !== 1 ? 's' : ''}</span>
-            <span>—</span>
+            <span>·</span>
             <span>{formatRelativeDate(item.created_at)}</span>
-            {item.customer_phone && <><span>—</span><span className="font-mono">{item.customer_phone}</span></>}
+            {item.customer_phone && <><span>·</span><span className="font-mono">{item.customer_phone}</span></>}
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">

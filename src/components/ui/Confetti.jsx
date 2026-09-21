@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useReducedMotion } from 'framer-motion';
 
-const COLORS = ['#f97316', '#eab308', '#ec4899', '#3b82f6', '#10b981', '#8b5cf6', '#D85A30', '#e8e0d0'];
+const COLORS = ['#8A2F26', '#DE6E64', '#EDE8DC', '#BDB6A8', '#D6A84E', '#9C968A'];
 
 export default function Confetti({ trigger }) {
   const canvasRef = useRef(null);

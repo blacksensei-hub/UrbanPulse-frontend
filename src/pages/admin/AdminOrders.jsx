@@ -466,9 +466,9 @@ export default function AdminOrders() {
               {/* Data row */}
               <div className="flex items-center gap-2 text-xs text-muted flex-wrap">
                 <span className="font-display font-bold text-text tabular-nums">{formatCurrency(o.total)}</span>
-                <span>—</span>
+                <span>·</span>
                 <span>{formatRelativeDate(o.created_at)}</span>
-                <span>—</span>
+                <span>·</span>
                 <span className={o.payment_method === 'cod' ? 'font-semibold text-text' : ''}>{o.payment_method === 'cod' ? 'COD' : 'Paystack'}</span>
               </div>
               {/* Status update */}

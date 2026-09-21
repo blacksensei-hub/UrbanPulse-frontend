@@ -278,7 +278,7 @@ export default function Navbar() {
                 {itemCount > 0 && (
                   <motion.span
                     className="absolute -top-0.5 -right-0.5 min-w-[20px] h-5 px-1 rounded-full bg-accent text-on-accent text-[11px] font-bold flex items-center justify-center overflow-hidden"
-                    animate={bouncing && !reducedMotion ? { backgroundColor: ['#D85A30', '#FF7849', '#D85A30'] } : {}}
+                    animate={bouncing && !reducedMotion ? { scale: [1, 1.18, 1] } : {}}
                     transition={{ duration: 0.4 }}
                   >
                     {reducedMotion ? (

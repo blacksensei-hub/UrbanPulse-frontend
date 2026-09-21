@@ -1,4 +1,4 @@
-const COLORS = ['#D85A30', '#F8F6F2', '#C24D2A', '#E5E5E0', '#FCD34D'];
+const COLORS = ['#8A2F26', '#DE6E64', '#EDE8DC', '#BDB6A8', '#D6A84E'];
 const SESSION_KEY = 'urbanpulse-first-wishlist';
 
 export function triggerWishlistConfetti(anchorEl, prefersReduced) {

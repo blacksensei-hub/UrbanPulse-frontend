@@ -360,9 +360,9 @@ function MobileReturnCard({ r, onClick, onLongPress, isSelected }) {
         </div>
         <div className="flex items-center gap-2 text-xs text-muted flex-wrap">
           <span>{RESOLUTION_LABELS[r.resolution] ?? r.resolution}</span>
-          <span>—</span>
+          <span>·</span>
           <span>{r.item_count} item{r.item_count !== 1 ? 's' : ''}</span>
-          <span>—</span>
+          <span>·</span>
           <span>{formatDate(r.created_at)}</span>
         </div>
       </motion.div>

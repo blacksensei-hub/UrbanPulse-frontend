@@ -4,44 +4,46 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#F8F6F2" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#12100E" media="(prefers-color-scheme: dark)" />
-    <title>UrbanPulse — Premium Streetwear</title>
-    <meta name="description" content="UrbanPulse — Premium streetwear and accessories built to outlast trends." />
-    <!-- Static default OG tags — crawlers like WhatsApp's do not execute JS, so they never
-         see the per-page tags SEO.jsx injects client-side via react-helmet. These are the
-         ONLY tags a link-preview crawler will ever observe, on every URL, until a server-side
-         (edge function / middleware) solution injects per-page tags before the JS bundle loads.
-         og:image points at an existing app icon as a stopgap — replace with a real 1200x630
-         branded share image when one exists. -->
+    <!-- Harmattan canvas. These must match --color-bg in globals.css, or the
+         browser chrome disagrees with the page it is framing. -->
+    <meta name="theme-color" content="#D9D5CC" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1F1D19" media="(prefers-color-scheme: dark)" />
+    <title>UrbanPulse · Premium streetwear, cut in Accra</title>
+    <meta name="description" content="320gsm ring-spun cotton, cut in Accra. Heavyweight tees, technical outerwear and accessories built to outlast the season." />
+    <!-- Static default OG tags. Link-preview crawlers like WhatsApp's do not
+         execute JS, so they never see the per-page tags SEO.jsx injects via
+         react-helmet. These are the ONLY tags a crawler observes, on every
+         URL, until something server-side injects per-page tags before the
+         bundle loads. -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="UrbanPulse" />
-    <meta property="og:title" content="UrbanPulse — Premium Streetwear" />
-    <meta property="og:description" content="UrbanPulse — Premium streetwear and accessories built to outlast trends." />
-    <meta property="og:url" content="https://urbanpulse.com" />
-    <meta property="og:image" content="https://urbanpulse.com/icons/icon-512.png" />
-    <meta property="og:image:width" content="512" />
-    <meta property="og:image:height" content="512" />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="UrbanPulse — Premium Streetwear" />
-    <meta name="twitter:description" content="UrbanPulse — Premium streetwear and accessories built to outlast trends." />
-    <meta name="twitter:image" content="https://urbanpulse.com/icons/icon-512.png" />
-    <!-- No hero preload here: Home.jsx's HERO.video/poster point at /hero/spring-26.mp4
-         and /hero/spring-26.jpg, which don't exist in public/ yet, so nothing real is
-         reliably the hero's LCP element to preload. TODO: once those assets are added,
-         add <link rel="preload" as="image" href="/hero/spring-26.jpg"> back, matching
-         the actual poster src exactly. -->
+    <meta property="og:title" content="UrbanPulse · Premium streetwear, cut in Accra" />
+    <meta property="og:description" content="320gsm ring-spun cotton, cut in Accra. Built to outlast the season." />
+    <meta property="og:url" content="https://urbanpulsee.vercel.app/" />
+    <meta property="og:image" content="https://urbanpulsee.vercel.app/hero/drop-ending.jpg" />
+    <meta property="og:image:width" content="1280" />
+    <meta property="og:image:height" content="716" />
+    <meta property="og:image:alt" content="Heavy bone cotton cloth at rest on a dusty concrete floor in raking light." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="UrbanPulse · Premium streetwear, cut in Accra" />
+    <meta name="twitter:description" content="320gsm ring-spun cotton, cut in Accra. Built to outlast the season." />
+    <meta name="twitter:image" content="https://urbanpulsee.vercel.app/hero/drop-ending.jpg" />
+    <!-- The hero's first painted pixel on every device: the scrub poster on
+         desktop, the same frame as the static hero's background on phones.
+         Matches HERO.poster in Home.jsx exactly. -->
+    <link rel="preload" as="image" href="/hero/drop-poster.jpg" fetchpriority="high" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://api.fontshare.com" />
+    <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
     <!-- Clash Display via Fontshare -->
     <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&display=swap" />
     <!-- Google Identity Services -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <!-- No-FOUC: applies stored theme BEFORE React mounts, falling back to the OS
-         preference when no theme has been chosen yet (not hardcoded to light). Also
-         marks splash start time and arms a failsafe in case React never mounts. -->
+    <!-- No-FOUC: applies the stored theme BEFORE React mounts, falling back to
+         the OS preference when nothing has been chosen yet. Also marks splash
+         start time and arms a failsafe in case React never mounts. -->
     <script>
       (function () {
         function prefersDark() {
@@ -69,20 +71,60 @@
       })();
     </script>
     <style>
-      #splash{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:#F8F6F2;z-index:9999;pointer-events:none;opacity:1;transition:opacity .25s ease;}
-      html.dark #splash{background:#12100E;}
-      #splash.splash-exit{opacity:0;}
-      .sp-wm{display:flex;font-family:'Clash Display',ui-sans-serif,sans-serif;font-size:clamp(2rem,8vw,3.5rem);font-weight:700;letter-spacing:-0.03em;animation:sp-pulse 2s ease-in-out .75s infinite;}
-      @keyframes sp-up{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-      @keyframes sp-pulse{0%,100%{opacity:1;}50%{opacity:.75;}}
-      .sp-l{color:#1A1A1A;opacity:0;animation:sp-up .4s cubic-bezier(.16,1,.3,1) forwards;animation-delay:calc(var(--i)*35ms);}
-      html.dark .sp-l{color:#F2EFE8;}
-      .sp-a{color:#D85A30;opacity:0;animation:sp-up .4s cubic-bezier(.16,1,.3,1) forwards;animation-delay:calc(var(--i)*35ms);}
-      html.dark .sp-a{color:#E87A4F;}
-      .sp-failsafe{pointer-events:auto;font-family:ui-sans-serif,sans-serif;font-size:0.875rem;color:#6B6B66;}
-      .sp-failsafe a{color:#D85A30;text-decoration:underline;}
-      html.dark .sp-failsafe a{color:#E87A4F;}
-      @media(prefers-reduced-motion:reduce){.sp-l,.sp-a{opacity:1;animation:none;}.sp-wm{animation:none;}#splash{transition:none;}}
+      /* The splash is the first thing anyone sees, so its colours are the
+         Harmattan tokens verbatim. They cannot read from globals.css because
+         that stylesheet has not loaded yet, so if --color-bg, --color-text or
+         --color-accent-text ever change, change them here too. */
+      #splash {
+        position: fixed; inset: 0; z-index: 9999;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 18px; background: #D9D5CC; pointer-events: none;
+        opacity: 1; transition: opacity .25s ease;
+      }
+      html.dark #splash { background: #1F1D19; }
+      #splash.splash-exit { opacity: 0; }
+
+      .sp-wm {
+        display: flex;
+        font-family: 'Clash Display', ui-sans-serif, system-ui, sans-serif;
+        font-size: clamp(2rem, 8vw, 3.5rem); font-weight: 700; letter-spacing: -.03em;
+      }
+      @keyframes sp-up { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: none } }
+      .sp-l, .sp-a {
+        opacity: 0;
+        animation: sp-up .4s cubic-bezier(.16,1,.3,1) forwards;
+        animation-delay: calc(var(--i) * 35ms);
+      }
+      .sp-l { color: #191713 }
+      .sp-a { color: #8A2F26 }
+      html.dark .sp-l { color: #EDE8DC }
+      html.dark .sp-a { color: #DE6E64 }
+
+      /* A quiet drawn rule rather than a pulsing wordmark: the site's section
+         heads open on exactly this gesture, so the splash rehearses it. */
+      .sp-rule {
+        width: clamp(120px, 30vw, 220px); height: 1px; background: #7C7668;
+        transform: scaleX(0); transform-origin: left;
+        animation: sp-draw 1.1s cubic-bezier(.16,1,.3,1) .42s forwards;
+      }
+      html.dark .sp-rule { background: #726C5E }
+      @keyframes sp-draw { to { transform: scaleX(1) } }
+
+      .sp-failsafe {
+        pointer-events: auto; margin: 0;
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: .6875rem; letter-spacing: .16em; text-transform: uppercase;
+        color: #57534A;
+      }
+      html.dark .sp-failsafe { color: #9C968A }
+      .sp-failsafe a { color: #8A2F26; text-decoration: underline; text-underline-offset: 3px }
+      html.dark .sp-failsafe a { color: #DE6E64 }
+
+      @media (prefers-reduced-motion: reduce) {
+        .sp-l, .sp-a { opacity: 1; animation: none }
+        .sp-rule { transform: scaleX(1); animation: none }
+        #splash { transition: none }
+      }
     </style>
   </head>
   <body>
@@ -91,6 +133,7 @@
       <div class="sp-wm">
         <span class="sp-l" style="--i:0">u</span><span class="sp-l" style="--i:1">r</span><span class="sp-l" style="--i:2">b</span><span class="sp-l" style="--i:3">a</span><span class="sp-l" style="--i:4">n</span><span class="sp-a" style="--i:5">p</span><span class="sp-a" style="--i:6">u</span><span class="sp-a" style="--i:7">l</span><span class="sp-a" style="--i:8">s</span><span class="sp-a" style="--i:9">e</span>
       </div>
+      <span class="sp-rule"></span>
     </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

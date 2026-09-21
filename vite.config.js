@@ -10,9 +10,12 @@ export default defineConfig({
       manifest: {
         name: 'UrbanPulse',
         short_name: 'UrbanPulse',
-        description: 'Premium streetwear & accessories',
-        theme_color: '#F8F6F2',
-        background_color: '#F8F6F2',
+        description: '320gsm ring-spun cotton, cut in Accra.',
+        // These paint the Android install splash, so they follow the
+        // Harmattan canvas rather than the palette it replaced. Dark is the
+        // right default here: a standalone launch has no OS hint to read.
+        theme_color: '#1F1D19',
+        background_color: '#1F1D19',
         display: 'standalone',
         start_url: '/',
         scope: '/',
