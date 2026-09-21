@@ -11,10 +11,10 @@ import { fadeInUp, staggerContainer } from '../../lib/motion.js';
 import { formatDate } from '../../utils/format.js';
 
 const TYPE_CONFIG = {
-  order:  { icon: ShoppingBag, label: 'Orders',     color: 'text-blue-500',   bg: 'bg-blue-500/10'  },
-  return: { icon: RotateCcw,   label: 'Returns',    color: 'text-orange-500', bg: 'bg-orange-500/10' },
-  log:    { icon: ScrollText,  label: 'Admin Logs', color: 'text-accent',     bg: 'bg-accent/10'    },
-  login:  { icon: LogIn,       label: 'Logins',     color: 'text-green-500',  bg: 'bg-green-500/10' },
+  order:  { icon: ShoppingBag, label: 'Orders',     color: 'text-info',    bg: 'bg-info/10'  },
+  return: { icon: RotateCcw,   label: 'Returns',    color: 'text-warning', bg: 'bg-warning/10' },
+  log:    { icon: ScrollText,  label: 'Admin Logs', color: 'text-accent-text',     bg: 'bg-accent/10'    },
+  login:  { icon: LogIn,       label: 'Logins',     color: 'text-success', bg: 'bg-success/10' },
 };
 
 const ALL_TYPES = ['order', 'return', 'log', 'login'];
@@ -131,7 +131,7 @@ export default function AdminActivity() {
           onClick={() => setSelectedTypes([])}
           className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
             selectedTypes.length === 0
-              ? 'border-accent bg-accent text-white'
+              ? 'border-accent bg-accent text-on-accent'
               : 'border-border text-muted hover:bg-highlight hover:text-text'
           }`}
         >

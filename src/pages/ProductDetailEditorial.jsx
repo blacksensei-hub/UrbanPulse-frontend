@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { Button, Input } from '../components/ui/index.jsx';
 import { cn, formatCurrency, formatDate, formatRelativeDate } from '../utils/format.js';
 import { useSetting } from '../stores/settingsStore.js';
+import { Label } from '../components/ui/Instrument.jsx';
 import { spring } from '../lib/motion.js';
 import { swatchColor } from '../components/product/QuickView.jsx';
 import ProductCard from '../components/product/ProductCard.jsx';
@@ -51,7 +52,7 @@ function StarPicker({ value, onChange }) {
           <Star
             className={cn(
               'h-6 w-6 transition-colors',
-              n <= value ? 'fill-accent text-accent' : 'text-border',
+              n <= value ? 'fill-accent text-accent-text' : 'text-border',
             )}
           />
         </button>
@@ -184,7 +185,7 @@ export default function ProductDetailEditorial({
                   onClick={() => { if (!oos) setSelectedSize(s); }}
                   className={cn(
                     'rounded-md border py-2 text-sm font-medium transition-colors',
-                    s === selectedSize ? 'border-accent bg-accent text-white' : 'border-border hover:border-text',
+                    s === selectedSize ? 'border-accent bg-accent text-on-accent' : 'border-border hover:border-text',
                     oos && 'opacity-40 line-through',
                   )}
                 >
@@ -240,7 +241,7 @@ export default function ProductDetailEditorial({
         aria-label={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
         className={cn(
           'flex w-full items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-colors disabled:opacity-60',
-          wishlisted ? 'border-accent bg-accent/10 text-accent' : 'border-border hover:border-accent hover:text-accent',
+          wishlisted ? 'border-accent bg-accent/10 text-accent-text' : 'border-border hover:border-accent hover:text-accent-text',
         )}
       >
         <Heart className={cn('h-4 w-4', wishlisted && 'fill-accent')} />
@@ -250,13 +251,13 @@ export default function ProductDetailEditorial({
 
       <ul className="space-y-2 border-t border-border pt-4">
         <li className="flex items-center gap-2 text-xs text-muted">
-          <Truck className="h-4 w-4 text-accent shrink-0" /> Free shipping over {formatCurrency(freeShipThreshold)}
+          <Truck className="h-4 w-4 text-accent-text shrink-0" /> Free shipping over {formatCurrency(freeShipThreshold)}
         </li>
         <li className="flex items-center gap-2 text-xs text-muted">
-          <RotateCcw className="h-4 w-4 text-accent shrink-0" /> 30-day returns
+          <RotateCcw className="h-4 w-4 text-accent-text shrink-0" /> 30-day returns
         </li>
         <li className="flex items-center gap-2 text-xs text-muted">
-          <ShieldCheck className="h-4 w-4 text-accent shrink-0" /> Secure checkout
+          <ShieldCheck className="h-4 w-4 text-accent-text shrink-0" /> Secure checkout
         </li>
       </ul>
     </div>
@@ -265,22 +266,22 @@ export default function ProductDetailEditorial({
   return (
     <>
       <Helmet>
-        <title>{product.name} — UrbanPulse</title>
+        <title>{product.name} · UrbanPulse</title>
         <meta name="description"
-          content={product.description?.slice(0, 155) || `${product.name} — ${product.category}`} />
+          content={product.description?.slice(0, 155) || `${product.name} · ${product.category}`} />
         <link rel="canonical" href={`${SITE_URL}/products/${product.slug}`} />
         <meta property="og:type"        content="product" />
-        <meta property="og:title"       content={`${product.name} — UrbanPulse`} />
+        <meta property="og:title"       content={`${product.name} · UrbanPulse`} />
         <meta property="og:description"
-          content={product.description?.slice(0, 155) || `${product.name} — ${product.category}`} />
+          content={product.description?.slice(0, 155) || `${product.name} · ${product.category}`} />
         <meta property="og:image"       content={product.images?.[0] || ''} />
         <meta property="og:url"         content={`${SITE_URL}/products/${product.slug}`} />
         <meta name="twitter:card"       content="summary_large_image" />
-        <meta name="twitter:title"      content={`${product.name} — UrbanPulse`} />
+        <meta name="twitter:title"      content={`${product.name} · UrbanPulse`} />
         <meta name="twitter:image"      content={product.images?.[0] || ''} />
       </Helmet>
 
-      {/* § 1 — Full-bleed hero */}
+      {/* § 1 · Full-bleed hero */}
       <section
         className="relative w-full overflow-hidden"
         style={{ height: '70vh', minHeight: '520px' }}
@@ -316,7 +317,7 @@ export default function ProductDetailEditorial({
         )}
 
         <div className="absolute bottom-0 left-0 p-8 md:p-14 max-w-4xl">
-          <p className="text-white/60 uppercase tracking-[0.22em] text-xs mb-3">{meta.eyebrow}</p>
+          <Label className="mb-3 block !text-bone/70">{meta.eyebrow}</Label>
           <h1
             className="font-display font-bold text-white leading-[0.95] tracking-tight"
             style={{ fontSize: 'clamp(3rem, 8vw, 6rem)' }}
@@ -326,7 +327,7 @@ export default function ProductDetailEditorial({
         </div>
       </section>
 
-      {/* Mobile purchase card — ref={atcRef} so shared sticky ATC observer fires */}
+      {/* Mobile purchase card · ref={atcRef} so shared sticky ATC observer fires */}
       <div className="lg:hidden" ref={atcRef}>
         <div className="container-site py-8">
           <div className="card p-6">
@@ -341,7 +342,7 @@ export default function ProductDetailEditorial({
         {/* Left column */}
         <div>
 
-          {/* § 2 — Intro prose + metadata sidebar */}
+          {/* § 2 · Intro prose + metadata sidebar */}
           <section className="container-site py-14 md:py-20">
             <div className="grid gap-10 md:grid-cols-[1fr_260px] items-start">
               <div>
@@ -364,7 +365,7 @@ export default function ProductDetailEditorial({
                 <div className="space-y-7 border-l border-border pl-8">
                   {Object.entries(meta.metadata).map(([label, value]) => (
                     <div key={label}>
-                      <p className="eyebrow text-[0.65rem] mb-1">{label}</p>
+                      <Label className="mb-1 block">{label}</Label>
                       <p className="text-sm text-muted leading-relaxed">{value}</p>
                     </div>
                   ))}
@@ -373,7 +374,7 @@ export default function ProductDetailEditorial({
             </div>
           </section>
 
-          {/* § 3 — Alternating image+text spreads */}
+          {/* § 3 · Alternating image+text spreads */}
           {spreads.map((spread, i) => {
             const img = images[i + 1];
             if (!img) return null;
@@ -402,7 +403,11 @@ export default function ProductDetailEditorial({
                 </div>
                 <div className="flex items-center p-8 md:p-14 lg:p-20 bg-surface">
                   <div className="max-w-xs">
-                    <p className="eyebrow mb-4">{spread.eyebrow}</p>
+                    <Label className="mb-4 block">
+                      <span className="tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+                      <span className="mx-2 text-muted/50">/</span>
+                      {spread.eyebrow}
+                    </Label>
                     <p className="text-lg text-muted leading-relaxed">{spread.body}</p>
                   </div>
                 </div>
@@ -456,9 +461,9 @@ export default function ProductDetailEditorial({
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
                 {product.reviews.slice(0, 6).map((r) => (
                   <div key={r.id} className="card p-5">
-                    <div className="flex items-center gap-1 text-accent">
+                    <div className="flex items-center gap-1 text-accent-text">
                       {Array.from({ length: r.rating }).map((_, i) => (
-                        <Star key={i} className="h-4 w-4 fill-accent text-accent" />
+                        <Star key={i} className="h-4 w-4 fill-accent text-accent-text" />
                       ))}
                     </div>
                     <p className="mt-2 text-sm">{r.comment}</p>
@@ -491,7 +496,7 @@ export default function ProductDetailEditorial({
           </section>
         </div>
 
-        {/* Right column — sticky purchase card (desktop) */}
+        {/* Right column · sticky purchase card (desktop) */}
         <aside className="hidden lg:block px-6 pt-14">
           <div className="sticky top-24">
             <div className="glass-strong rounded-2xl border border-border p-6 shadow-float">
@@ -501,7 +506,7 @@ export default function ProductDetailEditorial({
         </aside>
       </div>
 
-      {/* § 5 — Shop the Look */}
+      {/* § 5 · Shop the Look */}
       {related.length > 0 && (
         <section className="py-14 md:py-20 border-t border-border">
           <div className="container-site mb-8">

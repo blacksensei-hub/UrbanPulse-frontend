@@ -6,6 +6,7 @@ import { useCartStore } from '../../stores/cartStore.js';
 import { useSetting } from '../../stores/settingsStore.js';
 import { Button } from '../ui/index.jsx';
 import ProductImage from '../ui/ProductImage.jsx';
+import { Label } from '../ui/Instrument.jsx';
 import { formatCurrency, formatDate } from '../../utils/format.js';
 import { showUndoToast } from '../../utils/undoToast.jsx';
 import { useDebouncedCartQuantity } from '../../hooks/useDebouncedCartQuantity.js';
@@ -59,27 +60,27 @@ function SwipeItem({ it, onRemove, getQuantity, setQuantity, closeDrawer, prefer
       onDragEnd={handleDragEnd}
       className="flex gap-4 bg-surface p-0"
     >
-      <div className="w-20 h-24 sm:w-24 sm:h-28 rounded-md overflow-hidden bg-border flex-shrink-0">
+      <div className="plate h-24 w-20 flex-shrink-0 sm:h-28 sm:w-24">
         <ProductImage src={it.images?.[0]} alt={it.name} loading="lazy" className="w-full h-full object-cover" />
       </div>
       <div className="flex-1 min-w-0">
-        <Link to={`/products/${it.slug}`} onClick={closeDrawer} title={it.name} className="block truncate font-medium hover:text-accent transition-colors">
+        <Link to={`/products/${it.slug}`} onClick={closeDrawer} title={it.name} className="block truncate font-medium hover:text-accent-text transition-colors">
           {it.name}
         </Link>
         <div className="flex items-center gap-1 mt-0.5">
-          {it.size && <span className="text-xs bg-border rounded px-1.5 py-0.5 font-medium">{it.size}</span>}
-          {it.color && <span className="text-xs bg-border rounded px-1.5 py-0.5 font-medium">{it.color}</span>}
+          {it.size && <Label className="rounded border border-border bg-highlight px-1.5 py-0.5">{it.size}</Label>}
+          {it.color && <Label className="rounded border border-border bg-highlight px-1.5 py-0.5">{it.color}</Label>}
         </div>
         {it.is_preorder && it.preorder_ships_at && (
-          <p className="text-xs text-accent mt-0.5">Ships {formatDate(it.preorder_ships_at)}</p>
+          <p className="text-xs text-accent-text mt-0.5">Ships {formatDate(it.preorder_ships_at)}</p>
         )}
-        <p className="font-semibold mt-1">{formatCurrency(Number(it.price) * qty)}</p>
+        <p className="mt-1 font-mono text-sm font-semibold tabular-nums">{formatCurrency(Number(it.price) * qty)}</p>
         <div className="flex items-center gap-3 mt-2.5">
           <div className="flex items-center border border-border rounded-full">
             <button
               onClick={() => setQuantity(it, qty - 1, 0)}
               aria-label="Decrease quantity"
-              className="w-11 h-11 flex items-center justify-center hover:text-accent transition-colors"
+              className="w-11 h-11 flex items-center justify-center hover:text-accent-text transition-colors"
             >
               <Minus size={14} className="pointer-events-none" />
             </button>
@@ -88,7 +89,7 @@ function SwipeItem({ it, onRemove, getQuantity, setQuantity, closeDrawer, prefer
               onClick={() => setQuantity(it, qty + 1, 0)}
               disabled={qty >= it.stock}
               aria-label="Increase quantity"
-              className="w-11 h-11 flex items-center justify-center hover:text-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="w-11 h-11 flex items-center justify-center hover:text-accent-text disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               <Plus size={14} className="pointer-events-none" />
             </button>
@@ -148,8 +149,11 @@ export default function CartDrawer() {
             className="fixed top-0 right-0 z-[100] h-full w-full sm:w-[400px] md:w-[480px] xl:w-[560px] glass-strong flex flex-col"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-5 border-b border-border">
-              <h3 className="font-display text-h3 font-semibold">Your bag</h3>
+            <div className="flex items-center justify-between border-b border-border p-5">
+              <div>
+                <Label className="mb-1 block">Bag / {(cart.items ?? []).length} {(cart.items ?? []).length === 1 ? 'line' : 'lines'}</Label>
+                <h3 className="font-display text-h3 font-semibold leading-none">Your bag</h3>
+              </div>
               <button
                 onClick={closeDrawer}
                 aria-label="Close cart"
@@ -159,7 +163,7 @@ export default function CartDrawer() {
               </button>
             </div>
 
-            {/* Free-shipping progress bar — pinned below header */}
+            {/* Free-shipping progress bar · pinned below header */}
             <div className="px-5 pt-4 pb-2">
               <FreeShippingBar subtotal={cart.subtotal} />
             </div>
@@ -215,14 +219,14 @@ export default function CartDrawer() {
               )}
             </div>
 
-            {/* Footer — summary + checkout */}
+            {/* Footer · summary + checkout */}
             {!isEmpty && (
               <div className="p-5 border-t border-border space-y-3">
-                <div className="flex items-center justify-between text-small text-muted">
-                  <span>Subtotal</span>
-                  <span className="font-medium text-text font-mono">{formatCurrency(displaySubtotal)}</span>
+                <div className="flex items-baseline justify-between">
+                  <Label>Subtotal</Label>
+                  <span className="font-mono text-base font-semibold tabular-nums">{formatCurrency(displaySubtotal)}</span>
                 </div>
-                <p className="text-small text-muted">Shipping & taxes calculated at checkout.</p>
+                <Label className="block !normal-case !tracking-normal">Shipping and taxes calculated at checkout.</Label>
                 {(() => {
                   const items = cart.items ?? [];
                   const hasPreorder = items.some(i => i.is_preorder);
@@ -233,13 +237,13 @@ export default function CartDrawer() {
                     .reduce((m, i) => !m || new Date(i.preorder_ships_at) > new Date(m) ? i.preorder_ships_at : m, null);
                   return (
                     <p className="text-xs text-muted border-t border-border pt-2">
-                      This order ships in two parts — in-stock items within 2 business days; pre-order items from {latest ? formatDate(latest) : 'the estimated date'}.
+                      This order ships in two parts. In-stock items within 2 business days, pre-order items from {latest ? formatDate(latest) : 'the estimated date'}.
                     </p>
                   );
                 })()}
 
                 {/* Trust badges */}
-                <div className="flex items-center justify-center gap-5 py-2 border-t border-border text-xs text-muted">
+                <div className="label-mono flex items-center justify-center gap-5 border-t border-border py-2">
                   <div className="flex items-center gap-1.5">
                     <Lock size={12} className="flex-shrink-0" />
                     <span>Secure checkout</span>

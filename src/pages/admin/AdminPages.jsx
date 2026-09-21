@@ -38,7 +38,7 @@ export default function AdminPages() {
       ) : pages.length === 0 ? (
         <div className="card p-10 text-center text-muted text-sm">No pages yet.</div>
       ) : (
-        <div className="card overflow-hidden">
+        <div className="card overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="border-b border-border bg-surface text-xs uppercase tracking-wider text-muted">
               <tr>

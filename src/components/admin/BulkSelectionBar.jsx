@@ -18,7 +18,7 @@ export default function BulkSelectionBar({ count, actions = [], onClear }) {
     <AnimatePresence>
       {count > 0 && (
         <>
-          {/* Desktop bar — sticky inside content flow */}
+          {/* Desktop bar · sticky inside content flow */}
           <motion.div
             key="bulk-bar-desktop"
             {...desktopVariants}
@@ -38,7 +38,7 @@ export default function BulkSelectionBar({ count, actions = [], onClear }) {
                   aria-label={a.label}
                   className={`inline-flex min-h-11 items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                     a.destructive
-                      ? 'text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40'
+                      ? 'text-error hover:bg-error/10'
                       : 'text-text hover:bg-highlight'
                   }`}
                 >
@@ -57,7 +57,7 @@ export default function BulkSelectionBar({ count, actions = [], onClear }) {
             </button>
           </motion.div>
 
-          {/* Mobile bar — fixed bottom */}
+          {/* Mobile bar · fixed bottom */}
           <motion.div
             key="bulk-bar-mobile"
             {...mobileVariants}
@@ -76,7 +76,7 @@ export default function BulkSelectionBar({ count, actions = [], onClear }) {
                   aria-label={a.label}
                   className={`inline-flex min-h-11 items-center gap-1 px-2.5 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                     a.destructive
-                      ? 'text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40'
+                      ? 'text-error hover:bg-error/10'
                       : 'text-text hover:bg-highlight'
                   }`}
                 >

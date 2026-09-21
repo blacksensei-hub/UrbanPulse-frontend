@@ -49,7 +49,7 @@ const TIER_COLORS = {
   gold:     'bg-yellow-500/15 text-yellow-700 dark:text-yellow-400',
   platinum: 'bg-cyan-500/15 text-cyan-700 dark:text-cyan-400',
 };
-// TODO: real tier benefits beyond points still need to be designed — these are aspirational copy for now.
+// TODO: real tier benefits beyond points still need to be designed · these are aspirational copy for now.
 const TIER_BENEFITS = {
   bronze:   'Earn points on every order, right from your first purchase.',
   silver:   'Everything in Bronze, plus priority customer support.',
@@ -59,7 +59,7 @@ const TIER_BENEFITS = {
 
 function isEligibleForReturn(order) {
   // Computed server-side (GET /orders/user/me) from order_status_history's delivered
-  // timestamp — orders has no `updated_at` column, so that can never be derived client-side.
+  // timestamp · orders has no `updated_at` column, so that can never be derived client-side.
   return !!order.eligible_for_return;
 }
 
@@ -133,7 +133,7 @@ function ReturnRequestModal({ orderId, onClose }) {
           </div>
           <p className="font-medium text-lg">Return request submitted</p>
           <p className="mt-1 text-sm text-muted">Your RMA number is</p>
-          <p className="mt-2 font-mono text-2xl font-bold tracking-widest text-accent">{rma}</p>
+          <p className="mt-2 font-mono text-2xl font-bold tracking-widest text-accent-text">{rma}</p>
           <p className="mt-3 text-xs text-muted">
             We'll review your request and be in touch within 1–2 business days.
           </p>
@@ -225,7 +225,7 @@ function ReturnRequestModal({ orderId, onClose }) {
                   key={opt.value}
                   className={cn(
                     'flex cursor-pointer items-center justify-center rounded-lg border p-3 text-sm font-medium transition-colors',
-                    resolution === opt.value ? 'border-accent bg-accent/5 text-accent' : 'border-border hover:border-text',
+                    resolution === opt.value ? 'border-accent bg-accent/5 text-accent-text' : 'border-border hover:border-text',
                   )}
                 >
                   <input
@@ -367,14 +367,14 @@ function AccountLayout() {
             onError={(e) => { e.currentTarget.style.display = 'none'; }}
           />
         ) : user ? (
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-accent/15 text-xl font-semibold text-accent">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-accent/15 text-xl font-semibold text-accent-text">
             {user.name?.[0]?.toUpperCase() ?? '?'}
           </div>
         ) : null}
         <div className="min-w-0">
           <p className="eyebrow mb-1">Your account</p>
           <div className="flex items-center gap-2.5 min-w-0">
-            <h1 className="truncate max-w-full font-display text-h1 font-bold">
+            <h1 className="max-w-full truncate font-display text-h1 font-bold tracking-tight">
               {user?.name ? `Hey, ${user.name.split(' ')[0]}.` : 'Account'}
             </h1>
             {loyaltyEnabled && user?.loyalty_tier && (
@@ -407,7 +407,7 @@ function AccountLayout() {
                 className={({ isActive }) =>
                   cn(
                     'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                    isActive ? 'bg-accent text-white' : 'text-text/80 hover:bg-bg',
+                    isActive ? 'bg-accent text-on-accent' : 'text-text/80 hover:bg-bg',
                   )
                 }
               >
@@ -499,10 +499,10 @@ function Dashboard() {
             to={to}
             className="card p-4 flex items-center gap-3 hover:border-accent transition-colors group"
           >
-            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-accent/10 text-accent">
+            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-accent/10 text-accent-text">
               <Icon className="h-4 w-4" />
             </div>
-            <span className="text-sm font-medium group-hover:text-accent transition-colors">{label}</span>
+            <span className="text-sm font-medium group-hover:text-accent-text transition-colors">{label}</span>
           </Link>
         ))}
       </div>
@@ -510,7 +510,7 @@ function Dashboard() {
       <div className="card p-6">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-lg font-semibold">Recent orders</h2>
-          <Link to="orders" className="text-sm text-accent">View all</Link>
+          <Link to="orders" className="text-sm text-accent-text">View all</Link>
         </div>
         {orders.length === 0 ? (
           <p className="mt-4 text-sm text-muted">No orders yet.</p>
@@ -566,7 +566,7 @@ function DownloadReceiptButton({ orderId, orderNumber }) {
       type="button"
       onClick={download}
       disabled={downloading}
-      className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-accent-text transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
     >
       {downloading
         ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -635,7 +635,7 @@ function Orders() {
         {ptrIndicator}
         <div className="card p-10 flex flex-col items-center text-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent/10">
-            <Package className="h-7 w-7 text-accent" />
+            <Package className="h-7 w-7 text-accent-text" />
           </div>
           <p className="mt-4 font-display text-lg font-semibold">No orders yet</p>
           <p className="mt-1 text-sm text-muted">When you place your first order, it&apos;ll show up here.</p>
@@ -656,7 +656,7 @@ function Orders() {
                 <div className="text-xs text-muted">{formatDate(o.created_at)}</div>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-accent/15 px-3 py-1 text-xs font-semibold uppercase text-accent">
+                <span className="rounded-full bg-accent/15 px-3 py-1 text-xs font-semibold uppercase text-accent-text">
                   {o.status}
                 </span>
                 {o.payment_method === 'cod' && (
@@ -763,14 +763,14 @@ function Orders() {
                               {item.product_name} × {item.quantity}
                             </span>
                             {item.preorder_ships_at && (
-                              <span className="shrink-0 text-accent">Ships {formatDate(item.preorder_ships_at)}</span>
+                              <span className="shrink-0 text-accent-text">Ships {formatDate(item.preorder_ships_at)}</span>
                             )}
                           </li>
                         ))}
                       </ul>
                     </div>
                   )}
-                  {/* Write a review — delivered orders, per line item, once each */}
+                  {/* Write a review · delivered orders, per line item, once each */}
                   {o.status === 'delivered' && orderDetails[o.id]?.items?.some(i => i.product_slug && !i.already_reviewed) && (
                     <div className="mt-3 border-t border-border pt-3">
                       <p className="mb-2 text-xs font-semibold text-muted uppercase tracking-wider">Rate your items</p>
@@ -783,7 +783,7 @@ function Orders() {
                             <button
                               type="button"
                               onClick={() => setReviewingItem(item)}
-                              className="shrink-0 font-semibold text-accent hover:text-accent-hover"
+                              className="shrink-0 font-semibold text-accent-text hover:text-accent-hover"
                             >
                               Write a review
                             </button>
@@ -792,7 +792,7 @@ function Orders() {
                       </ul>
                     </div>
                   )}
-                  {/* Receipt download — only for paid / COD-delivered orders */}
+                  {/* Receipt download · only for paid / COD-delivered orders */}
                   {(() => {
                     const isPaid  = o.payment_status === 'paid';
                     const isCOD   = o.payment_method === 'cod';
@@ -893,7 +893,7 @@ function ReturnDetail() {
   const mountedForRef = useRef(null);
 
   useEffect(() => {
-    // Skip StrictMode's second dev-mode invocation for the same id — otherwise it
+    // Skip StrictMode's second dev-mode invocation for the same id · otherwise it
     // fires a redundant duplicate request that can resolve after the current one
     // under a slow connection, briefly showing "Return not found." (confirmed live
     // under Slow-3G-equivalent throttling in AdminReturns.jsx's identical pattern).
@@ -1064,16 +1064,16 @@ function Referrals() {
       <div className="card p-6">
         <h2 className="font-display text-lg font-semibold">Your referral code</h2>
         <p className="mt-1 text-sm text-muted">
-          Share your link — when a friend signs up and completes their first order, you both get {formatCurrency(50)} in store credit.
+          Share your link. When a friend signs up and completes their first order, you both get {formatCurrency(50)} in store credit.
         </p>
 
         {data ? (
           <>
             <div className="mt-5 flex items-center gap-3 rounded-lg border border-border bg-bg px-4 py-3">
-              <span className="flex-1 font-mono text-xl font-bold tracking-widest text-accent">{data.code}</span>
+              <span className="flex-1 font-mono text-xl font-bold tracking-widest text-accent-text">{data.code}</span>
               <button
                 onClick={copyLink}
-                className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:border-accent hover:text-accent"
+                className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:border-accent hover:text-accent-text"
               >
                 {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                 {copied ? 'Copied' : 'Copy link'}
@@ -1201,7 +1201,7 @@ function Rewards() {
           <summary className="cursor-pointer select-none px-4 py-3 text-sm font-medium">How it works</summary>
           <div className="space-y-1.5 border-t border-border px-4 py-3 text-sm text-muted">
             <p>Earn {data.settings_snapshot.earn_rate} point per GH₵10 spent on paid orders.</p>
-            <p>Redeem {data.min_redeem_points}+ points at checkout — each point is worth {formatCurrency(data.redeem_rate_ghs)}.</p>
+            <p>Redeem {data.min_redeem_points}+ points at checkout. Each point is worth {formatCurrency(data.redeem_rate_ghs)}.</p>
             <p>Points expire {data.settings_snapshot.points_expire_days} days after they're earned.</p>
           </div>
         </details>
@@ -1225,7 +1225,7 @@ function Rewards() {
               <button
                 onClick={loadMore}
                 disabled={loadingMore}
-                className="mt-4 text-sm text-accent disabled:opacity-50"
+                className="mt-4 text-sm text-accent-text disabled:opacity-50"
               >
                 {loadingMore ? 'Loading…' : 'Load more'}
               </button>
@@ -1401,7 +1401,7 @@ function Addresses() {
                   <div className="flex flex-wrap items-center gap-2">
                     <div className="font-display text-base font-semibold">{a.label || a.name}</div>
                     {a.is_default && (
-                      <span className="rounded-full bg-accent/15 px-2 py-0.5 text-xs font-semibold text-accent">Default</span>
+                      <span className="rounded-full bg-accent/15 px-2 py-0.5 text-xs font-semibold text-accent-text">Default</span>
                     )}
                   </div>
                   <div className="mt-1 text-sm text-muted">
@@ -1434,7 +1434,7 @@ function Addresses() {
                 <button
                   onClick={() => handleSetDefault(a.id)}
                   disabled={busyId === a.id}
-                  className="mt-3 text-xs font-semibold text-accent hover:text-accent-hover disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="mt-3 text-xs font-semibold text-accent-text hover:text-accent-hover disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Set as default
                 </button>
@@ -1511,7 +1511,7 @@ function Privacy() {
       await authService.dataExport();
       toast.success('Your data export has started downloading.');
     } catch (err) {
-      toast.error(err?.response?.data?.error ?? 'Could not export your data — try again in an hour.');
+      toast.error(err?.response?.data?.error ?? 'Could not export your data. Try again in an hour.');
     } finally {
       setExporting(false);
     }
@@ -1565,7 +1565,7 @@ function Privacy() {
 
       <div className="card p-6">
         <h2 className="font-display text-lg font-semibold">Communication preferences</h2>
-        <p className="mt-1 text-sm text-muted">Order updates are always sent — they&rsquo;re required to keep you informed about your purchase.</p>
+        <p className="mt-1 text-sm text-muted">Order updates are always sent. They&rsquo;re required to keep you informed about your purchase.</p>
         <label className="mt-4 flex items-center justify-between gap-3">
           <span className="text-sm">Marketing emails (offers, new drops)</span>
           <input
@@ -1579,13 +1579,13 @@ function Privacy() {
           type="button"
           onClick={handleUnsubscribe}
           disabled={unsubscribing}
-          className="mt-3 text-xs text-muted underline hover:text-accent disabled:opacity-50"
+          className="mt-3 text-xs text-muted underline hover:text-accent-text disabled:opacity-50"
         >
           Unsubscribe from marketing emails
         </button>
         <p className="mt-1 text-xs text-muted">
           This preference is stored on this device and doesn&rsquo;t yet stop every automated email
-          (e.g. abandoned-cart reminders) — full server-side enforcement is on the way.
+          (e.g. abandoned-cart reminders). Full server-side enforcement is on the way.
         </p>
       </div>
 
@@ -1615,7 +1615,7 @@ function Privacy() {
         {!user?.has_password ? (
           <p className="mt-4 text-sm">
             Your account uses Google sign-in only.{' '}
-            <Link to="/account/security" className="text-accent hover:text-accent-hover">Set a password first</Link> to enable account deletion.
+            <Link to="/account/security" className="text-accent-text hover:text-accent-hover">Set a password first</Link> to enable account deletion.
           </p>
         ) : (
           <Button variant="danger" className="mt-4" onClick={() => setDeleteModal(true)}>
@@ -1672,7 +1672,7 @@ function Wishlist() {
   const [addingId, setAddingId] = useState(null);
 
   // Feature gating happens inside the hooks (and in the early return BELOW all
-  // hooks) — never by skipping hook calls, which changes the hook count between
+  // hooks) · never by skipping hook calls, which changes the hook count between
   // renders when the async-loaded settings flip the flag (React error #310).
   useEffect(() => { if (wishlistEnabled) refresh(); }, [refresh, wishlistEnabled]);
 
@@ -1730,7 +1730,7 @@ function Wishlist() {
         return (
           <motion.div key={item.id} variants={fadeInUp} initial="hidden" animate="show" className="card overflow-hidden">
             <Link to={`/products/${item.slug}`}>
-              <div className="aspect-[4/3] overflow-hidden bg-border">
+              <div className="plate aspect-[4/3] !rounded-none">
                 {item.images?.[0] && (
                   <img src={item.images[0]} alt={item.name}
                     className="h-full w-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
@@ -1740,7 +1740,7 @@ function Wishlist() {
             <div className="p-4">
               <p className="text-xs text-muted">{item.category}</p>
               <Link to={`/products/${item.slug}`}>
-                <h3 className="mt-0.5 font-medium leading-snug hover:text-accent">{item.name}</h3>
+                <h3 className="mt-0.5 font-medium leading-snug hover:text-accent-text">{item.name}</h3>
               </Link>
               <div className="mt-1 flex items-baseline gap-2">
                 <span className="font-semibold">{formatCurrency(item.price)}</span>
@@ -1978,7 +1978,7 @@ function Security() {
         {/* Setup flow */}
         {setupStep === 'scan' && setupData && (
           <div className="mt-6 space-y-4 border-t border-border pt-6">
-            <p className="text-sm font-medium">Step 1 — Scan this QR code with your authenticator app</p>
+            <p className="text-sm font-medium">Step 1. Scan this QR code with your authenticator app</p>
             <div className="flex justify-center">
               <img src={setupData.qr_data_url} alt="TOTP QR code" className="h-48 w-48 rounded-lg" />
             </div>
@@ -1991,7 +1991,7 @@ function Security() {
 
         {setupStep === 'verify' && (
           <div className="mt-6 space-y-4 border-t border-border pt-6">
-            <p className="text-sm font-medium">Step 2 — Enter the 6-digit code from your app to confirm</p>
+            <p className="text-sm font-medium">Step 2. Enter the 6-digit code from your app to confirm</p>
             <input
               type="text"
               inputMode="numeric"
@@ -2070,7 +2070,7 @@ function Security() {
                   <div className="text-sm font-medium">
                     {s.device}
                     {s.is_current && (
-                      <span className="ml-2 rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold text-accent">
+                      <span className="ml-2 rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold text-accent-text">
                         This device
                       </span>
                     )}
@@ -2205,7 +2205,7 @@ export default function Account() {
   return (
     <>
       <Helmet>
-        <title>Account — UrbanPulse</title>
+        <title>Account · UrbanPulse</title>
       </Helmet>
       <Routes>
         <Route element={<AccountLayout />}>

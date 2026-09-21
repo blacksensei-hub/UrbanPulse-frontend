@@ -20,7 +20,7 @@ export default function SEO({
   const canonical = url
     ? (url.startsWith('http') ? url : `${SITE_URL}${url}`)
     : (typeof window !== 'undefined' ? `${SITE_URL}${window.location.pathname}` : SITE_URL);
-  const baseTitle = suffix ? (title ? `${title} — ${SITE_NAME}` : SITE_NAME) : title;
+  const baseTitle = suffix ? (title ? `${title} · ${SITE_NAME}` : SITE_NAME) : title;
   const fullTitle = itemCount > 0 ? `(${itemCount}) ${baseTitle}` : baseTitle;
   const resolvedImage = image
     ? (image.startsWith('http') ? image : `${SITE_URL}${image}`)

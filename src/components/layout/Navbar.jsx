@@ -10,14 +10,14 @@ import { easeOut } from '../../lib/motion.js';
 import { pluralize } from '../../utils/format.js';
 import { CATEGORIES } from '../../lib/categories.js';
 
-/* Desktop nav — Shop gets the mega-menu */
+/* Desktop nav · Shop gets the mega-menu */
 const NAV_LINKS = [
   { to: '/shop', label: 'Shop', hasMegaMenu: true },
   { to: '/lookbook', label: 'Lookbook' },
   { to: '/faq', label: 'Support' },
 ];
 
-/* Mobile drawer — preserves all category shortcuts */
+/* Mobile drawer · preserves all category shortcuts */
 const MOBILE_NAV = [
   { to: '/shop', label: 'Shop' },
   { to: '/shop?category=Outerwear', label: 'Outerwear' },
@@ -26,7 +26,7 @@ const MOBILE_NAV = [
   { to: '/faq', label: 'Support' },
 ];
 
-/* Mega-menu categories — TODO: swap `abbr` placeholders for first product image per category */
+/* Mega-menu categories · TODO: swap `abbr` placeholders for first product image per category */
 const MEGA_CATEGORIES = CATEGORIES.map((label) => ({
   label, to: `/shop?category=${label}`, abbr: label[0],
 }));
@@ -82,7 +82,7 @@ export default function Navbar() {
     setMegaMenuOpen(false);
   }, [location.pathname, location.search]);
 
-  /* Global Escape handler — covers mega-menu and search overlay */
+  /* Global Escape handler · covers mega-menu and search overlay */
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === 'Escape') {
@@ -121,7 +121,7 @@ export default function Navbar() {
   return (
     <>
       {/* Outer wrapper: fixed, padded from edges */}
-      <div className="fixed inset-x-0 top-0 z-50 px-3 sm:px-4 pt-3 sm:pt-4 pointer-events-none">
+      <div className="fixed inset-x-0 top-[var(--hud-h)] z-50 px-3 sm:px-4 pt-3 sm:pt-4 pointer-events-none">
         <motion.nav
           animate={{
             maxWidth: scrolled ? 1120 : 1400,
@@ -149,7 +149,7 @@ export default function Navbar() {
                 {'pulse'.split('').map((ch, i) => (
                   <motion.span
                     key={`p${i}`}
-                    className="text-accent"
+                    className="text-accent-text"
                     initial={wordmarkShouldAnimate ? { opacity: 0 } : false}
                     animate={{ opacity: wordmarkVisible ? 1 : 0 }}
                     transition={{ delay: 0.3 + (5 + i) * 0.04, duration: 0.3 }}
@@ -174,7 +174,7 @@ export default function Navbar() {
                       >
                         <NavLink
                           to={l.to}
-                          className="relative text-small font-medium hover:text-accent transition-colors py-1 inline-block"
+                          className="relative text-small font-medium hover:text-accent-text transition-colors py-1 inline-block"
                         >
                           {l.label}
                           {isActive && !reducedMotion && (
@@ -222,7 +222,7 @@ export default function Navbar() {
                     <NavLink
                       key={l.to}
                       to={l.to}
-                      className="relative text-small font-medium hover:text-accent transition-colors py-1 inline-block"
+                      className="relative text-small font-medium hover:text-accent-text transition-colors py-1 inline-block"
                     >
                       {l.label}
                       {isActive && !reducedMotion && (
@@ -259,7 +259,7 @@ export default function Navbar() {
                     onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling?.removeAttribute('style'); }}
                   />
                 ) : user ? (
-                  <span className="w-7 h-7 rounded-full bg-accent/20 text-accent text-xs font-semibold flex items-center justify-center">
+                  <span className="w-7 h-7 rounded-full bg-accent/20 text-accent-text text-xs font-semibold flex items-center justify-center">
                     {user.name?.[0]?.toUpperCase() ?? '?'}
                   </span>
                 ) : (
@@ -277,7 +277,7 @@ export default function Navbar() {
                 <ShoppingBag size={18} />
                 {itemCount > 0 && (
                   <motion.span
-                    className="absolute -top-0.5 -right-0.5 min-w-[20px] h-5 px-1 rounded-full bg-accent text-white text-[11px] font-bold flex items-center justify-center overflow-hidden"
+                    className="absolute -top-0.5 -right-0.5 min-w-[20px] h-5 px-1 rounded-full bg-accent text-on-accent text-[11px] font-bold flex items-center justify-center overflow-hidden"
                     animate={bouncing && !reducedMotion ? { backgroundColor: ['#D85A30', '#FF7849', '#D85A30'] } : {}}
                     transition={{ duration: 0.4 }}
                   >
@@ -312,7 +312,7 @@ export default function Navbar() {
         </motion.nav>
       </div>
 
-      {/* Mobile drawer — z-[60]/[70] clears z-50 nav */}
+      {/* Mobile drawer · z-[60]/[70] clears z-50 nav */}
       <AnimatePresence>
         {mobileOpen && (
           <>
@@ -343,7 +343,7 @@ export default function Navbar() {
                     key={l.to}
                     to={l.to}
                     onClick={() => setMobileOpen(false)}
-                    className="py-3 text-h3 font-display font-semibold border-b border-border hover:text-accent transition-colors"
+                    className="py-3 text-h3 font-display font-semibold border-b border-border hover:text-accent-text transition-colors"
                   >
                     {l.label}
                   </Link>
@@ -351,7 +351,7 @@ export default function Navbar() {
                 <Link
                   to={user ? '/account' : '/login'}
                   onClick={() => setMobileOpen(false)}
-                  className="py-3 text-h3 font-display font-semibold border-b border-border hover:text-accent transition-colors"
+                  className="py-3 text-h3 font-display font-semibold border-b border-border hover:text-accent-text transition-colors"
                 >
                   {user ? 'Account' : 'Sign in'}
                 </Link>
@@ -373,7 +373,7 @@ export default function Navbar() {
                     key={l.to}
                     to={l.to}
                     onClick={() => setMobileOpen(false)}
-                    className="py-2 block text-sm text-muted hover:text-accent transition-colors border-b border-border/50"
+                    className="py-2 block text-sm text-muted hover:text-accent-text transition-colors border-b border-border/50"
                   >
                     {l.label}
                   </Link>
@@ -384,7 +384,7 @@ export default function Navbar() {
         )}
       </AnimatePresence>
 
-      {/* Search overlay — z-[80] above everything */}
+      {/* Search overlay · z-[80] above everything */}
       <AnimatePresence>
         {searchOpen && (
           <motion.div

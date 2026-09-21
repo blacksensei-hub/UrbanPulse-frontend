@@ -19,7 +19,7 @@ function savePosition(key, y) {
     positions[key] = y;
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(positions));
   } catch {
-    // sessionStorage unavailable (private mode etc) — scroll restoration just no-ops
+    // sessionStorage unavailable (private mode etc) · scroll restoration just no-ops
   }
 }
 

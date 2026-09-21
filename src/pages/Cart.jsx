@@ -9,6 +9,7 @@ import ProductImage from '../components/ui/ProductImage.jsx';
 import StickyActionBar from '../components/ui/StickyActionBar.jsx';
 import { useCartStore } from '../stores/cartStore.js';
 import { productService } from '../services/index.js';
+import { MetaRow } from '../components/ui/Instrument.jsx';
 import { formatCurrency, formatDate } from '../utils/format.js';
 import { showUndoToast } from '../utils/undoToast.jsx';
 import { useDebouncedCartQuantity } from '../hooks/useDebouncedCartQuantity.js';
@@ -76,7 +77,7 @@ export default function Cart() {
         <SEO title="Your bag" />
         <div className="flex flex-col items-center text-center">
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-accent/10">
-            <ShoppingBag className="h-9 w-9 text-accent" />
+            <ShoppingBag className="h-9 w-9 text-accent-text" />
           </div>
           <h1 className="mt-6 font-display text-h2 font-bold">Your bag is empty</h1>
           <p className="mt-2 max-w-sm text-muted">
@@ -103,7 +104,11 @@ export default function Cart() {
       <SEO title="Cart" />
 
       <div className="container-site py-8 pb-28 md:py-12 lg:pb-12">
-        <h1 className="font-display text-h1 font-bold">Your cart</h1>
+        <MetaRow className="mb-6" left="Bag / Review" right="Step 00 of 03" />
+        <h1 className="font-display text-h1 font-bold leading-[1.02] tracking-tight">
+          <span className="block">Your bag,</span>
+          <span className="block text-muted">before you go.</span>
+        </h1>
         <p className="mt-1 text-sm text-muted">
           {items.length} {items.length === 1 ? 'piece' : 'pieces'}
         </p>
@@ -143,7 +148,7 @@ export default function Cart() {
                         <Link
                           to={`/products/${item.slug}`}
                           title={item.name}
-                          className="block truncate font-display text-base font-semibold hover:text-accent"
+                          className="block truncate font-display text-base font-semibold hover:text-accent-text"
                         >
                           {item.name}
                         </Link>
@@ -151,7 +156,7 @@ export default function Cart() {
                           {[item.size, item.color].filter(Boolean).join(' \u00B7 ')}
                         </div>
                         {item.is_preorder && item.preorder_ships_at && (
-                          <div className="mt-0.5 text-xs text-accent">
+                          <div className="mt-0.5 text-xs text-accent-text">
                             Ships {formatDate(item.preorder_ships_at)}
                           </div>
                         )}
@@ -234,7 +239,7 @@ export default function Cart() {
                   .reduce((m, i) => !m || new Date(i.preorder_ships_at) > new Date(m) ? i.preorder_ships_at : m, null);
                 return (
                   <p className="mt-4 text-xs text-muted">
-                    This order ships in two parts — in-stock items within 2 business days; pre-order items from {latest ? formatDate(latest) : 'the estimated date'}.
+                    This order ships in two parts. In-stock items within 2 business days, pre-order items from {latest ? formatDate(latest) : 'the estimated date'}.
                   </p>
                 );
               })()}

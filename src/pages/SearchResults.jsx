@@ -55,7 +55,7 @@ export default function SearchResults() {
         ) : results.length === 0 ? (
           <div className="mt-12 flex flex-col items-center text-center py-8">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-accent/10">
-              <Search className="h-9 w-9 text-accent" />
+              <Search className="h-9 w-9 text-accent-text" />
             </div>
             <div className="mt-5 font-display text-xl font-semibold">No results for &ldquo;{q}&rdquo;</div>
             <p className="mt-2 text-sm text-muted max-w-sm">
@@ -66,7 +66,7 @@ export default function SearchResults() {
                 <Link
                   key={label}
                   to={cat ? `/shop?category=${cat}` : '/shop'}
-                  className="rounded-full border border-border px-4 py-2 text-sm font-medium hover:border-accent hover:text-accent transition-colors"
+                  className="rounded-full border border-border px-4 py-2 text-sm font-medium hover:border-accent hover:text-accent-text transition-colors"
                 >
                   {label}
                 </Link>

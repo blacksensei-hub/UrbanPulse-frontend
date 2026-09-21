@@ -32,14 +32,14 @@ export default function ContentPage({ slug, eyebrow, showLastUpdated = false, sh
           {loading ? (
             <div className="grid place-items-center gap-3 py-16 text-center">
               <Spinner />
-              {slowLoad && <p className="text-sm text-muted">Still loading — hang tight.</p>}
+              {slowLoad && <p className="text-sm text-muted">Still loading · hang tight.</p>}
             </div>
           ) : fetchFailed ? (
             <div className="py-16 text-center">
               <div className="font-display text-2xl font-semibold">Couldn't load this page</div>
               <button
                 onClick={retry}
-                className="mt-3 inline-block text-accent hover:text-accent-hover"
+                className="mt-3 inline-block text-accent-text hover:text-accent-hover"
               >
                 Retry
               </button>
@@ -67,7 +67,7 @@ export default function ContentPage({ slug, eyebrow, showLastUpdated = false, sh
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 8 }}
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="fixed bottom-24 right-6 lg:bottom-8 z-30 rounded-full bg-surface border border-border shadow-md px-4 py-2 text-xs font-medium hover:border-accent hover:text-accent transition-colors"
+              className="fixed bottom-24 right-6 lg:bottom-8 z-30 rounded-full bg-surface border border-border shadow-md px-4 py-2 text-xs font-medium hover:border-accent hover:text-accent-text transition-colors"
               aria-label="Back to top"
             >
               ↑ Top

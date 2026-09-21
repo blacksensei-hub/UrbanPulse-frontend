@@ -4,20 +4,33 @@
 
 /* ─────────── LIGHT (default) ─────────── */
 :root {
-  --color-bg:            #F8F6F2;
-  --color-bg-rgb:        248,246,242;
-  --color-surface:       #FFFFFF;
-  --color-text:          #1A1A1A;
-  --color-muted:         #6B6B66;
-  --color-accent:        #D85A30;
-  --color-accent-hover:  #C24D2A;
-  --color-secondary:     #2A2A2A;
-  --color-highlight:     #F0E5D8;
-  --color-border:        #E5E5E0;
-  --color-success:       #4F8A5E;
-  --color-error:         #C84A3A;
-  --color-warning:       #D88E3A;
-  --color-info:          #3B82F6;
+  /* ── HARMATTAN, light: the dust season at midday ──
+     Canvas is warm haze grey. Never cream, never white. */
+  --color-bg:            #D9D5CC;
+  --color-bg-rgb:        217,213,204;
+  --color-surface:       #E7E3DA;
+  --color-text:          #191713;
+  --color-muted:         #57534A;
+  --color-accent:        #8A2F26;
+  --color-accent-hover:  #6E241D;
+  /* Accent-coloured TEXT needs 4.5:1. In light the fill value already
+     clears it, so the two agree here and diverge in dark. */
+  --color-accent-text:   #8A2F26;
+  --color-secondary:     #2B2823;
+  --color-highlight:     #CAC3B5;
+  --color-border:        #BDB6A8;
+  /* Interactive borders need 3:1; the hairline above does not reach it. */
+  --color-border-strong: #7C7668;
+  --color-on-accent:     #FFFFFF;
+  --color-success:       #356048;
+  --color-error:         #A33528;
+  --color-warning:       #6E5318;
+  --color-info:          #2F5E86;
+
+  /* The environment layer: drifting dust behind the whole site */
+  --dust-1:  rgba(120,110,92,0.17);
+  --dust-2:  rgba(60,54,44,0.12);
+  --grain:   rgba(25,23,19,0.055);
 
   --radius-sm:   6px;
   --radius-md:   12px;
@@ -31,6 +44,10 @@
   --shadow-float: 0 12px 36px -12px rgba(0,0,0,0.18);
 
   --space-section: clamp(3rem, 8vh, 6rem);
+  /* The fixed HUD strip's height. The strip is sized to this value
+     rather than padded, so the navbar and page spacer that offset by
+     it can never drift out of agreement with it. */
+  --hud-h: 34px;
 
   --easing-spring: cubic-bezier(.25, 1.4, .4, 1);
   --easing-out:    cubic-bezier(.16, 1, .3, 1);
@@ -46,20 +63,30 @@
 
 /* ─────────── DARK (toggle) ─────────── */
 html.dark {
-  --color-bg:            #12100E;
-  --color-bg-rgb:        18,16,14;
-  --color-surface:       #1D1A16;
-  --color-text:          #F2EFE8;
-  --color-muted:         #A29C8E;
-  --color-accent:        #E87A4F;
-  --color-accent-hover:  #F0986E;
-  --color-secondary:     #F5E6D3;
-  --color-highlight:     #2A251F;
-  --color-border:        #3A342C;
-  --color-success:       #34D399;
-  --color-error:         #F87171;
-  --color-warning:       #FBBF24;
-  --color-info:          #60A5FA;
+  /* ── HARMATTAN, dark: the same dust after sundown ──
+     Warm graphite, not near-black. The accent lifts to ember. */
+  --color-bg:            #1F1D19;
+  --color-bg-rgb:        31,29,25;
+  --color-surface:       #2A2823;
+  --color-text:          #EDE8DC;
+  --color-muted:         #9C968A;
+  --color-accent:        #BE3D37;
+  --color-accent-hover:  #A8332E;
+  --color-accent-text:   #DE6E64;
+  --color-secondary:     #E5DCCB;
+  --color-highlight:     #322E27;
+  --color-border:        #3D3931;
+  --color-border-strong: #726C5E;
+  --color-on-accent:     #FFFFFF;
+  --color-success:       #5FB47A;
+  --color-error:         #E87A70;
+  --color-warning:       #D6A84E;
+  --color-info:          #6FA8D6;
+
+  --dust-1:  rgba(214,200,170,0.055);
+  --dust-2:  rgba(160,146,120,0.040);
+  --grain:   rgba(237,232,220,0.038);
+
   /* Full lit quality against the dark background */
   --progress-glow: 55%;
   color-scheme: dark;
@@ -67,38 +94,44 @@ html.dark {
 
 /* ─────────── ADMIN LIGHT (scoped — overrides html.dark within admin wrapper) ─────────── */
 .admin-theme-light {
-  --color-bg:           #F8F6F2;
-  --color-bg-rgb:       248,246,242;
-  --color-surface:      #FFFFFF;
-  --color-text:         #1A1A1A;
-  --color-muted:        #6B6B66;
-  --color-border:       #E5E5E0;
-  --color-secondary:    #2A2A2A;
-  --color-highlight:    #F0E5D8;
-  --color-accent:       #D85A30;
-  --color-accent-hover: #C24D2A;
-  --color-success:      #4F8A5E;
-  --color-error:        #C84A3A;
-  --color-warning:      #D88E3A;
-  --color-info:         #3B82F6;
+  --color-bg:            #DFDBD2;
+  --color-bg-rgb:        223,219,210;
+  --color-surface:       #EEEBE3;
+  --color-text:          #191713;
+  --color-muted:         #57534A;
+  --color-border:        #C6BFB2;
+  --color-border-strong: #7C7668;
+  --color-secondary:     #2B2823;
+  --color-highlight:     #D2CBBD;
+  --color-accent:        #8A2F26;
+  --color-accent-hover:  #6E241D;
+  --color-accent-text:   #8A2F26;
+  --color-on-accent:     #FFFFFF;
+  --color-success:       #356048;
+  --color-error:         #A33528;
+  --color-warning:       #6E5318;
+  --color-info:          #2F5E86;
 }
 
 /* ─────────── ADMIN DARK (scoped — independent of customer html.dark) ─────────── */
 .admin-theme-dark {
-  --color-bg:           #12100E;
-  --color-bg-rgb:       18,16,14;
-  --color-surface:      #1D1A16;
-  --color-text:         #F2EFE8;
-  --color-muted:        #A29C8E;
-  --color-border:       #3A342C;
-  --color-secondary:    #F5E6D3;
-  --color-highlight:    #2A251F;
-  --color-accent:       #E87A4F;
-  --color-accent-hover: #F0986E;
-  --color-success:      #34D399;
-  --color-error:        #F87171;
-  --color-warning:      #FBBF24;
-  --color-info:         #60A5FA;
+  --color-bg:            #1F1D19;
+  --color-bg-rgb:        31,29,25;
+  --color-surface:       #2A2823;
+  --color-text:          #EDE8DC;
+  --color-muted:         #9C968A;
+  --color-border:        #3D3931;
+  --color-border-strong: #726C5E;
+  --color-secondary:     #E5DCCB;
+  --color-highlight:     #322E27;
+  --color-accent:        #BE3D37;
+  --color-accent-hover:  #A8332E;
+  --color-accent-text:   #DE6E64;
+  --color-on-accent:     #FFFFFF;
+  --color-success:       #5FB47A;
+  --color-error:         #E87A70;
+  --color-warning:       #D6A84E;
+  --color-info:          #6FA8D6;
 }
 
 @layer base {
@@ -128,7 +161,7 @@ html.dark {
 
   img, video { max-width: 100%; height: auto; display: block; }
 
-  ::selection { background: var(--color-accent); color: white; }
+  ::selection { background: var(--color-accent); color: var(--color-on-accent); }
 
   button { font-family: inherit; }
 
@@ -188,7 +221,7 @@ html.dark {
   }
   .btn:active { transform: scale(.97); }
 
-  .btn-primary { background: var(--color-accent); color: white; }
+  .btn-primary { background: var(--color-accent); color: var(--color-on-accent); }
   .btn-primary:hover { background: var(--color-accent-hover); }
 
   .btn-secondary { background: var(--color-text); color: var(--color-bg); }
@@ -196,14 +229,14 @@ html.dark {
 
   .btn-outline {
     background: transparent; color: var(--color-text);
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--color-border-strong);
   }
   .btn-outline:hover { border-color: var(--color-accent); color: var(--color-accent); }
 
   .btn-ghost { background: transparent; color: var(--color-text); }
   .btn-ghost:hover { background: var(--color-border); }
 
-  .btn-danger { background: var(--color-error); color: white; }
+  .btn-danger { background: var(--color-error); color: var(--color-on-accent); }
   .btn-danger:hover { filter: brightness(.95); }
 
   /* Inputs */
@@ -211,7 +244,7 @@ html.dark {
     width: 100%;
     padding: .75rem 1rem; min-height: 44px;
     background: var(--color-surface); color: var(--color-text);
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--color-border-strong);
     border-radius: 10px;
     transition: border-color var(--dur-fast) var(--easing-out),
                 box-shadow var(--dur-fast) var(--easing-out),
@@ -240,17 +273,22 @@ html.dark {
     letter-spacing: .05em; text-transform: uppercase;
     border-radius: 999px;
   }
-  .badge-accent { background: var(--color-accent); color: white; }
+  .badge-accent { background: var(--color-accent); color: var(--color-on-accent); }
   .badge-soft { background: color-mix(in srgb, var(--color-accent) 14%, transparent); color: var(--color-accent); }
 
   /* Page transition root container — used for keyed page mount */
   .page { will-change: transform, opacity; }
 
-  /* Eyebrow — small-caps section label */
+  /* Eyebrow, the app's small section label.
+     It IS the mono voice: redefining it here carries the instrument
+     layer into every page that already used it, with no per-file
+     churn and no imports. .label-mono stays as the explicit form for
+     new markup. */
   .eyebrow {
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    font-size: clamp(0.625rem, 1.4vw, 0.6875rem);
+    font-weight: 500;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--color-muted);
     line-height: 1.4;
@@ -318,4 +356,206 @@ html.dark {
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HARMATTAN — the environment layer and the motion system
+   The signature element of the site: one fixed layer of drifting
+   dust behind everything, so scrolling reads as moving through a
+   place instead of past stacked sections.
+   ═══════════════════════════════════════════════════════════════ */
+
+.harmattan {
+  position: fixed;
+  inset: -10vmax;
+  z-index: 0;
+  pointer-events: none;
+  contain: strict;
+}
+
+/* Two haze bodies drifting against each other on long, unequal cycles,
+   so the pattern never visibly repeats. */
+.harmattan__haze {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 44% at 22% 28%, var(--dust-1) 0%, transparent 62%),
+    radial-gradient(ellipse 48% 38% at 78% 64%, var(--dust-2) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 30% at 50% 96%, var(--dust-1) 0%, transparent 70%);
+  animation: harmattan-drift 96s var(--easing-out) -22s infinite alternate;
+  will-change: transform;
+}
+
+.harmattan__haze--b {
+  background:
+    radial-gradient(ellipse 52% 40% at 70% 18%, var(--dust-2) 0%, transparent 58%),
+    radial-gradient(ellipse 64% 34% at 16% 78%, var(--dust-1) 0%, transparent 64%);
+  animation: harmattan-drift-b 141s var(--easing-out) -47s infinite alternate;
+}
+
+/* Grain. Static SVG noise, so it costs one paint and never animates. */
+.harmattan__grain {
+  position: absolute;
+  inset: 0;
+  opacity: .5;
+  background-image: var(--grain-url);
+  background-size: 180px 180px;
+  mix-blend-mode: overlay;
+}
+
+:root {
+  --grain-url: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.42'/%3E%3C/svg%3E");
+}
+
+@keyframes harmattan-drift {
+  from { transform: translate3d(-2.5%, -1.5%, 0) scale(1.04); }
+  to   { transform: translate3d( 2.5%,  2%,   0) scale(1.11); }
+}
+@keyframes harmattan-drift-b {
+  from { transform: translate3d( 2%,  1.5%, 0) scale(1.09); }
+  to   { transform: translate3d(-2%, -2%,   0) scale(1.03); }
+}
+
+/* Everything the visitor reads sits above the environment. */
+.above-harmattan { position: relative; z-index: 1; }
+
+/* ── Entrance choreography ──
+   An IntersectionObserver adds .in. Children arrive in sequence.
+   Start and end states are prefixed with the container class so a
+   later rule cannot silently cancel them. */
+
+.reveal > .rv {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 620ms var(--easing-out),
+    transform 620ms var(--easing-out);
+}
+.reveal.in > .rv { opacity: 1; transform: none; }
+
+.reveal.in > .rv:nth-child(1) { transition-delay: 0ms; }
+.reveal.in > .rv:nth-child(2) { transition-delay: 80ms; }
+.reveal.in > .rv:nth-child(3) { transition-delay: 160ms; }
+.reveal.in > .rv:nth-child(4) { transition-delay: 240ms; }
+.reveal.in > .rv:nth-child(5) { transition-delay: 320ms; }
+.reveal.in > .rv:nth-child(6) { transition-delay: 400ms; }
+.reveal.in > .rv:nth-child(n+7) { transition-delay: 460ms; }
+
+/* Retire the stagger once the entrance has played, or every later
+   hover lags by its delay forever. Specificity must beat the
+   :nth-child rules above, hence .reveal.in.done. */
+.reveal.in.done > .rv,
+.reveal.in.done > .rv:nth-child(n) { transition-delay: 0ms; }
+
+/* ── One living element per section, at whisper level ── */
+.living {
+  position: relative;
+}
+.living::after {
+  content: "";
+  position: absolute;
+  inset: -18%;
+  pointer-events: none;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--color-accent) 26%, transparent) 0%, transparent 68%);
+  opacity: 0;
+  animation: living-breathe 7.5s var(--easing-out) -2.4s infinite;
+}
+@keyframes living-breathe {
+  0%, 100% { opacity: 0; }
+  50%      { opacity: .30; }
+}
+
+/* Pause every loop on a hidden tab and off-screen.
+   animation-play-state does not inherit, so it is set on the
+   descendants and their pseudo-elements explicitly. */
+body.paused *,
+body.paused *::before,
+body.paused *::after { animation-play-state: paused !important; }
+
+/* ── Overflow guard ──
+   clip, with hidden declared first as the fallback. hidden alone
+   still lets code scroll the page sideways. */
+html, body { overflow-x: hidden; overflow-x: clip; }
+
+/* ── Reduced motion, honoured completely ── */
+@media (prefers-reduced-motion: reduce) {
+  .harmattan__haze { animation: none !important; }
+  .living::after   { animation: none !important; opacity: .18 !important; }
+  .reveal > .rv,
+  .reveal.in > .rv {
+    opacity: 1 !important;
+    transform: none !important;
+    transition-delay: 0ms !important;
+  }
+}
+
+/* The hairline in RuleHead draws itself when its head scrolls in. */
+.draw-rule {
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 900ms var(--easing-out) 120ms;
+}
+.reveal.in .draw-rule { transform: scaleX(1); }
+@media (prefers-reduced-motion: reduce) {
+  .draw-rule { transform: scaleX(1) !important; transition: none !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   THE INSTRUMENT LAYER
+   Mono micro labels, hairline plates, circular actions. Shared by
+   every page so the site reads as one object rather than a set of
+   templates.
+   ═══════════════════════════════════════════════════════════════ */
+
+.label-mono {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: clamp(0.625rem, 1.4vw, 0.6875rem);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  line-height: 1.4;
+  color: var(--color-muted);
+}
+
+/* A small blurred backing plate. Small text over imagery gets this
+   rather than the big scrim, which would flatten the picture. */
+.chip-plate {
+  background: rgba(20, 18, 15, 0.52);
+  border: 1px solid rgba(237, 232, 220, 0.22);
+  border-radius: 8px;
+  backdrop-filter: blur(10px) saturate(130%);
+  -webkit-backdrop-filter: blur(10px) saturate(130%);
+  color: #EDE8DC;
+}
+.chip-plate .label-mono { color: inherit; }
+
+/* The arrow leans into its own direction on hover. */
+.circle-action:hover svg { transform: translate(2px, -2px); }
+.circle-action:hover svg.lucide-arrow-down { transform: translateY(2px); }
+.circle-action:hover svg.lucide-arrow-right { transform: translateX(2px); }
+
+/* The top HUD strip: the thinnest band on the page, always mono. */
+.hud-strip {
+  background: var(--color-secondary);
+  color: var(--color-bg);
+}
+.hud-strip .label-mono { color: inherit; opacity: .78; }
+
+/* Imagery in this system is a plate: square-ish, hairlined, and it
+   holds its corner tags without them touching the edge. */
+.plate {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--color-highlight);
+  border: 1px solid var(--color-border);
+}
+.plate > img { transition: transform 900ms var(--easing-out); }
+.group:hover .plate > img { transform: scale(1.045); }
+
+@media (prefers-reduced-motion: reduce) {
+  .circle-action:hover svg { transform: none !important; }
+  .plate > img,
+  .group:hover .plate > img { transition: none !important; transform: none !important; }
 }

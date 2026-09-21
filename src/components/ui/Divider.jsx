@@ -1,4 +1,4 @@
-// Abstract geometric section divider — inspired by the visual logic of Adinkra
+// Abstract geometric section divider · inspired by the visual logic of Adinkra
 // (interlocking forms, bilateral symmetry, repetition) without reproducing any specific symbol.
 export default function Divider({ className = '', light = false }) {
   return (

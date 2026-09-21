@@ -12,7 +12,7 @@ export default function ProductImage({ src, alt, initial, className, imgClassNam
     return (
       <div
         className={cn(
-          'flex items-center justify-center bg-accent/10 text-accent font-display font-semibold',
+          'flex items-center justify-center bg-accent/10 text-accent-text font-display font-semibold',
           className,
         )}
         role="img"

@@ -20,7 +20,7 @@ export default function ForgotPassword() {
       await authService.forgotPassword(email);
       setSent(true);
     } catch {
-      // Always show success — don't leak whether emails exist.
+      // Always show success · don't leak whether emails exist.
       setSent(true);
     } finally {
       setSubmitting(false);
@@ -30,7 +30,7 @@ export default function ForgotPassword() {
   return (
     <>
       <Helmet>
-        <title>Forgot password \u2014 UrbanPulse</title>
+        <title>Forgot password · UrbanPulse</title>
       </Helmet>
       <div className="container-site grid place-items-center py-12 md:py-20">
         <motion.div
@@ -39,15 +39,15 @@ export default function ForgotPassword() {
           animate="show"
           className="w-full max-w-md rounded-xl border border-border bg-surface p-8 md:p-10"
         >
-          <h1 className="font-display text-h2 font-bold">Reset your password</h1>
+          <h1 className="font-display text-h2 font-bold tracking-tight">Reset your password</h1>
           {sent ? (
             <p className="mt-4 text-sm text-muted">
-              If an account exists for that email, we\u2019ve sent a reset link. Check your inbox.
+              If an account exists for that email, we’ve sent a reset link. Check your inbox.
             </p>
           ) : (
             <>
               <p className="mt-2 text-sm text-muted">
-                Enter the email tied to your account and we\u2019ll send you a reset link.
+                Enter the email tied to your account and we’ll send you a reset link.
               </p>
               <form onSubmit={submit} className="mt-6 space-y-4">
                 <Input
@@ -66,7 +66,7 @@ export default function ForgotPassword() {
             </>
           )}
           <p className="mt-6 text-center text-sm text-muted">
-            <Link to="/login" className="text-accent hover:text-accent-hover">
+            <Link to="/login" className="text-accent-text hover:text-accent-hover">
               Back to sign in
             </Link>
           </p>

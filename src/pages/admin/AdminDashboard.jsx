@@ -29,7 +29,7 @@ const ORDER_STATUS_STYLES = {
   awaiting_confirmation: 'bg-info/15 text-info',
   paid:         'bg-info/15 text-info',
   processing:   'bg-info/15 text-info',
-  shipped:      'bg-accent/15 text-accent',
+  shipped:      'bg-accent/15 text-accent-text',
   delivered:    'bg-success/15 text-success',
   cancelled:    'bg-error/15 text-error',
   refunded:     'bg-muted/15 text-muted',
@@ -45,8 +45,8 @@ function StatCard({ icon: Icon, label, value, hint, delta, to }) {
         transition={springSnappy}
         className="card p-5 relative overflow-hidden cursor-pointer h-full"
       >
-        {/* Icon badge — top-right corner */}
-        <div className="absolute right-5 top-5 grid h-9 w-9 place-items-center rounded-lg bg-accent/10 text-accent">
+        {/* Icon badge · top-right corner */}
+        <div className="absolute right-5 top-5 grid h-9 w-9 place-items-center rounded-lg bg-accent/10 text-accent-text">
           <Icon className="h-4 w-4" />
         </div>
         {/* Eyebrow label */}
@@ -93,12 +93,12 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Today"
-        subtitle="A snapshot of your store."
-        breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Today' }]}
+        title="Dashboard"
+        subtitle="Revenue, orders and stock over the last 30 days."
+        breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Dashboard' }]}
       />
 
-      {/* Stat cards — stagger entrance */}
+      {/* Stat cards · stagger entrance */}
       <motion.div
         variants={staggerContainer}
         initial="initial"
@@ -194,18 +194,19 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Recent orders — compact table */}
+        {/* Recent orders · compact table */}
         <div className="card p-6">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-display text-lg font-semibold">Recent orders</h2>
-            <Link to="/admin/orders" className="text-sm text-accent hover:underline">
+            <Link to="/admin/orders" className="text-sm text-accent-text hover:underline">
               View all
             </Link>
           </div>
           {recent.length === 0 ? (
             <p className="text-sm text-muted">No recent orders.</p>
           ) : (
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[520px] text-sm">
               <tbody className="divide-y divide-border">
                 {recent.slice(0, 6).map((o) => (
                   <tr key={o.id} className="hover:bg-highlight transition-colors">
@@ -230,6 +231,7 @@ export default function AdminDashboard() {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
 
@@ -245,7 +247,7 @@ export default function AdminDashboard() {
                 </span>
               )}
             </div>
-            <Link to="/admin/products" className="text-sm text-accent hover:underline">
+            <Link to="/admin/products" className="text-sm text-accent-text hover:underline">
               Manage
             </Link>
           </div>

@@ -33,7 +33,7 @@ export default function ResetPassword() {
   return (
     <>
       <Helmet>
-        <title>Reset password \u2014 UrbanPulse</title>
+        <title>Reset password · UrbanPulse</title>
       </Helmet>
       <div className="container-site grid place-items-center py-12 md:py-20">
         <motion.div
@@ -42,7 +42,7 @@ export default function ResetPassword() {
           animate="show"
           className="w-full max-w-md rounded-xl border border-border bg-surface p-8 md:p-10"
         >
-          <h1 className="font-display text-h2 font-bold">Set a new password</h1>
+          <h1 className="font-display text-h2 font-bold tracking-tight">Set a new password</h1>
           {!token ? (
             <p className="mt-4 text-sm text-error">Invalid or missing reset token.</p>
           ) : (
@@ -62,7 +62,7 @@ export default function ResetPassword() {
             </form>
           )}
           <p className="mt-6 text-center text-sm text-muted">
-            <Link to="/login" className="text-accent hover:text-accent-hover">
+            <Link to="/login" className="text-accent-text hover:text-accent-hover">
               Back to sign in
             </Link>
           </p>

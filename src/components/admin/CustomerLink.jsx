@@ -16,7 +16,7 @@ export default function CustomerLink({ customerId, name, email, className = '' }
     <span className="inline-flex items-center gap-1 flex-wrap">
       <Link
         to={`/admin/customers/${customerId}`}
-        className={`hover:text-accent hover:underline underline-offset-2 transition-colors ${className}`}
+        className={`hover:text-accent-text hover:underline underline-offset-2 transition-colors ${className}`}
         onClick={(e) => e.stopPropagation()}
       >
         {label}

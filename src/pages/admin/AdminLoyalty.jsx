@@ -43,7 +43,7 @@ export default function AdminLoyalty() {
         actions={
           <Link
             to="/admin/settings"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium transition-colors hover:border-accent hover:text-accent"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium transition-colors hover:border-accent hover:text-accent-text"
           >
             <Settings className="h-3.5 w-3.5" /> Loyalty settings
           </Link>
@@ -53,19 +53,19 @@ export default function AdminLoyalty() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="card p-5">
           <p className="eyebrow">Total issued</p>
-          <div className="mt-2 font-mono text-2xl font-bold">{overview?.total_issued ?? '—'}</div>
+          <div className="mt-2 font-mono text-2xl font-bold tabular-nums">{overview?.total_issued ?? '—'}</div>
         </div>
         <div className="card p-5">
           <p className="eyebrow">Total redeemed</p>
-          <div className="mt-2 font-mono text-2xl font-bold">{overview?.total_redeemed ?? '—'}</div>
+          <div className="mt-2 font-mono text-2xl font-bold tabular-nums">{overview?.total_redeemed ?? '—'}</div>
         </div>
         <div className="card p-5">
           <p className="eyebrow">Outstanding points</p>
-          <div className="mt-2 font-mono text-2xl font-bold">{overview?.outstanding_points ?? '—'}</div>
+          <div className="mt-2 font-mono text-2xl font-bold tabular-nums">{overview?.outstanding_points ?? '—'}</div>
         </div>
         <div className="card p-5">
           <p className="eyebrow">Outstanding liability</p>
-          <div className="mt-2 font-mono text-2xl font-bold">
+          <div className="mt-2 font-mono text-2xl font-bold tabular-nums">
             {overview ? formatCurrency(overview.outstanding_liability_ghs) : '—'}
           </div>
         </div>
@@ -94,7 +94,7 @@ export default function AdminLoyalty() {
 
         <div className="card p-6">
           <h2 className="font-display text-lg font-semibold">Top members</h2>
-          <div className="mt-4 max-h-64 sm:max-h-72 overflow-y-auto">
+          <div className="mt-4 max-h-64 overflow-auto sm:max-h-72">
             <table className="w-full text-left text-sm">
               <thead className="sticky top-0 z-10 border-b border-border bg-surface text-xs uppercase tracking-wider text-muted">
                 <tr>
@@ -107,7 +107,7 @@ export default function AdminLoyalty() {
                 {(overview?.top_members ?? []).map((m) => (
                   <tr key={m.id} className="hover:bg-highlight transition-colors">
                     <td className="py-2.5 pr-3">
-                      <Link to={`/admin/customers/${m.id}`} className="font-medium text-xs hover:text-accent">
+                      <Link to={`/admin/customers/${m.id}`} className="font-medium text-xs hover:text-accent-text">
                         {m.name || m.email}
                       </Link>
                     </td>

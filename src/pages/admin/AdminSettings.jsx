@@ -29,7 +29,7 @@ const JOB_DEFS = [
   { id: 'backups',              label: 'Database backup',          desc: 'Creates a DB snapshot (not yet implemented)' },
 ];
 
-// site_settings.value is a jsonb column — pg decodes it into native JS types on
+// site_settings.value is a jsonb column · pg decodes it into native JS types on
 // read (booleans as booleans), but the admin API also accepts/echoes the plain
 // strings 'true'/'false' on write. A flag is "off" only if it's explicitly one
 // of those two false-ish forms; anything else (including unset) reads as on.
@@ -283,7 +283,7 @@ export default function AdminSettings() {
             <Button size="sm" loading={saving['Maintenance']} onClick={saveMaintenance}>Save</Button>
             <button
               type="button"
-              className="text-xs text-accent underline"
+              className="text-xs text-accent-text underline"
               onClick={() => setShowMaintenancePreview(p => !p)}
             >
               {showMaintenancePreview ? 'Hide preview' : 'Preview banner'}

@@ -105,7 +105,7 @@ export default function AdminLogs() {
           {filter.action && (
             <button
               onClick={() => setFilter((f) => ({ ...f, action: '' }))}
-              className="inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-3 py-1 text-xs font-semibold text-accent hover:bg-accent/25 transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-3 py-1 text-xs font-semibold text-accent-text hover:bg-accent/25 transition-colors"
             >
               {filter.action} <X className="h-3 w-3" />
             </button>
@@ -113,7 +113,7 @@ export default function AdminLogs() {
           {filter.q && (
             <button
               onClick={() => setFilter((f) => ({ ...f, q: '' }))}
-              className="inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-3 py-1 text-xs font-semibold text-accent hover:bg-accent/25 transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-3 py-1 text-xs font-semibold text-accent-text hover:bg-accent/25 transition-colors"
             >
               "{filter.q}" <X className="h-3 w-3" />
             </button>

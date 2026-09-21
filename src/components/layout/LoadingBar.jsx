@@ -5,7 +5,7 @@ import { useLoadingStore } from '../../stores/loadingStore.js';
 const COMPLETE_MS = 150;
 const FADE_MS = 250;
 
-// Soft-faded segment edges — a comet, not a brick. Applied only during the
+// Soft-faded segment edges · a comet, not a brick. Applied only during the
 // active sweep; the completion flash needs solid edges to read as a whole line.
 const COMET_MASK = 'linear-gradient(90deg, transparent, black 15%, black 85%, transparent)';
 const GLOW = '0 0 8px color-mix(in srgb, var(--color-accent) var(--progress-glow), transparent)';
@@ -21,7 +21,7 @@ export default function LoadingBar() {
       setPhase('active');
       return;
     }
-    // visible just went false — only run the completion step if the bar was showing.
+    // visible just went false · only run the completion step if the bar was showing.
     setPhase((p) => (p === 'active' ? 'completing' : 'idle'));
   }, [visible]);
 
@@ -53,7 +53,7 @@ export default function LoadingBar() {
           }}
         >
           {prefersReduced ? (
-            // Static bar, no glow/mask — glow implies motion energy.
+            // Static bar, no glow/mask · glow implies motion energy.
             <div style={{ position: 'absolute', inset: 0, background: FILL_GRADIENT }} />
           ) : (
             <motion.div
@@ -75,7 +75,7 @@ export default function LoadingBar() {
                   ? { x: '0%', width: '100%', transition: { duration: COMPLETE_MS / 1000, ease: 'easeOut' } }
                   : {
                       // Fixed-width segment translating across the track (not a width
-                      // oscillation) — percentages are relative to the segment's own
+                      // oscillation) · percentages are relative to the segment's own
                       // width, so -100%/400% sweeps the 25%-wide segment from fully
                       // off-screen left to fully past the right edge of the container.
                       x: ['-100%', '400%'],

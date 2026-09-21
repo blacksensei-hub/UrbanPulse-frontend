@@ -337,7 +337,7 @@ export default function AdminCoupons() {
         <div className="flex justify-end gap-3">
           <Button variant="ghost" onClick={() => setConfirmAction(null)}>Cancel</Button>
           <Button
-            className="bg-error text-white hover:bg-error/90"
+            className="bg-error text-on-accent hover:bg-error/90"
             onClick={() => { handleBulkCoupons(confirmAction.action); setConfirmAction(null); }}
           >
             Confirm
@@ -347,7 +347,7 @@ export default function AdminCoupons() {
 
       <Modal open={open} onClose={() => setOpen(false)}>
         <div className="w-full max-w-md space-y-4 p-6">
-          <h2 className="font-display text-xl font-bold">
+          <h2 className="font-display text-xl font-bold tracking-tight">
             {editing ? 'Edit coupon' : 'New coupon'}
           </h2>
           <Input

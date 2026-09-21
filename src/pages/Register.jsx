@@ -88,7 +88,7 @@ export default function Register() {
   return (
     <>
       <Helmet>
-        <title>Create account — UrbanPulse</title>
+        <title>Create account · UrbanPulse</title>
       </Helmet>
       <div className="container-site grid place-items-center py-12 md:py-20">
         <motion.div
@@ -97,7 +97,8 @@ export default function Register() {
           animate="show"
           className="w-full max-w-md rounded-xl border border-border bg-surface p-8 md:p-10"
         >
-          <h1 className="font-display text-h2 font-bold">Create your account</h1>
+          <p className="eyebrow mb-2">Account / New</p>
+          <h1 className="font-display text-h2 font-bold tracking-tight">Create your account.</h1>
           <p className="mt-2 text-sm text-muted">Track orders, save addresses, shop faster.</p>
 
           <div className="mt-6">
@@ -154,7 +155,7 @@ export default function Register() {
                   }`}
                 >
                   {codeStatus.valid
-                    ? `Valid — referred by ${codeStatus.referrer_name}`
+                    ? `Valid. Referred by ${codeStatus.referrer_name}`
                     : 'Invalid code'}
                 </p>
               )}
@@ -166,7 +167,7 @@ export default function Register() {
 
           <p className="mt-6 text-center text-sm text-muted">
             Already have an account?{' '}
-            <Link to="/login" className="text-accent hover:text-accent-hover">
+            <Link to="/login" className="text-accent-text hover:text-accent-hover">
               Sign in
             </Link>
           </p>

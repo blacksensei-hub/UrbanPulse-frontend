@@ -40,7 +40,7 @@ export default function AdminAnalytics() {
         subtitle="Sales performance and customer insights."
       />
 
-      <div className="card p-6">
+      <div className="card min-w-0 p-6">
         <h2 className="font-display text-lg font-semibold">Daily sales (last 30 days)</h2>
         <div className="mt-4 h-48 sm:h-72">
           <ResponsiveContainer>
@@ -65,7 +65,7 @@ export default function AdminAnalytics() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="card p-6">
+        <div className="card min-w-0 p-6">
           <h2 className="font-display text-lg font-semibold">Top products</h2>
           <div className="mt-4 h-48 sm:h-72">
             <ResponsiveContainer>
@@ -88,9 +88,9 @@ export default function AdminAnalytics() {
           </div>
         </div>
 
-        <div className="card p-6">
+        <div className="card min-w-0 p-6">
           <h2 className="font-display text-lg font-semibold">Customer lifetime value</h2>
-          <div className="mt-4 max-h-64 sm:max-h-72 overflow-y-auto">
+          <div className="mt-4 max-h-64 overflow-auto sm:max-h-72">
             <table className="w-full text-left text-sm">
               <thead className="sticky top-0 z-10 border-b border-border bg-surface text-xs uppercase tracking-wider text-muted">
                 <tr>

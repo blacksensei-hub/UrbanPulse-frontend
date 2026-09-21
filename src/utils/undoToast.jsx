@@ -27,7 +27,7 @@ export function showUndoToast({ message, onUndo }) {
             toast.dismiss(t.id);
             onUndo?.();
           }}
-          className="text-xs font-semibold text-accent shrink-0 hover:text-accent-hover"
+          className="text-xs font-semibold text-accent-text shrink-0 hover:text-accent-hover"
         >
           Undo
         </button>

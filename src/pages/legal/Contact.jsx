@@ -41,7 +41,7 @@ export default function Contact() {
       (errs.name ? nameRef : errs.email ? emailRef : messageRef).current?.focus();
       return;
     }
-    // TODO: Wire to POST /api/contact when backend endpoint is built — for now shows success without sending.
+    // TODO: Wire to POST /api/contact when backend endpoint is built · for now shows success without sending.
     setSubmitted(true);
   }
 
@@ -79,19 +79,19 @@ export default function Contact() {
     <>
       <SEO
         title="Contact"
-        description="Get in touch with the UrbanPulse team — order questions, returns, or anything else."
+        description="Get in touch with the UrbanPulse team · order questions, returns, or anything else."
         url="/contact"
       />
 
       <div className="container-site" style={{ paddingBlock: 'var(--space-section)' }}>
         <div className="grid gap-16 lg:grid-cols-2">
 
-          {/* Left — contact info */}
+          {/* Left · contact info */}
           <div>
             <p className="eyebrow mb-3">Get in touch</p>
             <h1 className="font-display text-h1 font-bold">We're here to help.</h1>
             <p className="mt-4 text-muted leading-relaxed max-w-md">
-              Questions about your order, a return, or anything else — our team is available
+              Questions about your order, a return, or anything else · our team is available
               Monday to Friday and most Saturday mornings.
             </p>
 
@@ -105,12 +105,12 @@ export default function Contact() {
                   rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
                   className="card p-4 flex items-start gap-3 hover:border-accent transition-colors group"
                 >
-                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-accent/10 text-accent mt-0.5">
+                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-accent/10 text-accent-text mt-0.5">
                     <Icon className="h-4 w-4" />
                   </div>
                   <div>
                     <p className="eyebrow mb-0.5">{label}</p>
-                    <p className="text-sm text-text group-hover:text-accent transition-colors">{value}</p>
+                    <p className="text-sm text-text group-hover:text-accent-text transition-colors">{value}</p>
                   </div>
                 </a>
               ))}
@@ -137,7 +137,7 @@ export default function Contact() {
 
             {/* Address */}
             <div className="mt-8 flex items-start gap-3">
-              <MapPin className="h-4 w-4 text-accent mt-0.5 shrink-0" />
+              <MapPin className="h-4 w-4 text-accent-text mt-0.5 shrink-0" />
               <div>
                 <p className="text-sm font-medium">Accra, Ghana</p>
                 {/* TODO: Add physical address when confirmed */}
@@ -146,7 +146,7 @@ export default function Contact() {
             </div>
           </div>
 
-          {/* Right — contact form */}
+          {/* Right · contact form */}
           <div>
             <AnimatePresence mode="wait">
               {submitted ? (
@@ -162,7 +162,7 @@ export default function Contact() {
                   <div>
                     <p className="font-display text-h3 font-semibold">Message received.</p>
                     <p className="mt-2 text-sm text-muted">
-                      Thanks — we'll reply within one business day.
+                      Thanks · we'll reply within one business day.
                     </p>
                   </div>
                 </motion.div>

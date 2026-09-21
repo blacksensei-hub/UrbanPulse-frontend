@@ -39,7 +39,7 @@ export default function CookieConsent() {
             <div className="container-site flex flex-wrap items-center justify-between gap-4">
               <p className="max-w-xl text-sm text-muted">
                 We use cookies to keep you signed in and remember your cart. We don&rsquo;t sell your data.{' '}
-                <Link to="/privacy" className="underline hover:text-accent">Privacy policy</Link>.
+                <Link to="/privacy" className="underline hover:text-accent-text">Privacy policy</Link>.
               </p>
               <div className="flex shrink-0 gap-2">
                 <Button variant="outline" size="sm" onClick={openCustomize}>Customize</Button>

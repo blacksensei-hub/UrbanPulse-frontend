@@ -85,14 +85,14 @@ export default function OrderSuccess() {
             initial={prefersReduced ? false : { scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 0.1 }}
-            className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-accent/15 text-accent"
+            className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-accent/15 text-accent-text"
           >
             <Check className="h-8 w-8" />
           </motion.div>
 
           {/* Heading + order number */}
           <div className="mt-6 text-center">
-            <h1 className="text-display font-display font-bold leading-tight">
+            <h1 className="font-display text-display font-bold leading-[1.02] tracking-tight">
               Thank you{firstName ? `, ${firstName}` : ''}.
             </h1>
             {order && (
@@ -112,10 +112,10 @@ export default function OrderSuccess() {
             <div className="mt-8 rounded-xl border border-border bg-surface p-6">
               <div className="flex items-center justify-between gap-3 border-b border-border pb-4">
                 <div className="flex items-center gap-2">
-                  <Package className="h-5 w-5 text-accent" />
+                  <Package className="h-5 w-5 text-accent-text" />
                   <span className="font-semibold font-mono text-sm">{order.order_number}</span>
                 </div>
-                <span className="rounded-full bg-accent/15 px-3 py-1 text-xs font-semibold uppercase text-accent">
+                <span className="rounded-full bg-accent/15 px-3 py-1 text-xs font-semibold uppercase text-accent-text">
                   {order.status}
                 </span>
               </div>
@@ -137,7 +137,7 @@ export default function OrderSuccess() {
                   <dd className="font-mono">{formatCurrency(order.tax)}</dd>
                 </div>
                 {(() => {
-                  // Coupon/credit aren't stored as order columns — derive the combined
+                  // Coupon/credit aren't stored as order columns · derive the combined
                   // reduction the way the PDF receipt does, minus the points portion
                   // (points get their own line below, so don't double-display them).
                   const pointsGhs = Number(order.loyalty?.points_redeemed_ghs ?? 0);
@@ -195,7 +195,7 @@ export default function OrderSuccess() {
                   <li key={item.id} className="flex items-center justify-between text-sm">
                     <span>{item.product_name} <span className="text-muted">× {item.quantity}</span></span>
                     {item.preorder_ships_at && (
-                      <span className="text-xs text-accent">Ships {formatDate(item.preorder_ships_at)}</span>
+                      <span className="text-xs text-accent-text">Ships {formatDate(item.preorder_ships_at)}</span>
                     )}
                   </li>
                 ))}

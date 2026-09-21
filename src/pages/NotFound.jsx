@@ -7,7 +7,7 @@ export default function NotFound() {
   return (
     <>
       <Helmet>
-        <title>Page not found \u2014 UrbanPulse</title>
+        <title>Page not found · UrbanPulse</title>
       </Helmet>
       <div className="container-site grid place-items-center py-24 text-center">
         <motion.div
@@ -16,12 +16,12 @@ export default function NotFound() {
           transition={{ duration: 0.4 }}
         >
           <div
-            className="font-display font-bold leading-none text-accent select-none"
+            className="font-display font-bold leading-none text-accent-text select-none"
             style={{ fontSize: 'clamp(6rem, 20vw, 12rem)' }}
           >
             404
           </div>
-          <h1 className="mt-4 font-display text-h2 font-bold">Page not found</h1>
+          <h1 className="mt-4 font-display text-h2 font-bold tracking-tight">Page not found.</h1>
           <p className="mt-3 max-w-sm text-muted">
             We couldn&rsquo;t find what you were looking for. The page may have moved or never existed.
           </p>

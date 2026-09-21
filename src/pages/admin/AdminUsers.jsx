@@ -29,7 +29,7 @@ function MobileUserCard({ u, onSetRole, onToggleBlock, onNavigate, onLongPress, 
             <div className="text-xs text-muted truncate">{u.email}</div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <span className={cn('rounded-pill px-2 py-0.5 text-eyebrow', u.role === 'admin' ? 'bg-accent/15 text-accent' : 'bg-surface border border-border text-muted')}>
+            <span className={cn('rounded-pill px-2 py-0.5 text-eyebrow', u.role === 'admin' ? 'bg-accent/15 text-accent-text' : 'bg-surface border border-border text-muted')}>
               {u.role}
             </span>
             <button
@@ -270,7 +270,7 @@ export default function AdminUsers() {
                       <span
                         className={`rounded-pill px-2.5 py-0.5 text-eyebrow ${
                           u.role === 'admin'
-                            ? 'bg-accent/15 text-accent'
+                            ? 'bg-accent/15 text-accent-text'
                             : 'bg-surface border border-border text-muted'
                         }`}
                       >
@@ -323,7 +323,7 @@ export default function AdminUsers() {
         <div className="flex justify-end gap-3">
           <Button variant="ghost" onClick={() => setConfirmAction(null)}>Cancel</Button>
           <Button
-            className="bg-error text-white hover:bg-error/90"
+            className="bg-error text-on-accent hover:bg-error/90"
             onClick={() => { handleBulkUsers(confirmAction.action); setConfirmAction(null); }}
           >
             Confirm

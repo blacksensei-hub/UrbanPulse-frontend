@@ -28,19 +28,19 @@ export default function FAQ() {
 
       <div className="container-site max-w-3xl py-12 md:py-20">
         <p className="eyebrow">Support</p>
-        <h1 className="mt-2 font-display text-h1 font-bold">Frequently asked</h1>
+        <h1 className="mt-2 font-display text-h1 font-bold leading-[1.02] tracking-tight">Frequently asked.</h1>
 
         {loading ? (
           <div className="mt-10 grid place-items-center gap-3 py-16 text-center">
             <Spinner />
-            {slowLoad && <p className="text-sm text-muted">Still loading — hang tight.</p>}
+            {slowLoad && <p className="text-sm text-muted">Still loading. Hang tight.</p>}
           </div>
         ) : fetchFailed ? (
           <div className="mt-10 py-16 text-center">
             <div className="font-display text-2xl font-semibold">Couldn't load this page</div>
             <button
               onClick={retry}
-              className="mt-3 inline-block text-accent hover:text-accent-hover"
+              className="mt-3 inline-block text-accent-text hover:text-accent-hover"
             >
               Retry
             </button>

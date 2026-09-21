@@ -104,7 +104,7 @@ export default function AdminPageEdit() {
     return (
       <div className="py-24 text-center">
         <div className="font-display text-2xl font-semibold">Page not found</div>
-        <button onClick={() => navigate('/admin/pages')} className="mt-3 inline-block text-accent hover:text-accent-hover">
+        <button onClick={() => navigate('/admin/pages')} className="mt-3 inline-block text-accent-text hover:text-accent-hover">
           Back to Pages
         </button>
       </div>
@@ -115,7 +115,7 @@ export default function AdminPageEdit() {
     return (
       <div className="py-24 text-center">
         <div className="font-display text-2xl font-semibold">Couldn't load this page</div>
-        <button onClick={() => setRetryToken((n) => n + 1)} className="mt-3 inline-block text-accent hover:text-accent-hover">
+        <button onClick={() => setRetryToken((n) => n + 1)} className="mt-3 inline-block text-accent-text hover:text-accent-hover">
           Retry
         </button>
       </div>
