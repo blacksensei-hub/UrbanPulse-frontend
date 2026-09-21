@@ -3,17 +3,19 @@
     { "source": "/api/:path*", "destination": "https://urban-pulse-backend-two.vercel.app/api/:path*" },
     { "source": "/sitemap.xml", "destination": "https://urban-pulse-backend-two.vercel.app/sitemap.xml" },
     { "source": "/robots.txt", "destination": "https://urban-pulse-backend-two.vercel.app/robots.txt" },
-    { "source": "/weight", "destination": "/weight/index.html" },
-    { "source": "/weight/", "destination": "/weight/index.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
     {
-      "source": "/weight/assets/(.*)",
+      "source": "/hero/(.*)",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }]
     },
     {
-      "source": "/weight/assets/hero-scrub.mp4",
+      "source": "/media/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }]
+    },
+    {
+      "source": "/hero/drop-scrub.mp4",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=604800" },
         { "key": "Accept-Ranges", "value": "bytes" }
