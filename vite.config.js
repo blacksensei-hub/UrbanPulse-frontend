@@ -23,8 +23,11 @@ export default defineConfig({
       },
       workbox: {
         navigateFallback: '/index.html',
-        // Never intercept API routes or sitemap/robots as offline fallback
-        navigateFallbackDenylist: [/^\/api\//, /^\/sitemap\.xml/, /^\/robots\.txt/],
+        // Never intercept API routes or sitemap/robots as offline fallback.
+        // /weight is a standalone static page, not an SPA route: without it
+        // here the service worker answers a repeat visit with the React
+        // shell and the cinematic page never renders.
+        navigateFallbackDenylist: [/^\/api\//, /^\/sitemap\.xml/, /^\/robots\.txt/, /^\/weight/],
         // Precache built assets only; no runtime API caching
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2}'],
         runtimeCaching: [],

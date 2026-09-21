@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UrbanPulse · Weight tells the truth</title>
+<meta name="description" content="320gsm ring-spun cotton, cut in Accra. A photograph can lie about a garment. Weight cannot.">
+<meta name="theme-color" content="#1B1916">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231B1916'/%3E%3Crect x='7' y='9' width='18' height='4.5' rx='1' fill='%23EDE8DC'/%3E%3Crect x='7' y='16' width='18' height='7' rx='1' fill='%23BE3D37'/%3E%3C/svg%3E">
+<meta property="og:title" content="UrbanPulse · Weight tells the truth">
+<meta property="og:description" content="320gsm ring-spun cotton, cut in Accra.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://urbanpulsee.vercel.app/weight">
+<meta property="og:image" content="https://urbanpulsee.vercel.app/weight/assets/hero-ending.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="UrbanPulse · Weight tells the truth">
+<meta name="twitter:image" content="https://urbanpulsee.vercel.app/weight/assets/hero-ending.jpg">
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&f[]=satoshi@400,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --canvas:#1B1916;
+  --panel:#252220;
+  --accent:#BE3D37;
+  --accent-hover:#A8332E;
+  --accent-muted:#5A2420;
+  --accent-text:#DE6E64;
+  --text-primary:#EDE8DC;
+  --text-secondary:#A8A296;
+  --line:#3A352E;
+  --line-strong:#6E685B;
+  --dust-a:rgba(214,200,170,0.055);
+  --dust-b:rgba(160,146,120,0.040);
+  --tshadow:0 1px 2px rgba(5,5,10,.95),0 3px 12px rgba(5,5,10,.78),0 10px 44px rgba(5,5,10,.8);
+  --ease:cubic-bezier(.16,1,.3,1);
+  --hero-vh:640;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{overflow-x:hidden;overflow-x:clip}
+html{-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+body{
+  margin:0;background:var(--canvas);color:var(--text-primary);
+  font-family:'Satoshi',ui-sans-serif,system-ui,sans-serif;font-weight:400;
+  font-size:clamp(1rem,1.1vw,1.0625rem);line-height:1.65;
+}
+img,video{max-width:100%;display:block}
+a{color:inherit}
+h1,h2,h3{font-family:'Clash Display',ui-sans-serif,system-ui,sans-serif;font-weight:700;letter-spacing:-.022em;line-height:1.02;margin:0}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-weight:500;font-size:clamp(.625rem,1.3vw,.6875rem);letter-spacing:.16em;text-transform:uppercase;color:var(--text-secondary);line-height:1.4}
+.wrap{width:min(1240px,100% - clamp(1.25rem,5vw,4rem));margin-inline:auto}
+.skip{position:absolute;left:-9999px}
+.skip:focus{left:1rem;top:1rem;z-index:999;background:var(--accent);color:#fff;padding:.6rem 1rem;border-radius:8px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+
+/* ---------- the environment: one place, not stacked sections ---------- */
+.dust{position:fixed;inset:-10vmax;z-index:0;pointer-events:none;contain:strict}
+.dust i{position:absolute;inset:0;display:block;
+  background:
+    radial-gradient(ellipse 60% 44% at 22% 28%,var(--dust-a) 0%,transparent 62%),
+    radial-gradient(ellipse 48% 38% at 78% 64%,var(--dust-b) 0%,transparent 60%),
+    radial-gradient(ellipse 70% 30% at 50% 96%,var(--dust-a) 0%,transparent 70%);
+  animation:driftA 96s var(--ease) -22s infinite alternate;will-change:transform}
+.dust i+i{background:
+    radial-gradient(ellipse 52% 40% at 70% 18%,var(--dust-b) 0%,transparent 58%),
+    radial-gradient(ellipse 64% 34% at 16% 78%,var(--dust-a) 0%,transparent 64%);
+  animation:driftB 141s var(--ease) -47s infinite alternate}
+.dust u{position:absolute;inset:0;display:block;opacity:.5;mix-blend-mode:overlay;background-size:180px 180px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.42'/%3E%3C/svg%3E")}
+@keyframes driftA{from{transform:translate3d(-2.5%,-1.5%,0) scale(1.04)}to{transform:translate3d(2.5%,2%,0) scale(1.11)}}
+@keyframes driftB{from{transform:translate3d(2%,1.5%,0) scale(1.09)}to{transform:translate3d(-2%,-2%,0) scale(1.03)}}
+.above{position:relative;z-index:1}
+
+/* ---------- hero ---------- */
+#hero{height:calc(var(--hero-vh) * 1vh);position:relative}
+.stage{position:sticky;top:0;height:100vh;overflow:hidden;background:#141210}
+.stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;
+  transition:opacity 700ms var(--ease);will-change:transform;transform:translateZ(0)}
+.stage.video-ready video{opacity:1}
+.poster{position:absolute;inset:0;background-size:cover;background-position:center}
+.scrim{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 120% 90% at 50% 45%,rgba(10,9,7,0) 35%,rgba(10,9,7,.62) 100%)}
+.bands{position:absolute;inset:0;display:grid;align-content:start;padding-top:clamp(4.5rem,13vh,8rem);pointer-events:none}
+.band{grid-area:1/1;position:relative;text-shadow:var(--tshadow);pointer-events:none}
+/* Sized in viewport units, not in percentages of the band's own content
+   box. The band box is only as tall as its headline, so a percentage
+   ellipse got clipped by the box edge before it reached transparent and
+   the scrim showed as a hard-edged rectangle over the footage. */
+.band::before{content:"";position:absolute;left:-14vw;top:-46vh;width:96vw;height:130vh;
+  pointer-events:none;
+  opacity:calc(.25 + .75*var(--k,1));
+  background:radial-gradient(ellipse 42% 34% at 30% 52%,rgba(5,5,10,.74) 0%,rgba(5,5,10,.5) 44%,rgba(5,5,10,0) 72%)}
+.band .inner{position:relative}
+.band h1,.band h2{font-size:clamp(2.2rem,5.2vw,4.3rem);max-width:11ch;width:min(46%,34rem)}
+.band .sub{margin-top:1.1rem;max-width:30ch;width:min(46%,30rem);color:#DCD6C8;font-size:clamp(.95rem,1.5vw,1.125rem)}
+.band .cta-row{margin-top:1.8rem;display:flex;flex-wrap:wrap;gap:.75rem;pointer-events:auto}
+.w{display:inline-block;white-space:pre}
+.c{display:inline-block}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* band 1: drift-down, echoing the fall */
+#b1 .w{--kc:clamp(0,(var(--k,0) - var(--th,0))*2.8,1);opacity:var(--kc);
+  transform:translateY(calc((1 - var(--kc)) * -26px))}
+/* band 2: word-punch with overshoot, landing on the impact */
+#b2 .w{--kc:clamp(0,(var(--k,0) - var(--th,0))*3,1);
+  --ks:clamp(0,(var(--k,0) - var(--th,0) - var(--sd,.1))*var(--ss,3.2),1);
+  opacity:var(--kc);
+  transform:scale(calc(.62 + (.38 + var(--ov,.12))*var(--kc) - var(--ov,.12)*var(--ks)))}
+#b2 .w.em{--ov:.24;--sd:.16;--ss:2.6}
+/* band 3: word-by-word rise into a staged settle */
+#b3 .w{--kc:clamp(0,(var(--k,0) - var(--th,0))*2.6,1);opacity:var(--kc);
+  transform:translateY(calc((1 - var(--kc)) * 30px))}
+#b3 .sub{--ks:clamp(0,(var(--k,0) - .66)*4,1);opacity:var(--ks);
+  transform:translateY(calc((1 - var(--ks)) * 16px))}
+#b3 .cta-row{--kb:clamp(0,(var(--k,0) - .78)*5,1);opacity:var(--kb);
+  transform:translateY(calc((1 - var(--kb)) * 14px))}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.55rem;
+  padding:.85rem 1.5rem;min-height:46px;border-radius:999px;text-decoration:none;
+  font-family:'Satoshi',sans-serif;font-weight:500;font-size:.95rem;letter-spacing:.01em;
+  text-shadow:none;transition:background-color .2s var(--ease),color .2s var(--ease),border-color .2s var(--ease),transform .2s var(--ease)}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-hover)}
+.btn-ghost{background:transparent;color:var(--text-primary);border:1px solid var(--line-strong)}
+.btn-ghost:hover{border-color:var(--text-primary)}
+@media (pointer:coarse){.btn{min-height:46px}}
+
+/* the loading ring */
+.ring{position:absolute;right:clamp(1.25rem,4vw,2.5rem);bottom:clamp(1.25rem,4vw,2.5rem);
+  width:34px;height:34px;color:var(--text-secondary);opacity:.8;transform:rotate(-90deg)}
+.stage.video-ready .ring,.stage.video-failed .ring{opacity:0;transition:opacity .4s}
+.cue{position:absolute;right:clamp(1.25rem,4vw,2.5rem);bottom:clamp(1.25rem,4vw,2.5rem);
+  color:var(--text-secondary)}
+@media (max-height:560px){.ring,.cue{display:none}}
+
+/* ---------- static hero (the five gates, in CSS) ---------- */
+.static-hero{display:none;position:relative;min-height:100svh;overflow:hidden;background:#141210}
+.static-hero .poster{position:absolute;inset:0}
+/* The ending frame is brightest exactly where a phone wants its text: low
+   and right. Measured 1.26:1 for the headline without this. A bottom-up
+   scrim buys the contrast back without moving the type off the thumb. */
+.static-hero .scrim{background:
+  linear-gradient(to top,rgba(10,9,7,.94) 0%,rgba(10,9,7,.88) 26%,rgba(10,9,7,.62) 46%,rgba(10,9,7,.18) 68%,rgba(10,9,7,0) 86%),
+  radial-gradient(ellipse 120% 90% at 50% 30%,rgba(10,9,7,0) 40%,rgba(10,9,7,.5) 100%)}
+.static-hero .inner{position:relative;z-index:2;display:flex;flex-direction:column;justify-content:flex-end;
+  min-height:100svh;padding:0 0 clamp(2.5rem,9vh,5rem)}
+.static-hero h1{font-size:clamp(2.5rem,11vw,4.2rem);max-width:13ch;text-shadow:var(--tshadow)}
+.static-hero .sub{margin-top:1rem;max-width:34ch;color:#DCD6C8;text-shadow:var(--tshadow)}
+.static-hero .cta-row{margin-top:1.75rem;display:flex;flex-wrap:wrap;gap:.7rem}
+@media (max-width:720px),
+       (orientation:portrait) and (max-width:1024px),
+       (orientation:portrait) and (pointer:coarse),
+       (orientation:landscape) and (pointer:coarse) and (max-height:560px),
+       (prefers-reduced-motion:reduce){
+  #hero{display:none}
+  .static-hero{display:block}
+}
+
+/* ---------- sections ---------- */
+section{padding:clamp(4.5rem,11vh,8rem) 0}
+.kicker{display:flex;align-items:baseline;gap:.75rem;margin-bottom:1.1rem}
+.kicker .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex:none;align-self:center}
+.rule{display:block;height:1px;background:var(--line-strong);opacity:.55;transform:scaleX(0);transform-origin:left;
+  transition:transform 900ms var(--ease) 120ms;flex:1}
+.in .rule{transform:scaleX(1)}
+h2{font-size:clamp(2rem,4.6vw,3.4rem);max-width:18ch}
+.lede{margin-top:1.1rem;max-width:52ch;color:var(--text-secondary)}
+.rv{opacity:0;transform:translateY(18px);transition:opacity 620ms var(--ease),transform 620ms var(--ease)}
+.in .rv{opacity:1;transform:none}
+.in .rv:nth-child(1){transition-delay:0ms}.in .rv:nth-child(2){transition-delay:80ms}
+.in .rv:nth-child(3){transition-delay:160ms}.in .rv:nth-child(4){transition-delay:240ms}
+.in .rv:nth-child(5){transition-delay:320ms}.in .rv:nth-child(n+6){transition-delay:400ms}
+.in.done .rv,.in.done .rv:nth-child(n){transition-delay:0ms}
+
+/* the statement bands between chapters */
+.statement{border-block:1px solid var(--line);padding:clamp(2rem,5vh,3.25rem) 0}
+.statement p{margin:0;text-align:center}
+
+/* the weight section, the one interactive moment */
+.weigh{display:grid;gap:clamp(2rem,5vw,4rem);grid-template-columns:1fr;align-items:center}
+@media (min-width:900px){.weigh{grid-template-columns:1.05fr .95fr}}
+.gauge{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:18px;
+  padding:clamp(1.5rem,4vw,2.5rem);overflow:hidden}
+.readout{font-family:'JetBrains Mono',monospace;font-weight:500;font-variant-numeric:tabular-nums;
+  font-size:clamp(3rem,9vw,5rem);line-height:1;color:var(--text-primary)}
+.readout span{font-size:.28em;letter-spacing:.14em;color:var(--text-secondary);margin-left:.5em}
+.slab{margin-top:1.5rem;height:var(--slab,26px);border-radius:5px;background:linear-gradient(180deg,#E7E1D3,#BFB7A4);
+  transition:height .12s linear;box-shadow:0 10px 30px -12px rgba(0,0,0,.7)}
+.holdbtn{margin-top:1.75rem;width:100%;cursor:pointer;border:1px solid var(--line-strong);background:transparent;
+  color:var(--text-primary);border-radius:999px;padding:.9rem 1.25rem;min-height:48px;
+  font-family:'Satoshi',sans-serif;font-weight:500;font-size:.95rem;position:relative;overflow:hidden;
+  touch-action:none;-webkit-user-select:none;user-select:none}
+.holdbtn::before{content:"";position:absolute;inset:0;background:var(--accent-muted);
+  transform:scaleX(var(--hold,0));transform-origin:left;transition:transform .1s linear}
+.holdbtn b{position:relative;font-weight:500}
+.facts{list-style:none;margin:1.75rem 0 0;padding:0;display:grid;gap:.9rem}
+.facts li{display:flex;gap:.85rem;align-items:flex-start;color:#948F84;transition:color .5s var(--ease)}
+.facts li.lit{color:var(--text-primary)}
+.facts .n{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.14em;color:var(--accent-text,#DE6E64);padding-top:.3em;flex:none}
+.scale{width:100%;height:auto}
+.scale .track{stroke:var(--line-strong);stroke-width:1}
+.scale .fill{stroke:var(--accent);stroke-width:2;stroke-dasharray:var(--len,200);stroke-dashoffset:var(--len,200);
+  transition:stroke-dashoffset 1.2s var(--ease) .2s}
+.in .scale .fill{stroke-dashoffset:var(--off,60)}
+.scale text{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;fill:var(--text-secondary)}
+
+/* pieces */
+.pieces{display:grid;gap:1.25rem;grid-template-columns:1fr;margin-top:clamp(2rem,5vh,3rem)}
+@media (min-width:760px){.pieces{grid-template-columns:repeat(3,1fr)}}
+.piece{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.piece .shot{aspect-ratio:4/5;background:#141210;overflow:hidden}
+.piece .shot img{width:100%;height:100%;object-fit:cover;transition:transform 900ms var(--ease)}
+.piece:hover .shot img{transform:scale(1.045)}
+.piece .body{padding:1.15rem 1.25rem 1.4rem}
+.piece h3{font-size:1.15rem;margin-bottom:.4rem}
+.piece p{margin:0;color:var(--text-secondary);font-size:.9rem}
+
+/* pay */
+.pay{display:grid;gap:.75rem;grid-template-columns:1fr;margin-top:2rem}
+@media (min-width:700px){.pay{grid-template-columns:repeat(3,1fr)}}
+.pay div{border:1px solid var(--line);border-radius:12px;padding:1.1rem 1.25rem;background:var(--panel)}
+
+/* faq */
+details{border-bottom:1px solid var(--line);padding:1.15rem 0}
+details summary{cursor:pointer;list-style:none;font-family:'Clash Display',sans-serif;font-weight:600;
+  font-size:clamp(1.05rem,2vw,1.3rem);display:flex;justify-content:space-between;gap:1rem;align-items:center}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"+";font-family:'JetBrains Mono',monospace;color:var(--accent);flex:none}
+details[open] summary::after{content:"–"}
+details p{margin:.85rem 0 0;color:var(--text-secondary);max-width:62ch}
+
+/* close + footer */
+.close{text-align:center}
+.close h2{margin-inline:auto}
+footer{border-top:1px solid var(--line);padding:clamp(2.5rem,6vh,4rem) 0}
+.foot{display:flex;flex-wrap:wrap;gap:1.25rem;justify-content:space-between;align-items:center}
+.foot nav{display:flex;flex-wrap:wrap;gap:1.25rem}
+
+/* pause every loop on a hidden tab; play-state does not inherit */
+body.paused *,body.paused *::before,body.paused *::after{animation-play-state:paused !important}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .dust i{animation:none !important}
+  .rv,.in .rv{opacity:1 !important;transform:none !important;transition-delay:0ms !important}
+  .rule{transform:scaleX(1) !important;transition:none !important}
+  .scale .fill{stroke-dashoffset:var(--off,60) !important;transition:none !important}
+  .piece .shot img,.piece:hover .shot img{transition:none !important;transform:none !important}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="dust" aria-hidden="true"><i></i><i></i><u></u></div>
+
+<!-- the scrub hero, desktop only -->
+<div id="hero" class="above" aria-hidden="true">
+  <div class="stage" id="stage">
+    <div class="poster" id="poster"></div>
+    <video id="vid" preload="none" muted playsinline aria-hidden="true" tabindex="-1"></video>
+    <div class="scrim"></div>
+    <div class="bands wrap">
+      <div class="band" id="b1" data-range="0,0.17"><div class="inner">
+        <h2 data-split="word" data-entr="drift">Photos flatter.</h2>
+      </div></div>
+      <div class="band" id="b2" data-range="0.20,0.44"><div class="inner">
+        <h2 data-split="word" data-entr="punch" data-em="Weight">Weight tells the truth.</h2>
+      </div></div>
+      <div class="band" id="b3" data-range="0.50,1"><div class="inner">
+        <h2 data-split="word" data-entr="rise">320gsm. Cut in Accra.</h2>
+        <p class="sub">Built to outlast the season.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="https://urbanpulsee.vercel.app/shop">See the drop</a>
+        </div>
+      </div></div>
+    </div>
+    <svg class="ring" id="ring" viewBox="0 0 48 48" aria-hidden="true">
+      <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="3"
+              stroke-dasharray="126" style="stroke-dashoffset:var(--ld,126)"/>
+    </svg>
+  </div>
+</div>
+
+<!-- the static hero, phones and reduced motion. A designed layout, not an apology. -->
+<header class="static-hero above">
+  <div class="poster" id="poster2"></div>
+  <div class="scrim"></div>
+  <div class="inner wrap">
+    <p class="mono" style="margin:0 0 1rem">Accra, Ghana / 320gsm</p>
+    <h1>Weight tells the truth.</h1>
+    <p class="sub">320gsm ring-spun cotton. Cut in Accra, built to outlast the season.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="https://urbanpulsee.vercel.app/shop">See the drop</a>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="above" tabindex="-1">
+
+  <div class="statement"><div class="wrap"><p class="mono">Heavyweight cotton / cut in Accra / made to outlast the season</p></div></div>
+
+  <!-- the one interactive moment -->
+  <section id="weight">
+    <div class="wrap">
+      <div class="kicker"><span class="dot"></span><span class="mono">01 / The weight</span><span class="rule"></span></div>
+      <div class="weigh">
+        <div>
+          <h2 class="rv">Feel the difference.</h2>
+          <p class="lede rv">Most tees on the street are 180gsm. Hold the button and watch what 320 looks like.</p>
+          <ul class="facts rv" id="facts">
+            <li><span class="n">01</span><span>320 grams per square metre. Nearly double a fast fashion tee.</span></li>
+            <li><span class="n">02</span><span>Ring-spun, not open-end. Softer, and it keeps its face.</span></li>
+            <li><span class="n">03</span><span>It holds its shape through the wash. That is what the weight buys you.</span></li>
+          </ul>
+        </div>
+        <div class="gauge rv">
+          <p class="mono" style="margin:0 0 .75rem">Fabric weight</p>
+          <div class="readout"><span id="gsm">180</span><span>gsm</span></div>
+          <div class="slab" id="slab"></div>
+          <svg class="scale" id="scale" viewBox="0 0 320 44" aria-hidden="true">
+            <line class="track" x1="8" y1="30" x2="312" y2="30"></line>
+            <line class="fill" id="fill" x1="8" y1="30" x2="312" y2="30"></line>
+            <text x="8" y="18">140</text><text x="286" y="18">340</text>
+          </svg>
+          <button class="holdbtn" id="hold" aria-describedby="holdhint"><b>Press and hold</b></button>
+          <p class="mono" id="holdhint" style="margin:.75rem 0 0">Hold to add weight</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="statement"><div class="wrap"><p class="mono">We make fewer things, and we make them properly.</p></div></div>
+
+  <section id="pieces">
+    <div class="wrap">
+      <div class="kicker"><span class="dot"></span><span class="mono">02 / The pieces</span><span class="rule"></span></div>
+      <h2 class="rv">Three things, done properly.</h2>
+      <div class="pieces">
+        <article class="piece rv">
+          <div class="shot"><img src="/weight/assets/piece-tee.jpg" alt="" loading="lazy" width="800" height="1000"></div>
+          <div class="body"><h3>Boxy Heavyweight Tee</h3><p>320gsm. Dropped shoulder, boxy through the body.</p></div>
+        </article>
+        <article class="piece rv">
+          <div class="shot"><img src="/weight/assets/piece-jacket.jpg" alt="" loading="lazy" width="800" height="1000"></div>
+          <div class="body"><h3>Field Jacket</h3><p>Waxed cotton shell. Built for the harmattan.</p></div>
+        </article>
+        <article class="piece rv">
+          <div class="shot"><img src="/weight/assets/piece-pant.jpg" alt="" loading="lazy" width="800" height="1000"></div>
+          <div class="body"><h3>Cargo Tech Pant</h3><p>Heavy twill, cut wide through the leg.</p></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <div class="statement"><div class="wrap"><p class="mono">Pay with Mobile Money, card, or cash at your door.</p></div></div>
+
+  <section id="pay">
+    <div class="wrap">
+      <div class="kicker"><span class="dot"></span><span class="mono">03 / How you pay</span><span class="rule"></span></div>
+      <h2 class="rv">Pay how you actually pay.</h2>
+      <p class="lede rv">Mobile Money, card, or cash in your hand at the door. Cash on delivery means you see the thing before a cedi leaves your pocket.</p>
+      <div class="pay rv">
+        <div><p class="mono" style="margin:0">Mobile Money</p></div>
+        <div><p class="mono" style="margin:0">Card</p></div>
+        <div><p class="mono" style="margin:0">Cash on delivery</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <div class="kicker"><span class="dot"></span><span class="mono">04 / Good questions</span><span class="rule"></span></div>
+      <h2 class="rv">The things people ask.</h2>
+      <div class="rv" style="margin-top:2rem">
+        <details><summary>Will it look like the pictures?</summary><p>There are no product photos on this page, on purpose. We tell you the weight, the cotton and the cut instead, because those are the things a photo cannot fake. Real photography is coming once the first collection is shot.</p></details>
+        <details><summary>How do I know it will actually arrive?</summary><p>Every order gets a tracking number that works, and you can pay cash at the door if you would rather not send money first.</p></details>
+        <details><summary>What if it does not fit?</summary><p>Thirty days. Send it back and we sort it out.</p></details>
+        <details><summary>Can I pay with MoMo?</summary><p>Yes. MTN, Vodafone and AirtelTigo, through Paystack.</p></details>
+        <details><summary>Where are you?</summary><p>Accra. Everything ships from here.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="close">
+    <div class="wrap">
+      <h2 class="rv">Stop reading. Go feel it.</h2>
+      <div class="cta-row rv" style="margin-top:1.75rem;display:flex;justify-content:center">
+        <a class="btn btn-primary" href="https://urbanpulsee.vercel.app/shop">See the drop</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="above">
+  <div class="wrap foot">
+    <p class="mono" style="margin:0">UrbanPulse / Accra, Ghana</p>
+    <nav>
+      <a class="mono" href="https://urbanpulsee.vercel.app/shop">Shop</a>
+      <a class="mono" href="https://urbanpulsee.vercel.app/shipping">Shipping</a>
+      <a class="mono" href="https://urbanpulsee.vercel.app/returns-policy">Returns</a>
+      <a class="mono" href="https://urbanpulsee.vercel.app/privacy">Privacy</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+(function(){
+'use strict';
+var VIDEO_URL='/weight/assets/hero-scrub.mp4';
+var VIDEO_BYTES=2689411;
+var POSTER='/weight/assets/hero-poster.jpg';
+var ENDING='/weight/assets/hero-ending.jpg';
+
+var stage=document.getElementById('stage');
+var video=document.getElementById('vid');
+var ring=document.getElementById('ring');
+var heroEl=document.getElementById('hero');
+var bands=[].slice.call(document.querySelectorAll('.band')).map(function(el){
+  var r=el.dataset.range.split(',');
+  return {el:el,a:parseFloat(r[0]),b:parseFloat(r[1]),op:-1,k:-1};
+});
+
+/* ---- seeded split so the jitter is identical on every load ---- */
+function rng(seed){var s=seed>>>0;return function(){s=(s*1664525+1013904223)>>>0;return s/4294967296};}
+function split(h){
+  var text=h.textContent, r=rng(97), em=h.dataset.em||'';
+  var words=text.split(' ');
+  var sr=document.createElement('span'); sr.className='sr'; sr.textContent=text;
+  var vis=document.createElement('span'); vis.setAttribute('aria-hidden','true');
+  words.forEach(function(w,i){
+    var s=document.createElement('span'); s.className='w';
+    if(em && w.replace(/[^A-Za-z0-9]/g,'')===em) s.className+=' em';
+    s.style.setProperty('--th', (i/Math.max(1,words.length))*0.5 + r()*0.06);
+    s.textContent=(i?' ':'')+w;
+    vis.appendChild(s);
+  });
+  h.textContent=''; h.appendChild(sr); h.appendChild(vis);
+}
+[].forEach.call(document.querySelectorAll('[data-split]'), split);
+
+/* ---- hero progress ---- */
+function heroProgress(){
+  if(!heroEl) return 0;
+  var rect=heroEl.getBoundingClientRect();
+  var range=heroEl.offsetHeight-window.innerHeight;
+  if(range<=0) return 0;
+  return Math.min(1,Math.max(0,(-rect.top)/range));
+}
+var heroOnScreen=true;
+if('IntersectionObserver' in window && heroEl){
+  new IntersectionObserver(function(e){heroOnScreen=e[0].isIntersecting;})
+    .observe(heroEl);
+}
+
+/* ---- gated seeks, deadlock safe ---- */
+var seekBusy=false,pendingTime=null;
+function requestSeek(t){
+  if(!video.duration) return;
+  if(seekBusy){pendingTime=t;return;}
+  seekBusy=true; video.currentTime=t;
+}
+video.addEventListener('seeked',function(){
+  seekBusy=false;
+  if(pendingTime!==null){var t=pendingTime;pendingTime=null;requestSeek(t);}
+});
+video.addEventListener('error',function(){seekBusy=false;pendingTime=null;failVideo();});
+
+/* ---- captions, delta gated ---- */
+var smoothstep=function(p,e0,e1){var t=Math.min(1,Math.max(0,(p-e0)/(e1-e0)));return t*t*(3-2*t);};
+var loadK=0;
+function updateCaptions(p){
+  for(var i=0;i<bands.length;i++){
+    var d=bands[i], f=Math.min(0.02,(d.b-d.a)/3);
+    var op=(i===0?1:smoothstep(p,d.a,d.a+f))*(i===bands.length-1?1:(1-smoothstep(p,d.b-f,d.b)));
+    var ramp=Math.min(0.025,(d.b-d.a)*0.35);
+    var k=Math.min(1,Math.max(0,(p-d.a)/ramp));
+    if(i===0) k=Math.max(k,loadK);
+    var opR=Math.round(op*100)/100, kR=Math.round(k*1000)/1000;
+    if(opR!==d.op){d.op=opR;d.el.style.opacity=opR;}
+    if(kR!==d.k){d.k=kR;d.el.style.setProperty('--k',kR);}
+  }
+}
+
+/* ---- dt-normalized lerp that rests ---- */
+var target=0,shown=0,rafId=null,lastTick=0;
+function tick(now){
+  var dt=Math.min(100,now-(lastTick||now)); lastTick=now;
+  var k=0.16;
+  shown+=(target-shown)*(1-Math.pow(1-k,dt/16.667));
+  if(Math.abs(target-shown)<0.0005){shown=target;rafId=null;lastTick=0;}
+  else{rafId=requestAnimationFrame(tick);}
+  requestSeek(shown*(video.duration||0));
+  updateCaptions(shown);
+}
+function onScroll(){
+  target=heroProgress();
+  if(rafId===null&&heroOnScreen) rafId=requestAnimationFrame(tick);
+}
+
+/* ---- the blob loader with an honest ring ---- */
+var started=false;
+function startBlobFetch(){ if(started) return; started=true; loadHeroBlob().catch(failVideo); }
+function loadHeroBlob(){
+  var ctrl=new AbortController();
+  var watchdog=setTimeout(function(){ctrl.abort();},20000);
+  return fetch(VIDEO_URL,{signal:ctrl.signal}).then(function(res){
+    var total=Number(res.headers.get('Content-Length'))||VIDEO_BYTES;
+    var reader=res.body.getReader(), chunks=[], got=0, lastRing=0;
+    function pump(){
+      return reader.read().then(function(r){
+        if(r.done) return;
+        clearTimeout(watchdog);
+        watchdog=setTimeout(function(){ctrl.abort();},20000);
+        chunks.push(r.value); got+=r.value.length;
+        var frac=Math.min(1,got/total), now=performance.now();
+        if(now-lastRing>100||frac===1){lastRing=now;ring.style.setProperty('--ld',Math.round(126*(1-frac)));}
+        return pump();
+      });
+    }
+    return pump().then(function(){
+      clearTimeout(watchdog);
+      ring.style.setProperty('--ld',0);
+      video.src=URL.createObjectURL(new Blob(chunks));
+      video.load();
+      video.addEventListener('canplay',function(){
+        requestSeek(heroProgress()*video.duration);
+        stage.classList.add('video-ready');
+        onScroll();
+      },{once:true});
+    });
+  });
+}
+function failVideo(){
+  if(ring&&ring.parentNode){
+    var cue=document.createElement('div');
+    cue.className='cue mono'; cue.textContent='Scroll';
+    ring.parentNode.replaceChild(cue,ring);
+  }
+  stage.classList.add('video-failed');
+}
+
+/* ---- the five static-hero gates, live in both directions ---- */
+var GATES=[
+  '(max-width: 720px)',
+  '(orientation: portrait) and (max-width: 1024px)',
+  '(orientation: portrait) and (pointer: coarse)',
+  '(orientation: landscape) and (pointer: coarse) and (max-height: 560px)',
+  '(prefers-reduced-motion: reduce)'
+];
+var scrubOn=false, heroInit=false;
+function initHeroOnce(){
+  if(heroInit) return; heroInit=true;
+  document.getElementById('poster').style.backgroundImage="url('"+POSTER+"')";
+  var img=new Image();
+  img.onload=startBlobFetch; img.onerror=startBlobFetch; img.src=POSTER;
+  setTimeout(startBlobFetch,4000);
+  var t0=performance.now();
+  (function ramp(now){
+    loadK=Math.min(1,(now-t0)/900);
+    updateCaptions(shown);
+    if(loadK<1) requestAnimationFrame(ramp);
+  })(t0);
+}
+function enableScrub(){
+  if(scrubOn) return; scrubOn=true;
+  initHeroOnce();
+  window.addEventListener('scroll',onScroll,{passive:true});
+  bands.forEach(function(b){b.op=-1;b.k=-1;});
+  updateCaptions(heroProgress());
+  onScroll();
+}
+function disableScrub(){
+  if(!scrubOn) return; scrubOn=false;
+  window.removeEventListener('scroll',onScroll);
+  if(rafId!==null){cancelAnimationFrame(rafId);rafId=null;}
+}
+function applyHeroMode(){
+  var off=GATES.some(function(q){return matchMedia(q).matches;});
+  if(off) disableScrub(); else enableScrub();
+}
+var MQLS=GATES.map(function(q){return matchMedia(q);});
+MQLS.forEach(function(m){
+  if(m.addEventListener) m.addEventListener('change',applyHeroMode);
+  else m.addListener(applyHeroMode);
+});
+document.getElementById('poster2').style.backgroundImage="url('"+ENDING+"')";
+applyHeroMode();
+
+/* ---- section entrances, with the delay retired afterwards ----
+   A scroll sweep rather than an IntersectionObserver. IO only fires when
+   the intersection ratio CROSSES a threshold, so a section the visitor
+   jumps clean past (anchor link, restored scroll, a hard fling) goes from
+   ratio 0 below the fold to ratio 0 above it and never notifies, leaving
+   its content stranded at opacity 0. A sweep cannot miss that. */
+var reduce=matchMedia('(prefers-reduced-motion: reduce)');
+var pendingSecs=[].slice.call(document.querySelectorAll('section,.statement'));
+function revealSweep(){
+  if(!pendingSecs.length) return;
+  var trigger=window.innerHeight*0.84;
+  for(var i=pendingSecs.length-1;i>=0;i--){
+    var sec=pendingSecs[i];
+    if(sec.getBoundingClientRect().top < trigger){
+      sec.classList.add('in');
+      (function(el){setTimeout(function(){el.classList.add('done');},1120);})(sec);
+      pendingSecs.splice(i,1);
+    }
+  }
+  if(!pendingSecs.length) window.removeEventListener('scroll',revealSweep);
+}
+if(reduce.matches){
+  pendingSecs.forEach(function(s){s.classList.add('in','done');});
+  pendingSecs.length=0;
+} else {
+  window.addEventListener('scroll',revealSweep,{passive:true});
+  window.addEventListener('resize',revealSweep,{passive:true});
+  revealSweep();
+}
+
+/* ---- the gsm scale draws itself ---- */
+(function(){
+  var fill=document.getElementById('fill');
+  if(!fill) return;
+  var len=304;
+  fill.style.setProperty('--len',len);
+  fill.style.setProperty('--off',len*(1-(320-140)/200));
+})();
+
+/* ---- the press and hold ---- */
+(function(){
+  var btn=document.getElementById('hold'), gsm=document.getElementById('gsm'),
+      slab=document.getElementById('slab'), facts=document.getElementById('facts');
+  if(!btn) return;
+  var p=0,holding=false,raf=null,last=0,doneOnce=false,lastGsm=180,lastAt=0;
+  function light(n){
+    var items=facts.querySelectorAll('li');
+    for(var i=0;i<items.length;i++){
+      (function(el,i){setTimeout(function(){el.classList.add('lit');},i*220);})(items[i],i);
+    }
+  }
+  function frame(now){
+    var dt=Math.min(100,now-(last||now)); last=now;
+    p+= (holding? dt/1100 : -dt/900);
+    p=Math.min(1,Math.max(0,p));
+    btn.style.setProperty('--hold',p);
+    slab.style.setProperty('--slab',(26+p*34)+'px');
+    var val=Math.round(180+p*140);
+    if(val!==lastGsm && now-lastAt>90){lastGsm=val;lastAt=now;gsm.textContent=val;}
+    if(p>=1&&!doneOnce){doneOnce=true;light();}
+    if((holding&&p<1)||(!holding&&p>0)) raf=requestAnimationFrame(frame);
+    else {raf=null;last=0;}
+  }
+  function start(e){e.preventDefault();holding=true;if(raf===null)raf=requestAnimationFrame(frame);}
+  function stop(){holding=false;if(raf===null)raf=requestAnimationFrame(frame);}
+  btn.addEventListener('pointerdown',start);
+  window.addEventListener('pointerup',stop);
+  window.addEventListener('pointercancel',stop);
+  btn.addEventListener('keydown',function(e){if(e.key===' '||e.key==='Enter'){start(e);}});
+  btn.addEventListener('keyup',function(e){if(e.key===' '||e.key==='Enter'){stop();}});
+  if(reduce.matches){p=1;btn.style.setProperty('--hold',1);slab.style.setProperty('--slab','60px');gsm.textContent='320';light();doneOnce=true;}
+})();
+
+/* ---- reduced motion, live, both directions ---- */
+if(reduce.addEventListener){
+  reduce.addEventListener('change',function(e){
+    if(e.matches){
+      disableScrub();
+      [].forEach.call(document.querySelectorAll('section,.statement'),function(x){x.classList.add('in','done');});
+      pendingSecs.length=0;
+    } else {
+      applyHeroMode();
+      revealSweep();
+    }
+  });
+}
+
+/* ---- pause loops on a hidden tab ---- */
+document.addEventListener('visibilitychange',function(){
+  document.body.classList.toggle('paused',document.hidden);
+});
+})();
+</script>
+</body>
+</html>
