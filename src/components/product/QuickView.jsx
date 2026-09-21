@@ -89,7 +89,7 @@ export default function QuickView({ slug, open, onClose }) {
 
   const images = product?.images?.length
     ? product.images
-    : ['https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800'];
+    : ['/media/detail-tee.jpg'];
 
   return (
     <Modal open={open} onClose={onClose} maxWidth="700px">

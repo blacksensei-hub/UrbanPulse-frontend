@@ -18,11 +18,11 @@ const LOOKBOOKS = {
     eyebrow: 'The Drop',
     intro:
       `Twelve pieces conceived at the intersection of movement and stillness. Designed for the heat of Accra and the cool of early mornings, the Spring/Summer collection leans into technical fabrics and washed-down palettes.`,
-    hero: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1800&q=80',
+    hero: '/media/room-wide.jpg',
     blocks: [
       {
         type: 'image',
-        src: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=1400&q=80',
+        src: '/media/hanging.jpg',
         caption: 'Boxy Heavyweight Tee in Bone White. 320gsm ring-spun cotton.',
       },
       {
@@ -32,13 +32,13 @@ const LOOKBOOKS = {
       },
       {
         type: 'duo',
-        left: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&q=80',
-        right: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80',
+        left: '/media/detail-tee.jpg',
+        right: '/media/twill.jpg',
         caption: 'Left: Field Jacket in Slate. Right: Cargo Tech Pant in Khaki.',
       },
       {
         type: 'image',
-        src: 'https://images.unsplash.com/photo-1516826957135-700dedea698c?auto=format&fit=crop&w=1400&q=80',
+        src: '/media/workroom.jpg',
         caption: 'Shot on location, East Legon, Accra.',
       },
       {
@@ -55,11 +55,11 @@ const LOOKBOOKS = {
     eyebrow: 'Editorial',
     intro:
       `A focused outerwear edit for in-between weather. Six jackets. Three silhouettes. One philosophy: you should never have to choose between looking good and staying dry.`,
-    hero: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=1800&q=80',
+    hero: '/media/light.jpg',
     blocks: [
       {
         type: 'image',
-        src: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=1400&q=80',
+        src: '/media/waxed.jpg',
         caption: 'The Field Jacket, our most-requested restock.',
       },
       {
@@ -69,13 +69,13 @@ const LOOKBOOKS = {
       },
       {
         type: 'duo',
-        left: 'https://images.unsplash.com/photo-1516826957135-700dedea698c?auto=format&fit=crop&w=800&q=80',
-        right: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=800&q=80',
+        left: '/media/detail-jacket.jpg',
+        right: '/media/seam.jpg',
         caption: 'Left: Olive + cargo pants. Right: Slate + boxy tee.',
       },
       {
         type: 'image',
-        src: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1400&q=80',
+        src: '/media/bench.jpg',
         caption: 'Shot in Kumasi.',
       },
     ],
@@ -86,7 +86,7 @@ const LOOKBOOKS = {
     eyebrow: 'Founders',
     intro:
       `UrbanPulse began as a question: why does premium streetwear consistently ignore the cities that defined the culture? This is the answer.`,
-    hero: 'https://images.unsplash.com/photo-1516826957135-700dedea698c?auto=format&fit=crop&w=1800&q=80',
+    hero: '/media/workroom.jpg',
     blocks: [
       {
         type: 'text',
@@ -95,7 +95,7 @@ const LOOKBOOKS = {
       },
       {
         type: 'image',
-        src: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1400&q=80',
+        src: '/media/stack.jpg',
         caption: 'The first sample run, 2022.',
       },
       {

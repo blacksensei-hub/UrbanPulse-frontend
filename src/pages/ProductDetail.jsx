@@ -272,7 +272,7 @@ export default function ProductDetail() {
 
   const images = product.images?.length
     ? product.images
-    : ['https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800'];
+    : ['/media/detail-tee.jpg'];
 
   const flashEndsAt = product.flash_sale_ends_at;
   const flashActive = !flashDone && !!flashEndsAt && new Date(flashEndsAt).getTime() > Date.now();

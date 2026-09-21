@@ -17,11 +17,13 @@ import { useSetting } from '../stores/settingsStore.js';
 import { Chapter, Statement, Label } from '../components/ui/Instrument.jsx';
 import { formatCurrency } from '../utils/format.js';
 
-// TODO: Replace with real asset paths before launch
+// A 5.3s loop with no visible seam: the camera drifts left past bolts of
+// heavy cotton in the workroom, dust turning in the raking light. The left
+// third stays dark on purpose, which is where the headline sits. 439KB.
 const HERO = {
-  video:    '/hero/spring-26.mp4',   // TODO: add video file
-  poster:   '/hero/spring-26.jpg',   // TODO: add poster/still frame
-  fallback: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1800&q=80',
+  video:    '/hero/spring-26.mp4',
+  poster:   '/hero/spring-26.jpg',
+  fallback: '/media/room-wide.jpg',
 };
 
 // ─── Data ───────────────────────────────────────────────────────────────────
@@ -31,21 +33,21 @@ const DROP_ITEMS = [
     label: 'The flagship drop',
     name: 'Pulse Hoodie, Bone White',
     href: '/shop?category=Tops',
-    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=1400&q=80',
+    image: '/media/hanging.jpg',
     large: true,
   },
   {
     label: 'New',
     name: 'Cargo Tech Pant',
     href: '/shop?category=Bottoms',
-    image: 'https://images.unsplash.com/photo-1594938298603-c8148c4b4e01?auto=format&fit=crop&w=800&q=80',
+    image: '/media/twill.jpg',
     large: false,
   },
   {
     label: 'Limited',
     name: 'Field Jacket',
     href: '/shop?category=Outerwear',
-    image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&q=80',
+    image: '/media/waxed.jpg',
     large: false,
   },
 ];
@@ -56,40 +58,38 @@ const STORIES = [
     eyebrow: 'The Drop',
     title: 'Spring/Summer 2026 Field Guide',
     desc: 'Twelve pieces built for early mornings and late nights across Accra.',
-    image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=800&q=80',
+    image: '/media/workroom.jpg',
   },
   {
     slug: 'field-essentials',
     eyebrow: 'Editorial',
     title: 'Field Essentials',
     desc: 'Technical outerwear for the in-between weather. Minimal, and it works.',
-    image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80',
+    image: '/media/bench.jpg',
   },
   {
     slug: 'urban-roots',
     eyebrow: 'Founders',
     title: 'Urban Roots',
     desc: 'Why craft and street culture will always be inseparable.',
-    image: 'https://images.unsplash.com/photo-1516826957135-700dedea698c?auto=format&fit=crop&w=800&q=80',
+    image: '/media/light.jpg',
   },
 ];
 
-// TODO: Replace with real community/UGC photos once customer upload flow is live
-const COMMUNITY_PHOTOS = [
-  'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=600&q=75',
-  'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=75',
-  'https://images.unsplash.com/photo-1554568218-0f1715e72254?auto=format&fit=crop&w=600&q=75',
-  'https://images.unsplash.com/photo-1568252542512-9fe8fe9c87bb?auto=format&fit=crop&w=600&q=75',
-  'https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?auto=format&fit=crop&w=600&q=75',
-  'https://images.unsplash.com/photo-1589156229687-496a31ad1d1f?auto=format&fit=crop&w=600&q=75',
-  'https://images.unsplash.com/photo-1540553016722-983e48a2cd10?auto=format&fit=crop&w=600&q=75',
-  'https://images.unsplash.com/photo-1533659828870-95ee305cee3e?auto=format&fit=crop&w=600&q=75',
-  'https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=600&q=75',
-  'https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=600&q=75',
-  'https://images.unsplash.com/photo-1564584217132-2271feaeb3c5?auto=format&fit=crop&w=600&q=75',
-  'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=600&q=75',
+// The wall the homepage used to fill with stock photos of strangers under a
+// "community" heading. There is no community to show yet, and inventing one
+// contradicts the honest social proof used everywhere else on this site. It
+// shows the cloth instead, which is true today and costs nothing to keep true.
+const CLOTH_WALL = [
+  '/media/stack.jpg',
+  '/media/detail-tee.jpg',
+  '/media/cuff.jpg',
+  '/media/shake.jpg',
+  '/media/seam.jpg',
+  '/media/detail-jacket.jpg',
+  '/media/compare.jpg',
+  '/media/detail-pant.jpg',
 ];
-
 // The free-shipping perk's label is computed at render time from settings
 // (see `key: 'freeShipping'` below) rather than hardcoded here, so it stays
 // in sync with the admin-configurable free_shipping_threshold_ghs.
@@ -529,19 +529,19 @@ export default function Home() {
 
       <Statement>Pay with Mobile Money, card, or cash at your door.</Statement>
 
-      {/* ─── (e) COMMUNITY PHOTO WALL ────────────────────────────────────── */}
+      {/* ─── (e) THE CLOTH WALL ──────────────────────────────────────────── */}
       <section className="container-site py-10 md:py-16">
         <Chapter
           align="center"
           className="mb-10"
           n={4}
-          kicker="As worn by"
-          title={['Tagged', '@urbanpulse.']}
-          lead="Tag us and you might end up on this wall."
+          kicker="The cloth"
+          title={['Before it', 'is a garment.']}
+          lead="Weave, weight, edge and seam. Everything we sell starts as this."
         />
 
         <div className="grid grid-cols-3 gap-1.5 sm:gap-2 md:grid-cols-4 lg:gap-3">
-          {COMMUNITY_PHOTOS.map((src, i) => (
+          {CLOTH_WALL.map((src, i) => (
             <motion.div
               key={src}
               initial={prefersReduced ? false : { opacity: 0 }}
