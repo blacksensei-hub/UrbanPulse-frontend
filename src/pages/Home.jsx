@@ -22,7 +22,8 @@ import { formatCurrency } from '../utils/format.js';
 // A 10s journey, scrubbed by scroll: a forward push at dusk down an Accra
 // street, travelling ALONGSIDE a concrete wall rather than past it, until
 // the harmattan dust thickens and the camera emerges inside macro bone
-// weave with one oxblood thread. 3.33MB.
+// weave with one oxblood thread. 1.37MB (CRF 26, -g 8; was 3.33MB,
+// SSIM 0.988 vs source) so a slow desktop connection gets the scrub sooner.
 //
 // The wall is load-bearing, not decoration. An earlier daylight cut put the
 // dark foreground out of frame within 2.5s and the caption zone then
@@ -262,7 +263,7 @@ export default function Home() {
            under the headline. Frame one holds the cloth high with empty
            dark floor beneath it, which is the shape a phone wants. */
         staticSrc={HERO.poster}
-        videoBytes={3332847}
+        videoBytes={1372332}
         heroVh={780}
         bands={HERO_BANDS}
         staticHero={
