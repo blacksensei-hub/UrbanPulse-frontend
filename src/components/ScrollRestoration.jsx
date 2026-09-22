@@ -53,6 +53,13 @@ function scrollToTarget(target) {
   restoreRaf = requestAnimationFrame(step);
 }
 
+// React Router gives every fresh page load the same key, "default", so keying
+// on it alone let a reload restore a different page's offset (shop opening at
+// its footer because the homepage had been scrolled). Scope it by path.
+function entryKey(location) {
+  return location.key === 'default' ? `default:${location.pathname}` : location.key;
+}
+
 // Scrolls to top on forward navigation, restores the prior position on
 // browser back/forward, matching native browser scroll-restoration behavior.
 export default function ScrollRestoration() {
@@ -79,20 +86,21 @@ export default function ScrollRestoration() {
 
   // Save the outgoing entry's offset on tab close/refresh too.
   useEffect(() => {
-    const key = location.key;
+    const key = entryKey(location);
     const onHide = () => persist(key, window.scrollY);
     window.addEventListener('pagehide', onHide);
     return () => window.removeEventListener('pagehide', onHide);
-  }, [location.key]);
+  }, [location.key, location.pathname]);
 
   // Before paint, so the new page never flashes at the old page's offset.
   const prevKey = useRef(null);
   useLayoutEffect(() => {
-    if (prevKey.current && prevKey.current !== location.key) persist(prevKey.current, lastY);
-    prevKey.current = location.key;
-    const saved = readPositions()[location.key];
+    const key = entryKey(location);
+    if (prevKey.current && prevKey.current !== key) persist(prevKey.current, lastY);
+    prevKey.current = key;
+    const saved = readPositions()[key];
     scrollToTarget(navigationType === 'POP' && saved != null ? saved : 0);
-  }, [location.key, navigationType]);
+  }, [location.key, location.pathname, navigationType]);
 
   return null;
 }
