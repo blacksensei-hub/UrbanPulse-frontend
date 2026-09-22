@@ -60,6 +60,15 @@ function entryKey(location) {
   return location.key === 'default' ? `default:${location.pathname}` : location.key;
 }
 
+function isReloadOrHistoryLoad() {
+  try {
+    const type = performance.getEntriesByType('navigation')[0]?.type;
+    return type === 'reload' || type === 'back_forward';
+  } catch {
+    return false;
+  }
+}
+
 // Scrolls to top on forward navigation, restores the prior position on
 // browser back/forward, matching native browser scroll-restoration behavior.
 export default function ScrollRestoration() {
@@ -96,10 +105,15 @@ export default function ScrollRestoration() {
   const prevKey = useRef(null);
   useLayoutEffect(() => {
     const key = entryKey(location);
-    if (prevKey.current && prevKey.current !== key) persist(prevKey.current, lastY);
+    const isFirstRender = prevKey.current === null;
+    if (!isFirstRender && prevKey.current !== key) persist(prevKey.current, lastY);
     prevKey.current = key;
+
+    // The first render is also a POP. Only a reload or a browser back/forward
+    // into the site restores; a typed or followed link starts at the top.
+    const mayRestore = navigationType === 'POP' && (!isFirstRender || isReloadOrHistoryLoad());
     const saved = readPositions()[key];
-    scrollToTarget(navigationType === 'POP' && saved != null ? saved : 0);
+    scrollToTarget(mayRestore && saved != null ? saved : 0);
   }, [location.key, location.pathname, navigationType]);
 
   return null;
