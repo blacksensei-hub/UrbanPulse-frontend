@@ -19,27 +19,34 @@ import ScrollScrubHero from '../components/home/ScrollScrubHero.jsx';
 import WeightGauge from '../components/home/WeightGauge.jsx';
 import { formatCurrency } from '../utils/format.js';
 
-// A 5.3s loop with no visible seam: the camera drifts left past bolts of
-// heavy cotton in the workroom, dust turning in the raking light. The left
-// third stays dark on purpose, which is where the headline sits. 439KB.
+// A 10s journey, scrubbed by scroll: a forward push at dusk down an Accra
+// street, travelling ALONGSIDE a concrete wall rather than past it, until
+// the harmattan dust thickens and the camera emerges inside macro bone
+// weave with one oxblood thread. 3.33MB.
+//
+// The wall is load-bearing, not decoration. An earlier daylight cut put the
+// dark foreground out of frame within 2.5s and the caption zone then
+// measured 2.36:1 at its best, against a 3.5 floor; pushing the scrim to a
+// near-opaque 0.92 still left two of three bands failing. Travelling
+// alongside the wall keeps the dark lane in frame for the whole shot, and
+// the caption zone now measures 4.28:1 at its worst BEFORE any scrim.
 const HERO = {
-  scrub:  '/hero/drop-scrub.mp4',
-  poster: '/hero/drop-poster.jpg',
-  ending: '/hero/drop-ending.jpg',
+  scrub:  '/hero/journey-scrub.mp4',
+  poster: '/hero/journey-poster.jpg',
+  ending: '/hero/journey-ending.jpg',
   // The share card. The resting frame is the composed one, so it is the
   // right thing to show in a WhatsApp or Instagram preview.
-  share:  '/hero/drop-ending.jpg',
+  share:  '/hero/journey-ending.jpg',
 };
 
-/* The band ranges come from the footage's measured motion curve, not from
-   the storyboard: the impact peaks at 1.21s of 6.04s, which is progress
-   0.20, so the beats sit where the motion actually is. Each entrance
-   echoes what the film is doing underneath it. */
+/* Band ranges come from the measured motion curve, not the storyboard. The
+   street holds at ~0.9 motion until 4s of 10.04 (progress 0.40), the
+   dissolve runs to 5s (0.50), and the weave carries the rest. */
 const HERO_BANDS = [
   {
     id: 'ssh-b1',
     a: 0,
-    b: 0.17,
+    b: 0.34,
     render: (Split) => (
       <h1 className="font-display font-bold">
         <Split text="Photos flatter." />
@@ -48,8 +55,8 @@ const HERO_BANDS = [
   },
   {
     id: 'ssh-b2',
-    a: 0.2,
-    b: 0.44,
+    a: 0.40,
+    b: 0.66,
     render: (Split) => (
       <h2 className="font-display font-bold">
         <Split text="Weight tells the truth." seed={41} />
@@ -58,7 +65,7 @@ const HERO_BANDS = [
   },
   {
     id: 'ssh-b3',
-    a: 0.5,
+    a: 0.72,
     b: 1,
     render: (Split) => (
       <>
@@ -255,8 +262,8 @@ export default function Home() {
            under the headline. Frame one holds the cloth high with empty
            dark floor beneath it, which is the shape a phone wants. */
         staticSrc={HERO.poster}
-        videoBytes={2689411}
-        heroVh={640}
+        videoBytes={3332847}
+        heroVh={780}
         bands={HERO_BANDS}
         staticHero={
           <>
