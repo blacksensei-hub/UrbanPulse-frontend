@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowLeft, CheckCircle, RotateCcw, Check, X, XCircle } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
 import toast from 'react-hot-toast';
 
 import { Button } from '../../components/ui/index.jsx';
@@ -423,7 +422,6 @@ export default function AdminReturns() {
   if (selectedId) {
     return (
       <div className="space-y-6">
-        <Helmet><title>Return detail · UrbanPulse Admin</title></Helmet>
         <ReturnDetail
           returnId={selectedId}
           onBack={() => { setSelectedId(null); navigate('/admin/returns'); loadList(); }}
@@ -434,7 +432,6 @@ export default function AdminReturns() {
 
   return (
     <div className="space-y-6">
-      <Helmet><title>Returns · UrbanPulse Admin</title></Helmet>
 
       {(isPulling || isRefreshing) && (
         <div className="flex justify-center py-2 md:hidden" style={{ marginTop: -16 }}>

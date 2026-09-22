@@ -28,6 +28,7 @@ const PAGE_TITLES = {
   '/admin/logs': 'Logs',
   '/admin/settings': 'Settings',
   '/admin/pages': 'Pages',
+  '/admin/activity': 'Activity',
 };
 
 function getPageTitle(pathname) {
@@ -410,6 +411,13 @@ export default function AdminLayout() {
   const [pendingReturns, setPendingReturns] = useState(0);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const location = useLocation();
+
+  // Tab title for every admin page. Set directly: a Helmet here did not
+  // update reliably across admin navigations, and the tab kept the last
+  // storefront title (usually "Sign in").
+  useEffect(() => {
+    document.title = `${getPageTitle(location.pathname)} · UrbanPulse Admin`;
+  }, [location.pathname]);
 
   useEffect(() => {
     adminService.returns({ status: 'requested' })
