@@ -2,7 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- SVG first for browsers that take it (it follows the OS colour
+         scheme), a PNG for those that do not, and the ICO for whatever
+         requests /favicon.ico directly. apple-touch-icon needs declaring:
+         iOS only guesses the root path, and not from a subfolder. -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="mask-icon" href="/favicon.svg" color="#8A2F26" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <!-- Harmattan canvas. These must match --color-bg in globals.css, or the
          browser chrome disagrees with the page it is framing. -->
