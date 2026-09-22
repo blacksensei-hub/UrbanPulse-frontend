@@ -1,5 +1,4 @@
 import { Outlet, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../components/layout/Navbar.jsx';
 import Harmattan from '../components/ui/Harmattan.jsx';
 import TopHud from '../components/layout/TopHud.jsx';
@@ -8,9 +7,8 @@ import CartDrawer from '../components/cart/CartDrawer.jsx';
 import MobileBottomNav from '../components/layout/MobileBottomNav.jsx';
 import ScrollProgress from '../components/layout/ScrollProgress.jsx';
 import BackToTop from '../components/layout/BackToTop.jsx';
-import { pageTransition } from '../lib/motion.js';
+import PageTransition from '../components/layout/PageTransition.jsx';
 import { useSettingsStore } from '../stores/settingsStore.js';
-import { useLoadingStore } from '../stores/loadingStore.js';
 
 // Scroll-progress only makes sense on long-form reading pages · everywhere else
 // (auth, checkout, cart, account, home, search, admin, 404) it stays hidden.
@@ -26,7 +24,6 @@ function showsScrollProgress(pathname) {
 export default function MainLayout() {
   const location = useLocation();
   const settings = useSettingsStore(s => s.settings);
-  const doneLoading = useLoadingStore(s => s.done);
   const inMaintenance = settings.maintenance_mode === 'true';
   const maintenanceMsg = settings.maintenance_message || "We're undergoing scheduled maintenance. Some features may be temporarily unavailable.";
 
@@ -49,23 +46,9 @@ export default function MainLayout() {
       <TopHud />
       <Navbar />
       <div aria-hidden className="h-[calc(5rem+var(--hud-h))] sm:h-[calc(6rem+var(--hud-h))]" />
-      {/* AnimatePresence must directly parent the keyed, exit-animated element · putting
-          the key/AnimatePresence pairing up at the Routes level (several components away
-          from this motion.main) meant exit completion was never detected correctly. */}
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.main
-          id="main-content"
-          key={location.pathname}
-          variants={pageTransition}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          onAnimationComplete={(definition) => { if (definition === 'animate') doneLoading(); }}
-          className="above-harmattan flex-1"
-        >
-          <Outlet />
-        </motion.main>
-      </AnimatePresence>
+      <PageTransition id="main-content" className="above-harmattan flex-1">
+        <Outlet />
+      </PageTransition>
       <div className="above-harmattan"><Footer /></div>
       <CartDrawer />
       <MobileBottomNav />

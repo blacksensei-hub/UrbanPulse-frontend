@@ -1,65 +1,65 @@
-import { useEffect, useRef, useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { useEffect, useRef } from 'react';
+import { motion, useMotionValue, useReducedMotion, useSpring } from 'framer-motion';
 import { useLoadingStore } from '../../stores/loadingStore.js';
 
-// Below this, scrollY > this is required before the bar can show · never any
-// bar while sitting at the top, which alone eliminates the frozen-on-load symptom.
+// Never any bar while sitting at the top, which alone eliminates the
+// frozen-on-load symptom.
 const HIDE_THRESHOLD_PX = 64;
-// Below this range, the page isn't meaningfully scrollable · progress stays 0
-// instead of dividing by a near-zero/negative max (NaN or a stale fraction).
+// Below this range the page isn't meaningfully scrollable · progress stays 0
+// instead of dividing by a near-zero/negative max.
 const MIN_SCROLLABLE_PX = 60;
 
+// Driven entirely by motion values: scrolling never re-renders React, and the
+// bar is a single composited transform. The spring smooths wheel steps so the
+// fill glides instead of jumping in 100px notches.
 export default function ScrollProgress() {
   const prefersReduced = useReducedMotion();
   const routeBarActive = useLoadingStore((s) => s.active);
-  const [{ progress, scrollY, scrollable }, setMeasurement] = useState({
-    progress: 0,
-    scrollY: 0,
-    scrollable: false,
-  });
-  const rafRef = useRef(null);
+  const routeRef = useRef(routeBarActive);
+  const raw = useMotionValue(0);
+  const visible = useMotionValue(0);
+  const smooth = useSpring(raw, { stiffness: 260, damping: 40, restDelta: 0.0005 });
+  const scaleX = prefersReduced ? raw : smooth;
+  const opacity = useSpring(visible, { stiffness: 400, damping: 40 });
 
   useEffect(() => {
+    let frame = null;
     function update() {
-      rafRef.current = null;
-      const doc = document.documentElement;
-      const max = doc.scrollHeight - window.innerHeight;
-      const isScrollable = max > MIN_SCROLLABLE_PX;
-      setMeasurement({
-        progress: isScrollable ? Math.min(1, Math.max(0, window.scrollY / max)) : 0,
-        scrollY: window.scrollY,
-        scrollable: isScrollable,
-      });
+      frame = null;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const y = window.scrollY;
+      const scrollable = max > MIN_SCROLLABLE_PX;
+      raw.set(scrollable ? Math.min(1, Math.max(0, y / max)) : 0);
+      visible.set(scrollable && y > HIDE_THRESHOLD_PX && !routeRef.current ? 1 : 0);
     }
+    const schedule = () => { if (frame == null) frame = requestAnimationFrame(update); };
 
-    function onScrollOrResize() {
-      if (rafRef.current != null) return;
-      rafRef.current = requestAnimationFrame(update);
-    }
+    update();
+    // A new page starts empty: jump rather than spring back down from 100%.
+    raw.jump?.(raw.get()); smooth.jump?.(raw.get());
 
-    update(); // initial measurement · correct before any listener fires
-
-    window.addEventListener('scroll', onScrollOrResize, { passive: true });
-    window.addEventListener('resize', onScrollOrResize);
-
-    const ro = new ResizeObserver(onScrollOrResize);
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    const ro = new ResizeObserver(schedule);
     ro.observe(document.body);
-
     return () => {
-      window.removeEventListener('scroll', onScrollOrResize);
-      window.removeEventListener('resize', onScrollOrResize);
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
       ro.disconnect();
-      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+      if (frame != null) cancelAnimationFrame(frame);
     };
-  }, []);
+  }, [raw, smooth, visible]);
 
-  const shown = scrollable && progress > 0 && scrollY > HIDE_THRESHOLD_PX && !routeBarActive;
+  // The route bar owns the top edge while a navigation is in flight.
+  useEffect(() => {
+    routeRef.current = routeBarActive;
+    if (routeBarActive) visible.set(0);
+    else window.dispatchEvent(new Event('scroll'));
+  }, [routeBarActive, visible]);
 
   return (
     <motion.div
       aria-hidden="true"
-      animate={{ opacity: shown ? 1 : 0 }}
-      transition={{ duration: prefersReduced ? 0 : 0.15 }}
       style={{
         position: 'fixed',
         top: 'env(safe-area-inset-top, 0px)',
@@ -67,14 +67,14 @@ export default function ScrollProgress() {
         right: 0,
         height: 3,
         background: 'linear-gradient(90deg, var(--color-accent), var(--color-accent-hover))',
-        borderRadius: '0 2px 2px 0',
-        // Glow implies motion energy · skipped under reduced motion.
         ...(prefersReduced ? {} : {
           boxShadow: '0 0 8px color-mix(in srgb, var(--color-accent) var(--progress-glow), transparent)',
         }),
         zIndex: 149,
-        transformOrigin: '0%',
-        scaleX: progress,
+        transformOrigin: '0% 50%',
+        scaleX,
+        opacity,
+        willChange: 'transform',
         pointerEvents: 'none',
       }}
     />

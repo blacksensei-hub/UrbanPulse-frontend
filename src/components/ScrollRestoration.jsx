@@ -1,9 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
 
-import { prefersReducedMotion } from '../utils/motion.js';
-
 const STORAGE_KEY = 'urbanpulse-scroll-positions';
+const RESTORE_WINDOW_MS = 1500;
 
 function readPositions() {
   try {
@@ -13,14 +12,45 @@ function readPositions() {
   }
 }
 
-function savePosition(key, y) {
+function persist(key, y) {
   try {
     const positions = readPositions();
     positions[key] = y;
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(positions));
   } catch {
-    // sessionStorage unavailable (private mode etc) · scroll restoration just no-ops
+    // sessionStorage unavailable (private mode etc) · restoration just no-ops
   }
+}
+
+let restoreRaf = null;
+// Last offset seen by a scroll event. Read instead of window.scrollY at swap
+// time, when the new (possibly shorter) page may already have clamped it.
+let lastY = 0;
+
+function cancelRestore() {
+  if (restoreRaf != null) cancelAnimationFrame(restoreRaf);
+  restoreRaf = null;
+}
+
+function scrollToTarget(target) {
+  cancelRestore();
+
+  // Instant, always. A smooth scroll across a page swap reads as the new page
+  // sliding in from somewhere it never was.
+  window.scrollTo({ top: target, behavior: 'instant' });
+  if (target === 0) return;
+
+  const started = performance.now();
+  const step = () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    if (Math.abs(window.scrollY - target) <= 1 || performance.now() - started > RESTORE_WINDOW_MS) {
+      restoreRaf = null;
+      return;
+    }
+    if (max >= target || max > window.scrollY) window.scrollTo({ top: Math.min(target, max), behavior: 'instant' });
+    restoreRaf = requestAnimationFrame(step);
+  };
+  restoreRaf = requestAnimationFrame(step);
 }
 
 // Scrolls to top on forward navigation, restores the prior position on
@@ -30,19 +60,38 @@ export default function ScrollRestoration() {
   const navigationType = useNavigationType();
 
   useEffect(() => {
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    // The user taking over wins over an in-progress restore.
+    const stop = () => cancelRestore();
+    const track = () => { lastY = window.scrollY; };
+    lastY = window.scrollY;
+    window.addEventListener('scroll', track, { passive: true });
+    window.addEventListener('wheel', stop, { passive: true });
+    window.addEventListener('touchstart', stop, { passive: true });
+    window.addEventListener('keydown', stop);
+    return () => {
+      window.removeEventListener('wheel', stop);
+      window.removeEventListener('touchstart', stop);
+      window.removeEventListener('keydown', stop);
+      window.removeEventListener('scroll', track);
+    };
+  }, []);
+
+  // Save the outgoing entry's offset on tab close/refresh too.
+  useEffect(() => {
     const key = location.key;
-    const onScroll = () => savePosition(key, window.scrollY);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    const onHide = () => persist(key, window.scrollY);
+    window.addEventListener('pagehide', onHide);
+    return () => window.removeEventListener('pagehide', onHide);
   }, [location.key]);
 
-  useEffect(() => {
+  // Before paint, so the new page never flashes at the old page's offset.
+  const prevKey = useRef(null);
+  useLayoutEffect(() => {
+    if (prevKey.current && prevKey.current !== location.key) persist(prevKey.current, lastY);
+    prevKey.current = location.key;
     const saved = readPositions()[location.key];
-    if (navigationType === 'POP' && saved != null) {
-      window.scrollTo({ top: saved, behavior: 'auto' });
-    } else {
-      window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
-    }
+    scrollToTarget(navigationType === 'POP' && saved != null ? saved : 0);
   }, [location.key, navigationType]);
 
   return null;

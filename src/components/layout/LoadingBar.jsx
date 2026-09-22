@@ -1,91 +1,77 @@
 import { useEffect, useState } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { animate, motion, useMotionValue, useReducedMotion } from 'framer-motion';
 import { useLoadingStore } from '../../stores/loadingStore.js';
 
-const COMPLETE_MS = 150;
-const FADE_MS = 250;
-
-// Soft-faded segment edges · a comet, not a brick. Applied only during the
-// active sweep; the completion flash needs solid edges to read as a whole line.
-const COMET_MASK = 'linear-gradient(90deg, transparent, black 15%, black 85%, transparent)';
+const COMPLETE_MS = 200;
+const FADE_MS = 220;
 const GLOW = '0 0 8px color-mix(in srgb, var(--color-accent) var(--progress-glow), transparent)';
 const FILL_GRADIENT = 'linear-gradient(90deg, var(--color-accent), var(--color-accent-hover))';
 
+// A trickle, not a loop: the fill only ever moves forward. It races to ~30%,
+// then creeps toward 90% without reaching it, and on completion fills the
+// rest and fades. The old sweep jumped backwards to 0% before filling, which
+// read as a glitch on every navigation.
 export default function LoadingBar() {
   const visible = useLoadingStore((s) => s.visible);
   const prefersReduced = useReducedMotion();
   const [phase, setPhase] = useState('idle'); // idle | active | completing
+  const scaleX = useMotionValue(0);
+  const opacity = useMotionValue(0);
 
   useEffect(() => {
-    if (visible) {
-      setPhase('active');
-      return;
-    }
-    // visible just went false · only run the completion step if the bar was showing.
-    setPhase((p) => (p === 'active' ? 'completing' : 'idle'));
+    if (visible) { setPhase('active'); return; }
+    setPhase((p) => (p === 'active' ? 'completing' : p));
   }, [visible]);
 
   useEffect(() => {
-    if (phase !== 'completing') return;
-    const t = setTimeout(() => setPhase('idle'), prefersReduced ? 0 : COMPLETE_MS);
-    return () => clearTimeout(t);
-  }, [phase, prefersReduced]);
+    const controls = [];
+    if (phase === 'active') {
+      scaleX.jump(0);
+      opacity.jump(1);
+      if (prefersReduced) { scaleX.jump(0.9); return; }
+      controls.push(animate(scaleX, [0, 0.3], { duration: 0.35, ease: [0.16, 1, 0.3, 1] }));
+      const creep = setTimeout(() => {
+        controls.push(animate(scaleX, 0.9, { duration: 8, ease: [0.05, 0.7, 0.1, 1] }));
+      }, 350);
+      return () => { clearTimeout(creep); controls.forEach((c) => c.stop()); };
+    }
+    if (phase === 'completing') {
+      const fill = prefersReduced ? 0 : COMPLETE_MS / 1000;
+      const fade = prefersReduced ? 0 : FADE_MS / 1000;
+      controls.push(animate(scaleX, 1, { duration: fill, ease: 'easeOut' }));
+      controls.push(animate(opacity, 0, { duration: fade, delay: fill, ease: 'easeOut',
+        onComplete: () => setPhase('idle') }));
+      return () => controls.forEach((c) => c.stop());
+    }
+  }, [phase, prefersReduced, scaleX, opacity]);
 
-  const show = phase === 'active' || phase === 'completing';
+  if (phase === 'idle') return null;
 
   return (
-    <AnimatePresence>
-      {show && (
-        <motion.div
-          key="loading-bar"
-          initial={{ opacity: 1 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: prefersReduced ? 0 : FADE_MS / 1000 } }}
-          style={{
-            position: 'fixed',
-            top: 'env(safe-area-inset-top, 0px)',
-            left: 0,
-            right: 0,
-            height: 3,
-            background: 'color-mix(in srgb, var(--color-accent) 20%, transparent)',
-            zIndex: 200,
-            overflow: 'hidden',
-          }}
-        >
-          {prefersReduced ? (
-            // Static bar, no glow/mask · glow implies motion energy.
-            <div style={{ position: 'absolute', inset: 0, background: FILL_GRADIENT }} />
-          ) : (
-            <motion.div
-              style={{
-                position: 'absolute',
-                top: 0,
-                bottom: 0,
-                left: 0,
-                width: '25%',
-                background: FILL_GRADIENT,
-                borderRadius: '0 2px 2px 0',
-                boxShadow: GLOW,
-                ...(phase === 'active'
-                  ? { maskImage: COMET_MASK, WebkitMaskImage: COMET_MASK }
-                  : {}),
-              }}
-              animate={
-                phase === 'completing'
-                  ? { x: '0%', width: '100%', transition: { duration: COMPLETE_MS / 1000, ease: 'easeOut' } }
-                  : {
-                      // Fixed-width segment translating across the track (not a width
-                      // oscillation) · percentages are relative to the segment's own
-                      // width, so -100%/400% sweeps the 25%-wide segment from fully
-                      // off-screen left to fully past the right edge of the container.
-                      x: ['-100%', '400%'],
-                      transition: { duration: 1.4, repeat: Infinity, ease: 'easeInOut' },
-                    }
-              }
-            />
-          )}
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <motion.div
+      aria-hidden="true"
+      style={{
+        position: 'fixed',
+        top: 'env(safe-area-inset-top, 0px)',
+        left: 0,
+        right: 0,
+        height: 3,
+        zIndex: 200,
+        pointerEvents: 'none',
+        opacity,
+      }}
+    >
+      <motion.div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: FILL_GRADIENT,
+          boxShadow: prefersReduced ? 'none' : GLOW,
+          transformOrigin: '0% 50%',
+          scaleX,
+          willChange: 'transform',
+        }}
+      />
+    </motion.div>
   );
 }

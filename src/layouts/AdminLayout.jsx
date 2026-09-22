@@ -12,7 +12,8 @@ import CommandPalette from '../components/admin/CommandPalette.jsx';
 import { AdminThemeProvider, useAdminTheme } from '../lib/AdminThemeContext.jsx';
 import { AdminMobileBarProvider, useAdminMobileBar } from '../lib/AdminMobileBarContext.jsx';
 import { useAuthStore } from '../stores/authStore.js';
-import { pageTransition, spring } from '../lib/motion.js';
+import { spring } from '../lib/motion.js';
+import PageTransition from '../components/layout/PageTransition.jsx';
 
 const PAGE_TITLES = {
   '/admin': 'Today',
@@ -393,21 +394,9 @@ function AdminLayoutInner({ open, setOpen, collapsed, setCollapsed, pendingRetur
           )}
         </header>
 
-        {/* AnimatePresence must directly parent the keyed, exit-animated element · the
-            outer Routes-level key+AnimatePresence pairing was too far away to ever
-            correctly detect this motion.main's exit completion. */}
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.main
-            key={location.pathname}
-            variants={pageTransition}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            className="flex-1 p-4 sm:p-6 lg:p-8 4xl:p-10"
-          >
-            <Outlet />
-          </motion.main>
-        </AnimatePresence>
+        <PageTransition className="flex-1 p-4 sm:p-6 lg:p-8 4xl:p-10">
+          <Outlet />
+        </PageTransition>
       </div>
     </div>
   );
