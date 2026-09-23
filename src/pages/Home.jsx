@@ -93,43 +93,40 @@ const HERO_BANDS = [
 ];
 // ─── Data ───────────────────────────────────────────────────────────────────
 
-const DROP_ITEMS = [
-  {
-    label: 'The flagship drop',
-    name: 'Pulse Hoodie, Bone White',
-    href: '/shop?category=Tops',
-    image: '/media/hanging.jpg',
-    large: true,
-  },
-  {
-    label: 'New',
-    name: 'Cargo Tech Pant',
-    href: '/shop?category=Bottoms',
-    image: '/media/twill.jpg',
-    large: false,
-  },
-  {
-    label: 'Limited',
-    name: 'Field Jacket',
-    href: '/shop?category=Outerwear',
-    image: '/media/waxed.jpg',
-    large: false,
-  },
-];
+// The drop grid shows real, buyable products only. It used to hard-code
+// three pieces (a hoodie, a cargo pant, a field jacket) that were never in
+// the catalogue, so the homepage advertised things nobody could buy. Slots
+// the catalogue can't fill become one honest "shop everything" tile.
+const SHOP_ALL_TILE = {
+  label: 'The catalogue',
+  name: 'Shop everything',
+  href: '/shop',
+  image: '/media/stack.jpg',
+};
+function dropItemsFrom(products) {
+  const real = products.slice(0, 3).map((p) => ({
+    label: p.category || 'In the shop',
+    name: p.name,
+    href: `/products/${p.slug}`,
+    image: p.images?.[0] || SHOP_ALL_TILE.image,
+  }));
+  if (real.length < 3) real.push(SHOP_ALL_TILE);
+  return real;
+}
 
 const STORIES = [
   {
     slug: 'spring-26',
     eyebrow: 'The Drop',
     title: 'Spring/Summer 2026 Field Guide',
-    desc: 'Twelve pieces built for early mornings and late nights across Accra.',
+    desc: "What's in rotation this season, and how it wears across Accra.",
     image: '/media/workroom.jpg',
   },
   {
     slug: 'field-essentials',
     eyebrow: 'Editorial',
     title: 'Field Essentials',
-    desc: 'Technical outerwear for the in-between weather. Minimal, and it works.',
+    desc: 'Layering for the in-between weather. Minimal, and it works.',
     image: '/media/bench.jpg',
   },
   {
@@ -198,6 +195,8 @@ export default function Home() {
   // Reduced-motion is applied at render time rather than baked in here, because
   // useReducedMotion() can settle after the first render.
   const prefersReduced = useReducedMotion();
+
+  const dropItems = dropItemsFrom(products);
 
   useEffect(() => {
     setLoading(true);
@@ -310,17 +309,23 @@ export default function Home() {
       <section className="container-site pt-16 pb-10 md:pt-24 md:pb-14">
         <Chapter n={1} kicker="The drop" title={['New in', 'rotation.']} />
 
+        {loading ? (
+          <div className="mt-8 grid gap-3 md:grid-cols-3 md:gap-4" aria-hidden>
+            <div className="skeleton md:col-span-2" style={{ aspectRatio: '4/3' }} />
+            <div className="skeleton" style={{ minHeight: '180px' }} />
+          </div>
+        ) : (
         <div className="mt-8 grid gap-3 md:grid-cols-3 md:gap-4">
           {/* Large 2/3 item */}
           <Reveal delay={0.05} className="md:col-span-2">
             <Link
-              to={DROP_ITEMS[0].href}
+              to={dropItems[0].href}
               className="group relative block overflow-hidden rounded-2xl bg-border"
               style={{ aspectRatio: '4/3' }}
             >
               <img
-                src={DROP_ITEMS[0].image}
-                alt={DROP_ITEMS[0].name}
+                src={dropItems[0].image}
+                alt={dropItems[0].name}
                 loading="lazy"
                 width={1200}
                 height={900}
@@ -328,8 +333,8 @@ export default function Home() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-6 text-white">
-                <p className="eyebrow text-white/60">{DROP_ITEMS[0].label}</p>
-                <p className="mt-1 font-display text-h3 font-semibold">{DROP_ITEMS[0].name}</p>
+                <p className="eyebrow text-white/60">{dropItems[0].label}</p>
+                <p className="mt-1 font-display text-h3 font-semibold">{dropItems[0].name}</p>
               </div>
               <div className="absolute right-5 top-5 grid h-9 w-9 place-items-center rounded-full bg-white/15 backdrop-blur-sm opacity-0 transition-opacity group-hover:opacity-100">
                 <ArrowRight className="h-4 w-4 text-white" />
@@ -339,7 +344,7 @@ export default function Home() {
 
           {/* Two stacked 1/3 items */}
           <div className="flex flex-row gap-3 md:flex-col">
-            {DROP_ITEMS.slice(1).map((item, i) => (
+            {dropItems.slice(1).map((item, i) => (
               <Reveal key={item.name} delay={0.1 + i * 0.07} className="flex-1">
                 <Link
                   to={item.href}
@@ -364,6 +369,7 @@ export default function Home() {
             ))}
           </div>
         </div>
+        )}
       </section>
 
       <Statement>Heavyweight cotton / cut in Accra / made to outlast the season</Statement>
