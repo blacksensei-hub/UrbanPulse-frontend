@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Phone, MessageSquare, MapPin, CheckCircle, Instagram } from 'lucide-react';
+import { Mail, MessageSquare, MapPin, CheckCircle } from 'lucide-react';
 import { Button } from '../../components/ui/index.jsx';
 import SEO from '../../components/SEO.jsx';
+import { useSetting } from '../../stores/settingsStore.js';
 
 const SUBJECTS = [
   'Order question',
@@ -12,7 +13,12 @@ const SUBJECTS = [
   'Other',
 ];
 
+// Fallback only; the live value comes from Admin → Settings (support_email).
+const FALLBACK_EMAIL = 'noreply.urbanpulse0@gmail.com';
+
 export default function Contact() {
+  const supportEmail = useSetting('support_email', FALLBACK_EMAIL) || FALLBACK_EMAIL;
+  const whatsapp = String(useSetting('support_whatsapp', '') || '').replace(/[^\d]/g, '');
   const [form, setForm] = useState({ name: '', email: '', subject: SUBJECTS[0], message: '' });
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
@@ -41,38 +47,25 @@ export default function Contact() {
       (errs.name ? nameRef : errs.email ? emailRef : messageRef).current?.focus();
       return;
     }
-    // TODO: Wire to POST /api/contact when backend endpoint is built · for now shows success without sending.
+    // There is no contact endpoint, and this form used to show "Message
+    // received" without sending anything. It now opens the customer's own
+    // email app with the message filled in, and says exactly that.
+    const subject = `${form.subject} · ${form.name}`;
+    const body = `${form.message}
+
+${form.name}
+${form.email}`;
+    window.location.href = `mailto:${supportEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     setSubmitted(true);
   }
 
+  // Only real, configured channels. The WhatsApp, phone and Instagram
+  // entries used to be "+233 XX XXX XXXX" placeholders and a dead link.
   const contactMethods = [
-    {
-      icon: Mail,
-      label: 'Email',
-      value: 'support@urbanpulse.com.gh',
-      href: 'mailto:support@urbanpulse.com.gh',
-    },
-    {
-      icon: MessageSquare,
-      label: 'WhatsApp',
-      // TODO: Replace with real WhatsApp number
-      value: '+233 XX XXX XXXX',
-      href: 'https://wa.me/233XXXXXXXXX',
-    },
-    {
-      icon: Instagram,
-      label: 'Instagram',
-      // TODO: Replace with real Instagram profile link
-      value: '@urbanpulse.gh',
-      href: '#',
-    },
-    {
-      icon: Phone,
-      label: 'Phone',
-      // TODO: Replace with real phone number
-      value: '+233 XX XXX XXXX',
-      href: 'tel:+233XXXXXXXXX',
-    },
+    { icon: Mail, label: 'Email', value: supportEmail, href: `mailto:${supportEmail}` },
+    ...(whatsapp
+      ? [{ icon: MessageSquare, label: 'WhatsApp', value: `+${whatsapp}`, href: `https://wa.me/${whatsapp}` }]
+      : []),
   ];
 
   return (
@@ -91,8 +84,8 @@ export default function Contact() {
             <p className="eyebrow mb-3">Get in touch</p>
             <h1 className="font-display text-h1 font-bold">We're here to help.</h1>
             <p className="mt-4 text-muted leading-relaxed max-w-md">
-              Questions about your order, a return, or anything else · our team is available
-              Monday to Friday and most Saturday mornings.
+              Questions about your order, a return, or anything else? Get in touch and
+              you'll hear back from the founder directly.
             </p>
 
             {/* Contact method cards */}
@@ -114,25 +107,6 @@ export default function Contact() {
                   </div>
                 </a>
               ))}
-            </div>
-
-            {/* Business hours */}
-            <div className="mt-10">
-              <p className="eyebrow mb-3">Business hours</p>
-              <dl className="space-y-1.5 text-sm">
-                <div className="flex justify-between max-w-xs">
-                  <dt className="text-muted">Monday – Friday</dt>
-                  <dd className="text-text font-medium">9am – 6pm GMT</dd>
-                </div>
-                <div className="flex justify-between max-w-xs">
-                  <dt className="text-muted">Saturday</dt>
-                  <dd className="text-text font-medium">10am – 4pm GMT</dd>
-                </div>
-                <div className="flex justify-between max-w-xs">
-                  <dt className="text-muted">Sunday</dt>
-                  <dd className="text-muted">Closed</dd>
-                </div>
-              </dl>
             </div>
 
             {/* Address */}
@@ -160,9 +134,11 @@ export default function Contact() {
                     <CheckCircle className="h-7 w-7" />
                   </div>
                   <div>
-                    <p className="font-display text-h3 font-semibold">Message received.</p>
+                    <p className="font-display text-h3 font-semibold">Your email is ready to send.</p>
                     <p className="mt-2 text-sm text-muted">
-                      Thanks · we'll reply within one business day.
+                      Your email app should have opened with your message filled in. Press send there.
+                      If nothing opened, email us at{' '}
+                      <a className="text-accent-text underline" href={`mailto:${supportEmail}`}>{supportEmail}</a>.
                     </p>
                   </div>
                 </motion.div>
@@ -242,7 +218,7 @@ export default function Contact() {
                   </div>
 
                   <Button type="submit" size="lg" className="w-full">
-                    Send message
+                    Continue in my email app
                   </Button>
 
                   <p className="text-xs text-muted text-center">
