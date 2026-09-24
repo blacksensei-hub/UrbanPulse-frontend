@@ -255,6 +255,7 @@ export function LookbookDetail() {
             alt={lb.title}
             className="h-full w-full object-cover"
             loading="eager"
+            fetchpriority="high"
             width={1600}
             height={900}
           />

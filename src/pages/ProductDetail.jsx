@@ -458,6 +458,10 @@ export default function ProductDetail() {
                   style={zoomStyle}
                   className="aspect-[4/5] w-full object-cover"
                   loading="eager"
+                  // Ahead of the font files: on a slow connection this photo
+                  // is what the shopper is waiting for. (Lowercase: React 18
+                  // passes it through as a plain attribute.)
+                  fetchpriority={activeImage === 0 ? 'high' : undefined}
                   width={800}
                   height={1000}
                   decoding="async"
