@@ -10,6 +10,9 @@ import App from './App.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import { ThemeProvider } from './lib/ThemeContext.jsx';
 import { CookieConsentProvider } from './lib/CookieConsentContext.jsx';
+// Fonts are self-hosted: no third-party font servers on the first load.
+import './styles/fonts.css';
+import './styles/clash.css';
 import './styles/globals.css';
 
 if (import.meta.env.VITE_SENTRY_DSN) {

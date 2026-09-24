@@ -2,3 +2,6 @@ node_modules
 .env
 dist
 dev-dist
+
+# Clash Display is fetched at build time (scripts/fetch-clash.mjs); its licence forbids publishing it here.
+public/fonts/clash/

@@ -38,6 +38,9 @@ export default defineConfig({
           '**/assets/admin*.js',
           '**/assets/charts-*.js',
           '**/assets/Markdown-*.js',
+          // Fonts are split by character set so most visitors never fetch
+          // latin-ext; precaching would download every file regardless.
+          '**/fonts/**',
         ],
         // Never the API: prices, stock and carts must always be live.
         runtimeCaching: [
@@ -55,14 +58,10 @@ export default defineConfig({
             options: { cacheName: 'up-images', expiration: { maxEntries: 80, maxAgeSeconds: 60 * 60 * 24 * 30 } },
           },
           {
-            // Font stylesheets and files, so a return visit doesn't wait on
-            // Google or Fontshare at all.
-            urlPattern: ({ url }) => ['fonts.googleapis.com', 'api.fontshare.com'].includes(url.hostname),
-            handler: 'StaleWhileRevalidate',
-            options: { cacheName: 'up-font-css' },
-          },
-          {
-            urlPattern: ({ url }) => ['fonts.gstatic.com', 'cdn.fontshare.com'].includes(url.hostname),
+            // Self-hosted fonts (and Fontshare's copy of Clash Display, used
+            // only if a build couldn't fetch ours).
+            urlPattern: ({ url, sameOrigin }) =>
+              (sameOrigin && url.pathname.startsWith('/fonts/')) || url.hostname === 'cdn.fontshare.com',
             handler: 'CacheFirst',
             options: {
               cacheName: 'up-font-files',
