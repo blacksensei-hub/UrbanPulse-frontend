@@ -20,6 +20,7 @@ import StarPicker from '../components/product/StarPicker.jsx';
 import { useFeature } from '../stores/settingsStore.js';
 import { formatCurrency, formatDate, pluralize, sanitizePhone } from '../utils/format.js';
 import { cn } from '../utils/format.js';
+import { imageProps } from '../utils/image.js';
 import { showUndoToast } from '../utils/undoToast.jsx';
 import { clearSessionHint } from '../utils/sessionHint.js';
 import { staggerContainer, fadeInUp } from '../lib/motion.js';
@@ -1732,7 +1733,7 @@ function Wishlist() {
             <Link to={`/products/${item.slug}`}>
               <div className="plate aspect-[4/3] !rounded-none">
                 {item.images?.[0] && (
-                  <img src={item.images[0]} alt={item.name}
+                  <img {...imageProps(item.images[0], '(min-width: 1024px) 25vw, 50vw')} alt={item.name}
                     className="h-full w-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
                 )}
               </div>

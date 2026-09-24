@@ -36,19 +36,33 @@
     <meta name="twitter:title" content="UrbanPulse · Premium streetwear, cut in Accra" />
     <meta name="twitter:description" content="320gsm ring-spun cotton, cut in Accra. Built to outlast the season." />
     <meta name="twitter:image" content="https://urbanpulsee.vercel.app/hero/drop-ending.jpg" />
-    <!-- The hero's first painted pixel on every device: the scrub poster on
-         desktop, the same frame as the static hero's background on phones.
-         Matches HERO.poster in Home.jsx exactly. -->
-    <link rel="preload" as="image" href="/hero/drop-poster.jpg" fetchpriority="high" />
+    <!-- The hero's first painted pixel: the scrub poster on desktop, the same
+         frame as the static hero's background on phones. Matches HERO.poster
+         in Home.jsx exactly, and is only preloaded on the homepage. A static
+         tag here preloaded it on every route (and was still pointing at the
+         previous hero's poster, 70KB nobody saw). -->
+    <script>
+      if (location.pathname === '/') {
+        var pl = document.createElement('link');
+        pl.rel = 'preload'; pl.as = 'image'; pl.href = '/hero/journey-poster.jpg';
+        pl.setAttribute('fetchpriority', 'high');
+        document.head.appendChild(pl);
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://api.fontshare.com" />
     <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
-    <!-- Clash Display via Fontshare -->
-    <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&display=swap" />
-    <!-- Google Identity Services -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <!-- Font stylesheets load without blocking the first paint. As plain
+         stylesheets, nothing could draw until two third-party servers had
+         answered, which cost seconds on a slow connection. Text shows in the
+         fallback face first and swaps in when the font arrives. -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="preload" as="style" href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+      <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&display=swap" />
+    </noscript>
     <!-- No-FOUC: applies the stored theme BEFORE React mounts, falling back to
          the OS preference when nothing has been chosen yet. Also marks splash
          start time and arms a failsafe in case React never mounts. -->

@@ -7,6 +7,7 @@ import ProductCard from '../components/product/ProductCard.jsx';
 import Divider from '../components/ui/Divider.jsx';
 import SEO from '../components/SEO.jsx';
 import { buildArticleSchema, SITE_URL } from '../lib/seoSchema.js';
+import { imageProps } from '../utils/image.js';
 
 // ─── Lookbook content ────────────────────────────────────────────────────────
 // TODO: Replace productSlugs with real product slugs from your DB once you
@@ -124,7 +125,7 @@ function ParallaxImage({ src, alt, caption, className = '', width = 1400, height
     <figure ref={ref} className={`relative overflow-hidden ${className}`}>
       <motion.div style={{ y }} className="relative h-full w-full">
         <img
-          src={src}
+          {...imageProps(src, '(min-width: 768px) 60vw, 100vw')}
           alt={alt || ''}
           width={width}
           height={height}
@@ -187,7 +188,7 @@ export function LookbookIndex() {
               <Link to={`/lookbook/${slug}`} className="group block">
                 <div className="plate relative aspect-[3/2]">
                   <img
-                    src={lb.hero}
+                    {...imageProps(lb.hero, '(min-width: 768px) 33vw, 100vw')}
                     alt={lb.title}
                     loading="lazy"
                     width={900}
@@ -250,7 +251,7 @@ export function LookbookDetail() {
       >
         <div className="absolute inset-0">
           <img
-            src={lb.hero}
+            {...imageProps(lb.hero, '100vw')}
             alt={lb.title}
             className="h-full w-full object-cover"
             loading="eager"

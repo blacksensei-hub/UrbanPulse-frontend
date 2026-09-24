@@ -12,6 +12,7 @@ import { orderService, loyaltyService, addressService } from '../services/index.
 import { useViewAs } from '../hooks/useViewAs.js';
 import { Label } from '../components/ui/Instrument.jsx';
 import { formatCurrency, cn, sanitizePhone } from '../utils/format.js';
+import { imageUrl } from '../utils/image.js';
 import { getErrorMessage } from '../utils/errors.js';
 import { fadeInUp } from '../lib/motion.js';
 import { useFeature, useSetting } from '../stores/settingsStore.js';
@@ -616,7 +617,7 @@ export default function Checkout() {
                 {items.map((it) => (
                   <li key={it.id} className="flex gap-3">
                     <div className="relative shrink-0">
-                      <img src={it.image ?? 'https://placehold.co/64'} alt=""
+                      <img src={imageUrl(it.image, 120) ?? 'https://placehold.co/64'} alt=""
                         className="h-16 w-14 rounded-md object-cover" loading="lazy" />
                       <span className="absolute -right-2 -top-2 grid h-5 w-5 place-items-center rounded-full bg-text text-xs font-semibold text-bg">
                         {it.quantity}

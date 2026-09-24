@@ -18,6 +18,7 @@ import { Chapter, Statement, Label } from '../components/ui/Instrument.jsx';
 import ScrollScrubHero from '../components/home/ScrollScrubHero.jsx';
 import WeightGauge from '../components/home/WeightGauge.jsx';
 import { formatCurrency } from '../utils/format.js';
+import { imageProps } from '../utils/image.js';
 
 // A 10s journey, scrubbed by scroll: a forward push at dusk down an Accra
 // street, travelling ALONGSIDE a concrete wall rather than past it, until
@@ -324,7 +325,7 @@ export default function Home() {
               style={{ aspectRatio: '4/3' }}
             >
               <img
-                src={dropItems[0].image}
+                {...imageProps(dropItems[0].image, '(min-width: 768px) 66vw, 100vw')}
                 alt={dropItems[0].name}
                 loading="lazy"
                 width={1200}
@@ -352,7 +353,7 @@ export default function Home() {
                   style={{ minHeight: '180px' }}
                 >
                   <img
-                    src={item.image}
+                    {...imageProps(item.image, '(min-width: 768px) 33vw, 50vw')}
                     alt={item.name}
                     loading="lazy"
                     width={1200}
@@ -404,7 +405,7 @@ export default function Home() {
               <Link to={`/lookbook/${story.slug}`} className="group block">
                 <div className="relative aspect-[3/2] overflow-hidden rounded-xl bg-border">
                   <img
-                    src={story.image}
+                    {...imageProps(story.image, '(min-width: 768px) 33vw, 100vw')}
                     alt={story.title}
                     loading="lazy"
                     width={900}
@@ -530,7 +531,7 @@ export default function Home() {
               className="relative aspect-square overflow-hidden rounded-lg bg-border"
             >
               <img
-                src={src}
+                {...imageProps(src, '(min-width: 768px) 25vw, 50vw')}
                 alt=""
                 loading="lazy"
                 width={600}

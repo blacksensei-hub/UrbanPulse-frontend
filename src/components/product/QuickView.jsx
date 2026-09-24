@@ -135,6 +135,8 @@ export default function QuickView({ slug, open, onClose }) {
                   <ProductImage
                     src={images[activeImage]}
                     alt={product.name}
+                    displayWidth={480}
+                    sizes="(min-width: 768px) 480px, 100vw"
                     className="w-full h-full object-cover"
                   />
                 </motion.div>
@@ -152,7 +154,7 @@ export default function QuickView({ slug, open, onClose }) {
                       i === activeImage ? 'border-accent' : 'border-transparent',
                     )}
                   >
-                    <ProductImage src={src} alt="" initial={product.name} className="h-14 w-14 object-cover" loading="lazy" />
+                    <ProductImage src={src} alt="" initial={product.name} displayWidth={56} className="h-14 w-14 object-cover" loading="lazy" />
                   </button>
                 ))}
               </div>

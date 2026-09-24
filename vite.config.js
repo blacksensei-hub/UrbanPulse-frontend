@@ -28,9 +28,49 @@ export default defineConfig({
         navigateFallback: '/index.html',
         // Never intercept API routes or sitemap/robots as offline fallback
         navigateFallbackDenylist: [/^\/api\//, /^\/sitemap\.xml/, /^\/robots\.txt/],
-        // Precache built assets only; no runtime API caching
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2}'],
-        runtimeCaching: [],
+        // Precache only the storefront shell. The first visit used to pull all
+        // 1.6MB of the build in the background, admin dashboard and charts
+        // included, competing with the page itself on slow connections.
+        // Everything else is cached the first time it's actually used.
+        globPatterns: ['**/*.{js,css,html,ico,svg,woff2}'],
+        globIgnores: [
+          '**/assets/Admin*.js',
+          '**/assets/admin*.js',
+          '**/assets/charts-*.js',
+          '**/assets/Markdown-*.js',
+        ],
+        // Never the API: prices, stock and carts must always be live.
+        runtimeCaching: [
+          {
+            // Hashed build files never change under the same name.
+            urlPattern: ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith('/assets/'),
+            handler: 'CacheFirst',
+            options: { cacheName: 'up-assets', expiration: { maxEntries: 120, maxAgeSeconds: 60 * 60 * 24 * 60 } },
+          },
+          {
+            // Site photos and hero stills: show the cached copy at once and
+            // refresh it in the background, since these names aren't hashed.
+            urlPattern: ({ url, sameOrigin }) => sameOrigin && /^\/(media|hero|icons)\/.+\.(webp|jpg|png)$/.test(url.pathname),
+            handler: 'StaleWhileRevalidate',
+            options: { cacheName: 'up-images', expiration: { maxEntries: 80, maxAgeSeconds: 60 * 60 * 24 * 30 } },
+          },
+          {
+            // Font stylesheets and files, so a return visit doesn't wait on
+            // Google or Fontshare at all.
+            urlPattern: ({ url }) => ['fonts.googleapis.com', 'api.fontshare.com'].includes(url.hostname),
+            handler: 'StaleWhileRevalidate',
+            options: { cacheName: 'up-font-css' },
+          },
+          {
+            urlPattern: ({ url }) => ['fonts.gstatic.com', 'cdn.fontshare.com'].includes(url.hostname),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'up-font-files',
+              cacheableResponse: { statuses: [0, 200] },
+              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 },
+            },
+          },
+        ],
       },
     }),
   ],

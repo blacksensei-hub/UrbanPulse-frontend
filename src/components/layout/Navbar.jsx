@@ -8,6 +8,7 @@ import { useCartStore } from '../../stores/cartStore.js';
 import { useAuthStore } from '../../stores/authStore.js';
 import { easeOut } from '../../lib/motion.js';
 import { pluralize } from '../../utils/format.js';
+import { imageUrl } from '../../utils/image.js';
 import { CATEGORIES } from '../../lib/categories.js';
 
 /* Desktop nav · Shop gets the mega-menu */
@@ -446,7 +447,7 @@ export default function Navbar() {
                         className={`w-full flex items-center gap-3 px-4 py-3 text-left text-sm hover:bg-surface transition-colors ${i === activeIndex ? 'bg-surface' : ''}`}
                       >
                         {s.images?.[0] && (
-                          <img src={s.images[0]} alt="" loading="lazy" className="h-9 w-9 rounded-lg object-cover shrink-0" />
+                          <img src={imageUrl(s.images[0], 96)} alt="" loading="lazy" className="h-9 w-9 rounded-lg object-cover shrink-0" />
                         )}
                         <span className="font-medium">{s.name}</span>
                       </button>

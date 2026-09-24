@@ -34,6 +34,20 @@ const GATES = [
   '(prefers-reduced-motion: reduce)',
 ];
 
+// A sixth gate, read once on arrival: a connection too slow for the film.
+// At under 1 Mbps the 1.37MB video takes 11s or more, and until it lands a
+// desktop visitor scrolls through seven screens of a frozen frame; the static
+// hero is the better page. Chromium browsers report this (Network Information
+// API); elsewhere it's unknown and the gate stays open. Deliberately not live,
+// so a connection that speeds up never swaps the layout under someone reading.
+function connectionTooSlow() {
+  const c = typeof navigator !== 'undefined' ? navigator.connection : null;
+  if (!c) return false;
+  if (c.saveData) return true;
+  if (c.effectiveType === 'slow-2g' || c.effectiveType === '2g') return true;
+  return typeof c.downlink === 'number' && c.downlink > 0 && c.downlink < 1;
+}
+
 const smoothstep = (p, e0, e1) => {
   const t = Math.min(1, Math.max(0, (p - e0) / (e1 - e0)));
   return t * t * (3 - 2 * t);
@@ -91,22 +105,23 @@ export default function ScrollScrubHero({
   const bandRefs = useRef([]);
   const cacheRef = useRef(bands.map(() => ({ op: -1, k: -1 })));
 
+  const [slowLink] = useState(connectionTooSlow);
   const [useStatic, setUseStatic] = useState(() =>
-    typeof window === 'undefined' ? true : GATES.some((q) => window.matchMedia(q).matches)
+    typeof window === 'undefined' ? true : slowLink || GATES.some((q) => window.matchMedia(q).matches)
   );
   const [videoFailed, setVideoFailed] = useState(false);
 
   // ── the scrub, armed and disarmed by the five gates ───────────────────
   useEffect(() => {
     const mqls = GATES.map((q) => window.matchMedia(q));
-    const apply = () => setUseStatic(mqls.some((m) => m.matches));
+    const apply = () => setUseStatic(slowLink || mqls.some((m) => m.matches));
     mqls.forEach((m) => (m.addEventListener ? m.addEventListener('change', apply) : m.addListener(apply)));
     apply();
     return () =>
       mqls.forEach((m) =>
         m.removeEventListener ? m.removeEventListener('change', apply) : m.removeListener(apply)
       );
-  }, []);
+  }, [slowLink]);
 
   useEffect(() => {
     if (useStatic) return undefined;

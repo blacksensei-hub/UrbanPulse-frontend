@@ -61,7 +61,7 @@ function SwipeItem({ it, onRemove, getQuantity, setQuantity, closeDrawer, prefer
       className="flex gap-4 bg-surface p-0"
     >
       <div className="plate h-24 w-20 flex-shrink-0 sm:h-28 sm:w-24">
-        <ProductImage src={it.images?.[0]} alt={it.name} loading="lazy" className="w-full h-full object-cover" />
+        <ProductImage src={it.images?.[0]} alt={it.name} loading="lazy" displayWidth={96} className="w-full h-full object-cover" />
       </div>
       <div className="flex-1 min-w-0">
         <Link to={`/products/${it.slug}`} onClick={closeDrawer} title={it.name} className="block truncate font-medium hover:text-accent-text transition-colors">

@@ -6,7 +6,9 @@ import CookieConsent from './components/CookieConsent.jsx';
 import ScrollRestoration from './components/ScrollRestoration.jsx';
 
 import MainLayout from './layouts/MainLayout.jsx';
-import AdminLayout from './layouts/AdminLayout.jsx';
+// Loaded on demand: shoppers never need the admin shell or its command
+// palette, and it was ~30KB of every visitor's first download.
+const AdminLayout = lazy(() => import('./layouts/AdminLayout.jsx'));
 
 import { useAuthStore } from './stores/authStore.js';
 import { useCartStore } from './stores/cartStore.js';

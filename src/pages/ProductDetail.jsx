@@ -13,6 +13,7 @@ import { useViewAs } from '../hooks/useViewAs.js';
 import { useFeature, useSetting } from '../stores/settingsStore.js';
 import { Label, Slashes } from '../components/ui/Instrument.jsx';
 import { titleCase, formatCurrency, formatDate, formatRelativeDate, cn } from '../utils/format.js';
+import { imageUrl, imageProps } from '../utils/image.js';
 import { fadeIn, morph, spring, staggerContainer } from '../lib/motion.js';
 import FlashSaleTimer from '../components/product/FlashSaleTimer.jsx';
 import { swatchColor } from '../components/product/QuickView.jsx';
@@ -341,7 +342,7 @@ export default function ProductDetail() {
           >
             {product.images?.[0] && (
               <img
-                src={product.images[0]}
+                src={imageUrl(product.images[0], 120)}
                 className="h-10 w-10 rounded-lg object-cover shrink-0"
                 alt=""
                 loading="lazy"
@@ -448,7 +449,7 @@ export default function ProductDetail() {
                 <motion.img
                   key={images[activeImage]}
                   layoutId={!prefersReduced && activeImage === 0 ? `product-image-${product.id}` : undefined}
-                  src={images[activeImage]}
+                  {...imageProps(images[activeImage], '(min-width: 1024px) 50vw, 100vw', 1200)}
                   alt={product.name}
                   initial={{ opacity: 0, scale: 1.02 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -531,6 +532,7 @@ export default function ProductDetail() {
                     src={src}
                     alt=""
                     initial={product.name}
+                    displayWidth={96}
                     className="h-16 w-16 object-cover sm:h-20 sm:w-20 lg:h-24 lg:w-24"
                     loading="lazy"
                     width={200}

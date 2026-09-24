@@ -5,6 +5,10 @@ import { Heart, Eye, Star } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 import { formatCurrency, formatDate, titleCase } from '../../utils/format.js';
+import { imageProps } from '../../utils/image.js';
+
+// Cards are two across on phones, three on tablets, four on desktop.
+const CARD_SIZES = '(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw';
 import { Label } from '../ui/Instrument.jsx';
 import { fadeInUp, morph, cardHover } from '../../lib/motion.js';
 import { useAuthStore } from '../../stores/authStore.js';
@@ -101,7 +105,7 @@ export default function ProductCard({ product }) {
             <motion.img
               layoutId={imageLayoutId}
               transition={morph}
-              src={primarySrc}
+              {...imageProps(primarySrc, CARD_SIZES)}
               alt={product.name}
               loading="lazy"
               width={900}
@@ -118,7 +122,7 @@ export default function ProductCard({ product }) {
           {/* Second image crossfade on hover · desktop only */}
           {hoverSrc && !prefersReduced && (
             <motion.img
-              src={hoverSrc}
+              {...imageProps(hoverSrc, CARD_SIZES)}
               alt=""
               loading="lazy"
               width={900}

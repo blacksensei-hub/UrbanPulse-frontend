@@ -289,6 +289,8 @@ export default function ProductDetailEditorial({
         <ProductImage
           src={images[0]}
           alt={product.name}
+          displayWidth={800}
+          sizes="100vw"
           className="absolute inset-0 h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
@@ -398,6 +400,7 @@ export default function ProductDetailEditorial({
                     src={img}
                     alt=""
                     initial={product.name}
+                    sizes="(min-width: 768px) 50vw, 100vw"
                     className="absolute inset-0 h-full w-full object-cover"
                   />
                 </div>

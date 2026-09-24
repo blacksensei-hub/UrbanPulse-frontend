@@ -7,6 +7,25 @@ const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 let gsiReady = false;
 const credentialHandlers = new Set();
 
+// Google's script is ~100KB and used only where this button renders, so it's
+// fetched here on demand rather than from index.html on every page, where it
+// competed with the first paint on slow connections.
+let gsiScript = null;
+function loadGsi() {
+  if (window.google?.accounts?.id) return Promise.resolve();
+  if (!gsiScript) {
+    gsiScript = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://accounts.google.com/gsi/client';
+      s.async = true;
+      s.onload = () => resolve();
+      s.onerror = () => { gsiScript = null; reject(new Error('gsi failed to load')); };
+      document.head.appendChild(s);
+    });
+  }
+  return gsiScript;
+}
+
 function getOrInitGSI() {
   if (gsiReady) return;
   window.google.accounts.id.initialize({
@@ -26,6 +45,7 @@ function getOrInitGSI() {
 export default function GoogleSignInButton({ onCredential, text = 'signin_with' }) {
   const containerRef = useRef(null);
   const [ready, setReady] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   // Rules of Hooks: the !CLIENT_ID bail-out lives AFTER all hooks (bottom of the
   // component); the effects no-op instead, so hook count never varies per render.
@@ -37,32 +57,32 @@ export default function GoogleSignInButton({ onCredential, text = 'signin_with' 
 
   useEffect(() => {
     if (!CLIENT_ID) return;
-    let animFrame;
+    let cancelled = false;
 
-    function tryInit() {
-      if (window.google?.accounts?.id) {
-        getOrInitGSI();
-        if (containerRef.current) {
-          window.google.accounts.id.renderButton(containerRef.current, {
-            theme: 'outline',
-            shape: 'pill',
-            size: 'large',
-            text,
-            locale: 'en',
-            width: containerRef.current.offsetWidth || 400,
-          });
-        }
-        setReady(true);
-      } else {
-        animFrame = requestAnimationFrame(tryInit);
+    loadGsi().then(() => {
+      if (cancelled || !window.google?.accounts?.id) return;
+      getOrInitGSI();
+      if (containerRef.current) {
+        window.google.accounts.id.renderButton(containerRef.current, {
+          theme: 'outline',
+          shape: 'pill',
+          size: 'large',
+          text,
+          locale: 'en',
+          width: containerRef.current.offsetWidth || 400,
+        });
       }
-    }
+      setReady(true);
+    }).catch(() => {
+      // Blocked or offline: drop the button rather than pulse forever.
+      // Email sign-in on the same page still works.
+      if (!cancelled) setFailed(true);
+    });
 
-    tryInit();
-    return () => cancelAnimationFrame(animFrame);
+    return () => { cancelled = true; };
   }, [text]);
 
-  if (!CLIENT_ID) return null;
+  if (!CLIENT_ID || failed) return null;
 
   return (
     <div className="w-full">
