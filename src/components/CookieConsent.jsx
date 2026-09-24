@@ -13,7 +13,7 @@ const GROUPS = [
 ];
 
 export default function CookieConsent() {
-  const { hasResponded, consent, customizeOpen, openCustomize, closeCustomize, save, acceptAll } = useCookieConsent();
+  const { showBanner, consent, customizeOpen, openCustomize, closeCustomize, save, acceptAll, rejectAll } = useCookieConsent();
   const [draft, setDraft] = useState({ functional: false, analytics: false, marketing: false });
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export default function CookieConsent() {
   return (
     <>
       <AnimatePresence>
-        {!hasResponded && !customizeOpen && (
+        {showBanner && !customizeOpen && (
           <motion.div
             initial={{ y: 80, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -41,8 +41,11 @@ export default function CookieConsent() {
                 We use cookies to keep you signed in and remember your cart. We don&rsquo;t sell your data.{' '}
                 <Link to="/privacy" className="underline hover:text-accent-text">Privacy policy</Link>.
               </p>
-              <div className="flex shrink-0 gap-2">
-                <Button variant="outline" size="sm" onClick={openCustomize}>Customize</Button>
+              {/* Reject sits beside Accept at the same size: refusing has to be
+                  as easy as agreeing. Essential cookies stay on either way. */}
+              <div className="flex shrink-0 flex-wrap gap-2">
+                <Button variant="ghost" size="sm" onClick={openCustomize}>Customize</Button>
+                <Button variant="outline" size="sm" onClick={rejectAll}>Reject</Button>
                 <Button size="sm" onClick={acceptAll}>Accept</Button>
               </div>
             </div>

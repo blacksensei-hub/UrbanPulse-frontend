@@ -101,6 +101,7 @@ export const authService = {
   deleteAccount:    (password) => api.post('/auth/me/delete-account', { password }).then(r => r.data),
   privacyEvents:    () => api.get('/auth/me/privacy-events').then(r => r.data),
   logConsentUpdate: (consent) => api.post('/auth/me/consent-updated', consent).then(r => r.data),
+  getConsent:       () => api.get('/auth/me/consent').then(r => r.data.consent),
   unsubscribeLink:  () => api.get('/auth/me/unsubscribe-link').then(r => r.data),
 };
 
