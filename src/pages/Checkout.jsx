@@ -412,9 +412,11 @@ export default function Checkout() {
                 {step === 1 && (
                   <div className="space-y-4">
                     <h2 className="font-display text-h3 font-bold">Shipping method</h2>
+                    {/* Estimates as published on the Shipping page (and repeated in
+                        the order email), counted from dispatch. */}
                     {[
-                      { id: 'standard', title: 'Standard', meta: 'Our regular delivery across Ghana', cost: standardFee === 0 ? 'Free' : formatCurrency(standardFee) },
-                      { id: 'express',  title: 'Express',  meta: 'Faster, where we can', cost: formatCurrency(expressFee) },
+                      { id: 'standard', title: 'Standard', meta: 'Usually 5–7 business days after dispatch', cost: standardFee === 0 ? 'Free' : formatCurrency(standardFee) },
+                      { id: 'express',  title: 'Express',  meta: 'Usually 2–3 business days after dispatch', cost: formatCurrency(expressFee) },
                     ].map((opt) => (
                       <label
                         key={opt.id}
@@ -436,6 +438,10 @@ export default function Checkout() {
                         <div className="font-mono font-semibold">{opt.cost}</div>
                       </label>
                     ))}
+                    <p className="text-xs text-muted">
+                      Orders leave us within 1–2 business days of confirmed payment. Times are estimates, not guarantees.{' '}
+                      <Link to="/shipping" className="underline underline-offset-2 hover:text-text">Shipping info</Link>
+                    </p>
                   </div>
                 )}
 
