@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { SlidersHorizontal, X, ChevronDown } from 'lucide-react';
 
 import ProductCard from '../components/product/ProductCard.jsx';
@@ -9,7 +9,8 @@ import SEO from '../components/SEO.jsx';
 import { productService } from '../services/index.js';
 import { MetaRow } from '../components/ui/Instrument.jsx';
 import { formatCurrency, titleCase } from '../utils/format.js';
-import { staggerContainer, bottomSheetVariants } from '../lib/motion.js';
+import { staggerContainer } from '../lib/motion.js';
+import Sheet from '../components/ui/Sheet.jsx';
 import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
 import PullToRefreshIndicator from '../components/ui/PullToRefreshIndicator.jsx';
 import { CATEGORIES as PRODUCT_CATEGORIES } from '../lib/categories.js';
@@ -167,8 +168,6 @@ export default function Shop() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [page, setPage]         = useState(1);
   const [refreshKey, setRefreshKey] = useState(0);
-  const prefersReduced = useReducedMotion();
-  const backdropRef = useRef(null);
 
   const params = useMemo(() => ({ ...filters, page, limit: 24 }), [filters, page]);
 
@@ -184,12 +183,6 @@ export default function Shop() {
     return () => clearTimeout(slowTimer);
   }, [params, refreshKey]);
 
-  // Close the mobile filter sheet on Escape · backdrop click already does, this was missing.
-  useEffect(() => {
-    const onKey = (e) => e.key === 'Escape' && setMobileOpen(false);
-    if (mobileOpen) window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [mobileOpen]);
 
   const { pulling, pullProgress, refreshing } = usePullToRefresh(
     () => setRefreshKey((k) => k + 1),
@@ -350,56 +343,19 @@ export default function Shop() {
         </div>
       </div>
 
-      {/* Mobile bottom sheet · glass treatment */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <>
-            <motion.div
-              ref={backdropRef}
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              onClick={() => setMobileOpen(false)}
-              className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
-            />
-            <motion.div
-              drag={prefersReduced ? false : 'y'}
-              dragConstraints={{ top: 0, bottom: 0 }}
-              dragElastic={{ top: 0, bottom: 0.3 }}
-              onDrag={(_, info) => {
-                if (backdropRef.current && info.offset.y > 0) {
-                  backdropRef.current.style.opacity = Math.max(0, 1 - info.offset.y / 240);
-                }
-              }}
-              onDragEnd={(_, info) => {
-                if (info.offset.y > 200 || info.velocity.y > 400) {
-                  setMobileOpen(false);
-                } else if (backdropRef.current) {
-                  backdropRef.current.style.opacity = '';
-                }
-              }}
-              variants={bottomSheetVariants}
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
-              className="fixed inset-x-0 bottom-0 z-50 max-h-[85vh] rounded-t-xl glass-strong lg:hidden"
-            >
-              <div className="flex justify-center pt-2.5 pb-0.5" aria-hidden="true">
-                <div className="h-1 w-10 rounded-full bg-border/60" />
-              </div>
-              <div className="flex items-center justify-between border-b border-border px-5 py-4">
-                <span className="font-semibold">Filters</span>
-                <button onClick={() => setMobileOpen(false)} aria-label="Close filters"
-                  className="grid h-9 w-9 place-items-center rounded-full hover:bg-highlight">
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-              <div className="max-h-[70vh] overflow-y-auto">
-                <FilterPanel filters={filters} setFilters={setFilters} onApply={() => setMobileOpen(false)} />
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      {/* Mobile filters: the shared bottom sheet (follows the finger, projects
+          the flick, closes downward at the finger's speed). */}
+      <div className="lg:hidden">
+        <Sheet
+          open={mobileOpen}
+          onClose={() => setMobileOpen(false)}
+          title="Filters"
+          presentation="sheet"
+          bodyClassName="!px-0"
+        >
+          <FilterPanel filters={filters} setFilters={setFilters} onApply={() => setMobileOpen(false)} />
+        </Sheet>
+      </div>
     </>
   );
 }

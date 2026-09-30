@@ -58,6 +58,9 @@
   /* Top progress bars' glow strength — subtler on bone to avoid haze */
   --progress-glow: 40%;
 
+  /* Light catching the top edge of a translucent material */
+  --mat-edge: rgba(255, 255, 255, 0.55);
+
   color-scheme: light;
 }
 
@@ -89,6 +92,7 @@ html.dark {
 
   /* Full lit quality against the dark background */
   --progress-glow: 55%;
+  --mat-edge: rgba(255, 255, 255, 0.09);
   color-scheme: dark;
 }
 
@@ -132,7 +136,9 @@ html.dark {
   --color-error:         #E87A70;
   --color-warning:       #D6A84E;
   --color-info:          #6FA8D6;
+  --mat-edge:            rgba(255, 255, 255, 0.09);
 }
+.admin-theme-light { --mat-edge: rgba(255, 255, 255, 0.55); }
 
 @layer base {
   *, *::before, *::after { box-sizing: border-box; }
@@ -201,6 +207,48 @@ html.dark {
                 border-color var(--dur-med) var(--easing-out);
   }
 
+  /* ── Materials, after Apple ──────────────────────────────────────────
+     Translucent layers that float above the page and let it show through.
+     Weight encodes hierarchy: small chips are thin, bars regular, sheets
+     and drawers thick (stronger blur, deeper shadow). A bright top edge is
+     light catching the material. Never stack a light material on another. */
+  .material-thin {
+    background: rgba(var(--color-bg-rgb), 0.58);
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+    box-shadow: inset 0 1px 0 var(--mat-edge);
+  }
+  .material-regular {
+    background: rgba(var(--color-bg-rgb), 0.72);
+    backdrop-filter: blur(22px) saturate(170%);
+    -webkit-backdrop-filter: blur(22px) saturate(170%);
+    box-shadow: inset 0 1px 0 var(--mat-edge), var(--shadow-md);
+  }
+  .material-thick {
+    background: rgba(var(--color-bg-rgb), 0.86);
+    backdrop-filter: blur(34px) saturate(180%);
+    -webkit-backdrop-filter: blur(34px) saturate(180%);
+    box-shadow: inset 0 1px 0 var(--mat-edge), 0 -18px 50px -20px rgba(0, 0, 0, 0.35);
+  }
+
+  /* Sheets rise from the bottom edge; dialogs float. */
+  .sheet-panel {
+    border-radius: 22px 22px 0 0;
+    border-top: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
+  }
+  .dialog-panel {
+    background: var(--color-surface);
+    border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+    box-shadow: inset 0 1px 0 var(--mat-edge), 0 32px 80px -24px rgba(0, 0, 0, 0.4);
+  }
+  /* Dim to focus: a modal task pushes the page back. */
+  .sheet-scrim { background: rgba(14, 12, 9, 0.42); }
+  html.dark .sheet-scrim { background: rgba(0, 0, 0, 0.55); }
+
+  /* Feedback on press, not release, and instant. */
+  .press { transition: transform 100ms ease-out; -webkit-tap-highlight-color: transparent; }
+  .press:active { transform: scale(0.96); }
+
   /* Type scale */
   .text-display { font-size: clamp(3rem, 10vw, 5.5rem); line-height: 1.02; letter-spacing: -0.02em; }
   .text-h1      { font-size: clamp(2rem, 6vw, 3rem);    line-height: 1.08; letter-spacing: -0.015em; }
@@ -213,11 +261,14 @@ html.dark {
     padding: .75rem 1.25rem; min-height: 44px;
     font-weight: 600; font-size: .9375rem; letter-spacing: .01em;
     border-radius: 999px;
+    /* The press is 100ms ease-out, not the old overshooting curve: a button
+       you just pressed shouldn't wobble. */
     transition: background-color var(--dur-fast) var(--easing-out),
                 color var(--dur-fast) var(--easing-out),
-                transform var(--dur-fast) var(--easing-spring),
+                transform 100ms ease-out,
                 box-shadow var(--dur-fast) var(--easing-out);
     will-change: transform;
+    -webkit-tap-highlight-color: transparent;
   }
   .btn:active { transform: scale(.97); }
 
@@ -356,6 +407,29 @@ html.dark {
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Reduced transparency: translucent layers go solid (frosted glass can make
+   text over a busy page hard to read for some people). */
+@media (prefers-reduced-transparency: reduce) {
+  .glass, .glass-strong, .material-thin, .material-regular, .material-thick {
+    background: var(--color-surface) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  .sheet-scrim { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+}
+
+/* Increased contrast: near-solid surfaces with a defined edge. */
+@media (prefers-contrast: more) {
+  .glass, .glass-strong, .material-thin, .material-regular, .material-thick {
+    background: var(--color-surface) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid var(--color-border-strong) !important;
+  }
+  .dialog-panel, .sheet-panel { border: 1px solid var(--color-border-strong); }
+  .sheet-scrim { background: rgba(0, 0, 0, 0.6); }
 }
 
 /* ═══════════════════════════════════════════════════════════════

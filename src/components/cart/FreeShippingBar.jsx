@@ -2,6 +2,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { Check } from 'lucide-react';
 import { useSetting } from '../../stores/settingsStore.js';
 import { formatCurrency } from '../../utils/format.js';
+import { springSoft } from '../../lib/motion.js';
 
 export default function FreeShippingBar({ subtotal }) {
   const prefersReduced = useReducedMotion();
@@ -27,7 +28,7 @@ export default function FreeShippingBar({ subtotal }) {
           className="h-full rounded-full bg-accent"
           initial={prefersReduced ? false : { width: 0 }}
           animate={{ width: `${pct}%` }}
-          transition={prefersReduced ? { duration: 0 } : { type: 'spring', stiffness: 200, damping: 26 }}
+          transition={prefersReduced ? { duration: 0 } : springSoft}
         />
       </div>
     </div>

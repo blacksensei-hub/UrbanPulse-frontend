@@ -10,7 +10,7 @@ import { imageProps } from '../../utils/image.js';
 // Cards are two across on phones, three on tablets, four on desktop.
 const CARD_SIZES = '(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw';
 import { Label } from '../ui/Instrument.jsx';
-import { fadeInUp, morph, cardHover } from '../../lib/motion.js';
+import { cardHover, fadeInUp, morph, springSnappy } from '../../lib/motion.js';
 import { useAuthStore } from '../../stores/authStore.js';
 import { useWishlistStore } from '../../stores/wishlistStore.js';
 import { useViewAs } from '../../hooks/useViewAs.js';
@@ -199,7 +199,7 @@ export default function ProductCard({ product }) {
                 initial={prefersReduced ? false : { scale: 0.6, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={prefersReduced ? {} : { scale: 0.6, opacity: 0 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                transition={springSnappy}
                 className="flex"
               >
                 <Heart className={wishlisted ? 'h-4 w-4 fill-accent text-accent-text' : 'h-4 w-4 text-muted'} />

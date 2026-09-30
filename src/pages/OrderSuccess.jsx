@@ -9,7 +9,7 @@ import { orderService } from '../services/index.js';
 import { useCartStore } from '../stores/cartStore.js';
 import { useAuthStore } from '../stores/authStore.js';
 import { formatCurrency, formatDate } from '../utils/format.js';
-import { staggerContainer, fadeInUp } from '../lib/motion.js';
+import { fadeInUp, spring, staggerContainer } from '../lib/motion.js';
 import Confetti from '../components/ui/Confetti.jsx';
 import { vibrate } from '../utils/haptic.js';
 
@@ -84,7 +84,7 @@ export default function OrderSuccess() {
           <motion.div
             initial={prefersReduced ? false : { scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 0.1 }}
+            transition={{ ...spring, delay: 0.1 }}
             className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-accent/15 text-accent-text"
           >
             <Check className="h-8 w-8" />

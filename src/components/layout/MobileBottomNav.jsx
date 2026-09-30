@@ -3,6 +3,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { Home, Store, Search, ShoppingBag, User } from 'lucide-react';
 import { useCartStore } from '../../stores/cartStore.js';
 import { cn } from '../../utils/format.js';
+import { springSnappy } from '../../lib/motion.js';
 
 const TABS = [
   { to: '/', icon: Home, label: 'Home', exact: true },
@@ -47,7 +48,7 @@ export default function MobileBottomNav() {
               >
                 <motion.span
                   animate={prefersReduced ? {} : { scale: isActive ? 1.15 : 1 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                  transition={springSnappy}
                 >
                   <Icon size={20} />
                 </motion.span>

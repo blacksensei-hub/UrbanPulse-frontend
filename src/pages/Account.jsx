@@ -23,7 +23,7 @@ import { cn } from '../utils/format.js';
 import { imageProps } from '../utils/image.js';
 import { showUndoToast } from '../utils/undoToast.jsx';
 import { clearSessionHint } from '../utils/sessionHint.js';
-import { staggerContainer, fadeInUp } from '../lib/motion.js';
+import { fadeInUp, spring, staggerContainer } from '../lib/motion.js';
 import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
 import PullToRefreshIndicator from '../components/ui/PullToRefreshIndicator.jsx';
 
@@ -683,7 +683,7 @@ function Orders() {
                 >
                   <motion.span
                     animate={{ rotate: expanded === o.id ? 180 : 0 }}
-                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                    transition={spring}
                     className="block"
                   >
                     <ChevronDown size={16} />
@@ -699,7 +699,7 @@ function Orders() {
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                  transition={spring}
                   className="overflow-hidden"
                 >
                   <div className="mt-4 border-t border-border pt-4">

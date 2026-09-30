@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ArrowUp } from 'lucide-react';
+import { springSnappy } from '../../lib/motion.js';
 
 export default function BackToTop() {
   const prefersReduced = useReducedMotion();
@@ -25,7 +26,7 @@ export default function BackToTop() {
           initial={{ opacity: 0, scale: 0.75 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.75 }}
-          transition={{ type: 'spring', stiffness: 340, damping: 26 }}
+          transition={springSnappy}
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.92 }}
           onClick={scrollToTop}

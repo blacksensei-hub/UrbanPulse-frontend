@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { motion, AnimatePresence, useReducedMotion, useMotionValue } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Minus, Plus, ChevronRight, Star, Heart, Truck, RotateCcw, ShieldCheck, Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -14,7 +14,9 @@ import { useFeature, useSetting } from '../stores/settingsStore.js';
 import { Label, Slashes } from '../components/ui/Instrument.jsx';
 import { titleCase, formatCurrency, formatDate, formatRelativeDate, cn } from '../utils/format.js';
 import { imageUrl, imageProps } from '../utils/image.js';
-import { fadeIn, morph, spring, staggerContainer } from '../lib/motion.js';
+import { fadeIn, morph, spring, springSnappy, staggerContainer } from '../lib/motion.js';
+import SwipeGallery from '../components/product/SwipeGallery.jsx';
+import { useMediaQuery } from '../hooks/useMediaQuery.js';
 import FlashSaleTimer from '../components/product/FlashSaleTimer.jsx';
 import { swatchColor } from '../components/product/QuickView.jsx';
 import StarPicker from '../components/product/StarPicker.jsx';
@@ -79,8 +81,8 @@ export default function ProductDetail() {
   const reviewsRef = useRef(null);
   const mainImageRef = useRef(null);
   const wishlistBtnRef = useRef(null);
-  const galleryDragX = useMotionValue(0);
-  const [draggingGallery, setDraggingGallery] = useState(false);
+  // Phones get a swipeable photo strip; larger screens keep the single image + zoom.
+  const phoneGallery = useMediaQuery('(max-width: 767px)');
   const [mainImgError, setMainImgError] = useState(false);
 
   useEffect(() => {
@@ -230,7 +232,7 @@ export default function ProductDetail() {
   }
 
   function handleImageMouseMove(e) {
-    if (prefersReduced || draggingGallery) return;
+    if (prefersReduced) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
@@ -434,6 +436,17 @@ export default function ProductDetail() {
             onMouseMove={handleImageMouseMove}
             onMouseLeave={handleImageMouseLeave}
           >
+            {phoneGallery && images.length > 1 && !mainImgError ? (
+              <SwipeGallery
+                images={images}
+                index={activeImage}
+                onIndexChange={setActiveImage}
+                alt={product.name}
+                layoutId={!prefersReduced ? `product-image-${product.id}` : undefined}
+                reduced={prefersReduced}
+                onImageError={() => setMainImgError(true)}
+              />
+            ) : (
             <AnimatePresence mode="wait">
               {mainImgError ? (
                 <motion.div
@@ -469,6 +482,7 @@ export default function ProductDetail() {
                 />
               )}
             </AnimatePresence>
+            )}
             {onSale && (
               <div className="absolute left-4 top-4 flex flex-col gap-1.5">
                 <span className="inline-flex items-center rounded-full bg-accent px-3 py-1 text-xs font-semibold uppercase text-on-accent">
@@ -480,27 +494,6 @@ export default function ProductDetail() {
               </div>
             )}
 
-            {/* Mobile swipe overlay */}
-            {images.length > 1 && (
-              <motion.div
-                className="md:hidden absolute inset-0 z-10"
-                drag="x"
-                dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={{
-                  left: activeImage < images.length - 1 ? 0.2 : 0.5,
-                  right: activeImage > 0 ? 0.2 : 0.5,
-                }}
-                style={{ x: galleryDragX }}
-                onDragStart={() => setDraggingGallery(true)}
-                onDragEnd={(_, info) => {
-                  setDraggingGallery(false);
-                  galleryDragX.set(0);
-                  const { offset: { x }, velocity: { x: vx } } = info;
-                  if (x < -50 || vx < -300) setActiveImage((i) => Math.min(i + 1, images.length - 1));
-                  else if (x > 50 || vx > 300) setActiveImage((i) => Math.max(i - 1, 0));
-                }}
-              />
-            )}
 
             {/* Mobile dot indicators */}
             {images.length > 1 && (
@@ -512,7 +505,7 @@ export default function ProductDetail() {
                     aria-label={`Image ${i + 1}`}
                     style={{ pointerEvents: 'auto' }}
                     animate={{ width: i === activeImage ? 16 : 6, opacity: i === activeImage ? 1 : 0.5 }}
-                    transition={prefersReduced ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30 }}
+                    transition={prefersReduced ? { duration: 0 } : springSnappy}
                     className="h-1.5 rounded-full bg-white flex-shrink-0"
                   />
                 ))}
@@ -732,7 +725,7 @@ export default function ProductDetail() {
                   initial={{ scale: 0.7, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0.7, opacity: 0 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                  transition={springSnappy}
                   className="flex items-center gap-2"
                 >
                   <Heart className={cn('h-4 w-4', wishlisted && 'fill-accent')} />

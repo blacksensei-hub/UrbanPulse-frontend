@@ -6,7 +6,7 @@ import ThemeToggle from '../ui/ThemeToggle.jsx';
 import { productService } from '../../services/index.js';
 import { useCartStore } from '../../stores/cartStore.js';
 import { useAuthStore } from '../../stores/authStore.js';
-import { easeOut } from '../../lib/motion.js';
+import { easeOut, spring, springSnappy } from '../../lib/motion.js';
 import { pluralize } from '../../utils/format.js';
 import { imageUrl } from '../../utils/image.js';
 import { CATEGORIES } from '../../lib/categories.js';
@@ -117,7 +117,7 @@ export default function Navbar() {
 
   const springTransition = reducedMotion
     ? { duration: 0 }
-    : { type: 'spring', stiffness: 320, damping: 32, mass: 0.8 };
+    : spring;
 
   return (
     <>
@@ -291,7 +291,7 @@ export default function Navbar() {
                           initial={{ y: 12 }}
                           animate={{ y: 0 }}
                           exit={{ y: -12 }}
-                          transition={{ type: 'spring', stiffness: 500, damping: 28 }}
+                          transition={springSnappy}
                           className="inline-block"
                         >
                           {itemCount}
@@ -326,7 +326,7 @@ export default function Navbar() {
               role="dialog" aria-modal="true" aria-label="Navigation menu"
               className="fixed top-0 right-0 z-[70] h-full w-[88vw] max-w-sm glass-strong p-6 flex flex-col"
               initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
-              transition={{ type: 'spring', stiffness: 280, damping: 30 }}
+              transition={spring}
             >
               <div className="flex items-center justify-between mb-8">
                 <span className="font-display text-xl font-bold">Menu</span>
@@ -397,7 +397,7 @@ export default function Navbar() {
               onSubmit={submitSearch}
               onClick={(e) => e.stopPropagation()}
               initial={{ y: -16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -16, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 280, damping: 26 }}
+              transition={spring}
               className="w-full max-w-2xl"
             >
               <div className="flex items-center gap-3 border-b-2 border-text pb-3">

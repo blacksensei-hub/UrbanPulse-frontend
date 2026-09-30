@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence, useReducedMotion, useMotionValue, animate } from 'framer-motion';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence, useReducedMotion, useMotionValue, useTransform, animate } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { X, Minus, Plus, Trash2, ShoppingBag, Lock, Truck } from 'lucide-react';
 import { useCartStore } from '../../stores/cartStore.js';
@@ -10,8 +10,14 @@ import { Label } from '../ui/Instrument.jsx';
 import { formatCurrency, formatDate } from '../../utils/format.js';
 import { showUndoToast } from '../../utils/undoToast.jsx';
 import { useDebouncedCartQuantity } from '../../hooks/useDebouncedCartQuantity.js';
-import { spring } from '../../lib/motion.js';
+import { useSwipe } from '../../hooks/useSwipe.js';
+import { decide } from '../../lib/gesture.js';
+import { spring, springFlick } from '../../lib/motion.js';
 import FreeShippingBar from './FreeShippingBar.jsx';
+import BundleOffer from './BundleOffer.jsx';
+
+// How far a row opens to show its Remove action when released part-way.
+const REVEAL = 96;
 
 function useCountUp(value, duration = 400) {
   const [display, setDisplay] = useState(value);
@@ -37,76 +43,150 @@ function useCountUp(value, duration = 400) {
   return display;
 }
 
+// A cart line you can swipe left, the way Mail does it: release part-way and
+// it rests open on a Remove button; throw it (or drag past halfway) and it
+// carries on off the left edge at the finger's speed and is removed.
 function SwipeItem({ it, onRemove, getQuantity, setQuantity, closeDrawer, prefersReduced }) {
   const x = useMotionValue(0);
+  const rowRef = useRef(null);
   const qty = getQuantity(it);
 
-  async function handleDragEnd(_, info) {
-    const commit = info.offset.x < -120 || info.velocity.x < -500;
-    if (commit) {
-      await animate(x, -500, { duration: 0.2, ease: 'easeIn' });
-      onRemove(it);
-    } else {
-      animate(x, 0, { type: 'spring', stiffness: 400, damping: 30 });
-    }
-  }
+  const swipe = useSwipe({
+    axis: 'x',
+    value: x,
+    max: 0,                      // dragging right past closed rubber-bands
+    dimension: 160,
+    enabled: !prefersReduced,
+    // A closed row only answers leftward swipes (rightward ones close the
+    // drawer); an open row can be pushed either way.
+    commitDirection: () => (x.get() < 0 ? 0 : -1),
+    onRelease: ({ projected, velocity }) => {
+      const width = rowRef.current?.offsetWidth || 320;
+      if (projected < -width * 0.55) {
+        animate(x, -width, { ...springFlick, velocity }).then(() => onRemove(it, true));
+      } else {
+        animate(x, projected < -REVEAL / 2 ? -REVEAL : 0, { ...springFlick, velocity });
+      }
+    },
+  });
 
   return (
-    <motion.div
-      drag={prefersReduced ? false : 'x'}
-      dragConstraints={{ left: -120, right: 0 }}
-      dragElastic={{ left: 0.05, right: 0 }}
-      style={{ x }}
-      onDragEnd={handleDragEnd}
-      className="flex gap-4 bg-surface p-0"
-    >
-      <div className="plate h-24 w-20 flex-shrink-0 sm:h-28 sm:w-24">
-        <ProductImage src={it.images?.[0]} alt={it.name} loading="lazy" displayWidth={96} className="w-full h-full object-cover" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <Link to={`/products/${it.slug}`} onClick={closeDrawer} title={it.name} className="block truncate font-medium hover:text-accent-text transition-colors">
-          {it.name}
-        </Link>
-        <div className="flex items-center gap-1 mt-0.5">
-          {it.size && <Label className="rounded border border-border bg-highlight px-1.5 py-0.5">{it.size}</Label>}
-          {it.color && <Label className="rounded border border-border bg-highlight px-1.5 py-0.5">{it.color}</Label>}
+    <>
+      {/* The Remove action sits under the row and shows through as it slides. */}
+      <button
+        type="button"
+        onClick={() => onRemove(it, true)}
+        tabIndex={-1}
+        aria-hidden="true"
+        className="absolute inset-0 flex items-center justify-end gap-1.5 rounded-lg bg-error pr-4 text-white"
+      >
+        <Trash2 className="h-4 w-4" />
+        <span className="text-xs font-semibold">Remove</span>
+      </button>
+      <motion.div
+        ref={rowRef}
+        {...swipe}
+        style={{ ...swipe.style, x }}
+        className="relative flex gap-4 bg-surface p-0"
+      >
+        <div className="plate h-24 w-20 flex-shrink-0 sm:h-28 sm:w-24">
+          <ProductImage src={it.images?.[0]} alt={it.name} loading="lazy" displayWidth={96} className="w-full h-full object-cover" />
         </div>
-        {it.is_preorder && it.preorder_ships_at && (
-          <p className="text-xs text-accent-text mt-0.5">Ships {formatDate(it.preorder_ships_at)}</p>
-        )}
-        <p className="mt-1 font-mono text-sm font-semibold tabular-nums">{formatCurrency(Number(it.price) * qty)}</p>
-        <div className="flex items-center gap-3 mt-2.5">
-          <div className="flex items-center border border-border rounded-full">
+        <div className="flex-1 min-w-0">
+          <Link to={`/products/${it.slug}`} onClick={closeDrawer} title={it.name} className="block truncate font-medium hover:text-accent-text transition-colors">
+            {it.name}
+          </Link>
+          <div className="flex items-center gap-1 mt-0.5">
+            {it.size && <Label className="rounded border border-border bg-highlight px-1.5 py-0.5">{it.size}</Label>}
+            {it.color && <Label className="rounded border border-border bg-highlight px-1.5 py-0.5">{it.color}</Label>}
+          </div>
+          {it.is_preorder && it.preorder_ships_at && (
+            <p className="text-xs text-accent-text mt-0.5">Ships {formatDate(it.preorder_ships_at)}</p>
+          )}
+          <p className="mt-1 font-mono text-sm font-semibold tabular-nums">{formatCurrency(Number(it.price) * qty)}</p>
+          <div className="flex items-center gap-3 mt-2.5">
+            <div className="flex items-center border border-border rounded-full">
+              <button
+                onClick={() => setQuantity(it, qty - 1, 0)}
+                aria-label="Decrease quantity"
+                className="press w-11 h-11 flex items-center justify-center hover:text-accent-text transition-colors"
+              >
+                <Minus size={14} className="pointer-events-none" />
+              </button>
+              <span className="px-2 min-w-[24px] text-center font-medium text-small">{qty}</span>
+              <button
+                onClick={() => setQuantity(it, qty + 1, 0)}
+                disabled={qty >= it.stock}
+                aria-label="Increase quantity"
+                className="press w-11 h-11 flex items-center justify-center hover:text-accent-text disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                <Plus size={14} className="pointer-events-none" />
+              </button>
+            </div>
             <button
-              onClick={() => setQuantity(it, qty - 1, 0)}
-              aria-label="Decrease quantity"
-              className="w-11 h-11 flex items-center justify-center hover:text-accent-text transition-colors"
+              onClick={() => onRemove(it, false)}
+              aria-label={`Remove ${it.name}`}
+              className="press w-11 h-11 flex items-center justify-center hover:text-error transition-colors"
             >
-              <Minus size={14} className="pointer-events-none" />
-            </button>
-            <span className="px-2 min-w-[24px] text-center font-medium text-small">{qty}</span>
-            <button
-              onClick={() => setQuantity(it, qty + 1, 0)}
-              disabled={qty >= it.stock}
-              aria-label="Increase quantity"
-              className="w-11 h-11 flex items-center justify-center hover:text-accent-text disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-            >
-              <Plus size={14} className="pointer-events-none" />
+              <Trash2 size={16} className="pointer-events-none" />
             </button>
           </div>
-          <button
-            onClick={() => onRemove(it)}
-            aria-label={`Remove ${it.name}`}
-            className="w-11 h-11 flex items-center justify-center hover:text-error transition-colors"
-          >
-            <Trash2 size={16} className="pointer-events-none" />
-          </button>
+          {qty >= it.stock && (
+            <p className="mt-1 text-xs text-muted">Max stock reached</p>
+          )}
         </div>
-        {qty >= it.stock && (
-          <p className="mt-1 text-xs text-muted">Max stock reached</p>
-        )}
-      </div>
-    </motion.div>
+      </motion.div>
+    </>
+  );
+}
+
+// The drawer enters from the right and leaves to the right, including when
+// it's thrown: swipe it right and it follows the finger, the page behind
+// brightens with it, and on release it carries the throw's speed out.
+function DrawerPanel({ x, widthRef, prefersReduced, onClose, children }) {
+  const ref = useRef(null);
+
+  useLayoutEffect(() => {
+    const w = ref.current?.offsetWidth || window.innerWidth;
+    widthRef.current = w;
+    // jump(), not set(): placing it with set() right before animating would
+    // hand the spring a huge phantom velocity.
+    if (prefersReduced) { x.jump(0); return undefined; }
+    x.jump(w);
+    const a = animate(x, 0, spring);
+    return () => a.stop();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const swipe = useSwipe({
+    axis: 'x',
+    value: x,
+    min: 0,                         // pulling left past open rubber-bands
+    dimension: 240,
+    enabled: !prefersReduced,
+    commitDirection: 1,
+    onRelease: ({ projected, velocity }) => {
+      const w = widthRef.current;
+      if (decide({ projected, velocity, threshold: w / 2, direction: 1 })) {
+        animate(x, w, { ...springFlick, velocity }).then(onClose);
+      } else {
+        animate(x, 0, { ...springFlick, velocity });
+      }
+    },
+  });
+
+  return (
+    <motion.aside
+      ref={ref}
+      role="dialog" aria-modal="true" aria-label="Shopping cart"
+      {...swipe}
+      style={{ ...swipe.style, x }}
+      initial={prefersReduced ? { opacity: 0 } : false}
+      animate={prefersReduced ? { opacity: 1 } : undefined}
+      exit={prefersReduced ? { opacity: 0 } : { x: widthRef.current, transition: spring }}
+      className="material-thick fixed top-0 right-0 z-[100] h-full w-full sm:w-[400px] md:w-[480px] xl:w-[560px] flex flex-col border-l border-border/60"
+    >
+      {children}
+    </motion.aside>
   );
 }
 
@@ -118,7 +198,18 @@ export default function CartDrawer() {
   const { getQuantity, setQuantity } = useDebouncedCartQuantity(update);
   const freeShipThreshold = useSetting('free_shipping_threshold_ghs', '1000');
 
-  function handleRemove(it) {
+  const x = useMotionValue(0);
+  const panelWidth = useRef(480);
+  const scrim = useTransform(x, (v) => {
+    const px = typeof v === 'number' ? v : (parseFloat(v) / 100) * panelWidth.current;
+    return Math.max(0, Math.min(1, 1 - px / panelWidth.current));
+  });
+
+  // `swiped`: the row already left by the swipe, so the list shouldn't
+  // animate it out a second time.
+  const swipedOut = useRef(new Set());
+  function handleRemove(it, swiped) {
+    if (swiped) swipedOut.current.add(it.id);
     remove(it.id);
     showUndoToast({
       message: 'Removed from cart',
@@ -136,20 +227,20 @@ export default function CartDrawer() {
   return (
     <AnimatePresence>
       {drawerOpen && (
-        <>
-          <motion.div
-            className="fixed inset-0 z-[90] bg-black/50 backdrop-blur-sm"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            onClick={closeDrawer}
-          />
-          <motion.aside
-            role="dialog" aria-modal="true" aria-label="Shopping cart"
-            initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
-            transition={spring}
-            className="fixed top-0 right-0 z-[100] h-full w-full sm:w-[400px] md:w-[480px] xl:w-[560px] glass-strong flex flex-col"
-          >
+        <motion.div
+          key="scrim"
+          className="fixed inset-0 z-[90]"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          onClick={closeDrawer}
+        >
+          <motion.div className="sheet-scrim absolute inset-0 backdrop-blur-sm" style={{ opacity: scrim }} />
+        </motion.div>
+      )}
+      {drawerOpen && (
+        <DrawerPanel key="panel" x={x} widthRef={panelWidth} prefersReduced={prefersReduced} onClose={closeDrawer}>
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-border p-5">
+            <div className="flex items-center justify-between border-b border-border/70 p-5">
               <div>
                 <Label className="mb-1 block">Bag / {(cart.items ?? []).length} {(cart.items ?? []).length === 1 ? 'line' : 'lines'}</Label>
                 <h3 className="font-display text-h3 font-semibold leading-none">Your bag</h3>
@@ -157,7 +248,7 @@ export default function CartDrawer() {
               <button
                 onClick={closeDrawer}
                 aria-label="Close cart"
-                className="w-10 h-10 rounded-full hover:bg-highlight flex items-center justify-center transition-colors"
+                className="press w-10 h-10 rounded-full hover:bg-highlight flex items-center justify-center transition-colors"
               >
                 <X size={20} />
               </button>
@@ -169,7 +260,7 @@ export default function CartDrawer() {
             </div>
 
             {/* Items */}
-            <div className="flex-1 overflow-y-auto px-5 pb-5">
+            <div className="flex-1 overflow-y-auto overscroll-contain px-5 pb-5">
               {isEmpty ? (
                 <div className="h-full flex flex-col items-center justify-center text-center gap-4 py-16">
                   <div className="w-16 h-16 rounded-full bg-border flex items-center justify-center">
@@ -184,44 +275,49 @@ export default function CartDrawer() {
                   </Button>
                 </div>
               ) : (
-                <ul className="flex flex-col gap-4">
-                  <AnimatePresence initial={false}>
-                    {cart.items.map((it) => (
-                      <motion.li
-                        key={it.id}
-                        layout
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, x: 60 }}
-                        transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-                        className="relative overflow-hidden rounded-lg"
-                      >
-                        {/* Red remove panel revealed on swipe */}
-                        <div
-                          className="absolute inset-y-0 right-0 flex items-center justify-end gap-1.5 bg-error px-4 rounded-r-lg"
-                          aria-hidden="true"
+                <>
+                  <ul className="flex flex-col gap-4">
+                    <AnimatePresence initial={false} custom={swipedOut.current}>
+                      {cart.items.map((it) => (
+                        <motion.li
+                          key={it.id}
+                          layout
+                          custom={swipedOut.current}
+                          variants={{
+                            initial: { opacity: 0, y: 10 },
+                            animate: { opacity: 1, y: 0 },
+                            // Leaves the way it was sent: to the left. A swiped
+                            // row is already gone, so it just closes the gap.
+                            // (Decided at exit time via `custom`, not at the
+                            // last render, which predates the swipe.)
+                            exit: (swiped) => (swiped.has(it.id) ? { opacity: 0, height: 0 } : { opacity: 0, x: -48 }),
+                          }}
+                          initial="initial"
+                          animate="animate"
+                          exit="exit"
+                          transition={spring}
+                          className="relative overflow-hidden rounded-lg"
                         >
-                          <Trash2 className="h-4 w-4 text-white" />
-                          <span className="text-xs font-semibold text-white">Remove</span>
-                        </div>
-                        <SwipeItem
-                          it={it}
-                          onRemove={handleRemove}
-                          getQuantity={getQuantity}
-                          setQuantity={setQuantity}
-                          closeDrawer={closeDrawer}
-                          prefersReduced={prefersReduced}
-                        />
-                      </motion.li>
-                    ))}
-                  </AnimatePresence>
-                </ul>
+                          <SwipeItem
+                            it={it}
+                            onRemove={handleRemove}
+                            getQuantity={getQuantity}
+                            setQuantity={setQuantity}
+                            closeDrawer={closeDrawer}
+                            prefersReduced={prefersReduced}
+                          />
+                        </motion.li>
+                      ))}
+                    </AnimatePresence>
+                  </ul>
+                  <BundleOffer items={cart.items} />
+                </>
               )}
             </div>
 
             {/* Footer · summary + checkout */}
             {!isEmpty && (
-              <div className="p-5 border-t border-border space-y-3">
+              <div className="p-5 border-t border-border/70 space-y-3">
                 <div className="flex items-baseline justify-between">
                   <Label>Subtotal</Label>
                   <span className="font-mono text-base font-semibold tabular-nums">{formatCurrency(displaySubtotal)}</span>
@@ -267,8 +363,7 @@ export default function CartDrawer() {
                 </button>
               </div>
             )}
-          </motion.aside>
-        </>
+        </DrawerPanel>
       )}
     </AnimatePresence>
   );

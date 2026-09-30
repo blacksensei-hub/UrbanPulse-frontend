@@ -2,6 +2,7 @@ import { forwardRef, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import { cn } from '../../utils/format.js';
+import { springSnappy } from '../../lib/motion.js';
 
 export function Button({
   variant = 'primary',
@@ -39,7 +40,7 @@ export function Button({
         ...(isSolid ? { boxShadow: '0 6px 16px rgba(0,0,0,0.12)' } : {}),
       }}
       whileTap={prefersReduced || isDisabled ? {} : { scale: 0.97 }}
-      transition={{ type: 'spring', stiffness: 320, damping: 22 }}
+      transition={springSnappy}
       disabled={isDisabled}
       className={cn(
         'btn',
