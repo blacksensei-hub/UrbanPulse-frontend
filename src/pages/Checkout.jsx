@@ -588,7 +588,7 @@ export default function Checkout() {
 
                     {/* Promo code */}
                     <form onSubmit={(e) => { e.preventDefault(); handleCouponBlur(); }}>
-                      <Input label="Promo code (optional)" placeholder="WELCOME10"
+                      <Input label="Promo code (optional)" placeholder="Enter a code"
                         value={form.coupon}
                         onChange={(e) => setField('coupon', e.target.value.toUpperCase())}
                         onBlur={handleCouponBlur} />
