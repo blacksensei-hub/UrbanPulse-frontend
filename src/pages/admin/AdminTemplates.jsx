@@ -6,6 +6,7 @@ import Modal from '../../components/ui/Modal.jsx';
 import { Button, Input } from '../../components/ui/index.jsx';
 import { adminService } from '../../services/index.js';
 import { formatRelativeDate } from '../../utils/format.js';
+import { SITE_URL } from '../../lib/seoSchema.js';
 
 const CHANNELS = ['email', 'sms', 'whatsapp'];
 
@@ -24,7 +25,7 @@ const STARTERS = [
   { name: 'Delivered · thank you', channel: 'sms', body: 'UrbanPulse: Hi {{customer_name}}, your order has been delivered. Thanks for shopping with us!' },
   { name: 'Confirm COD call', channel: 'whatsapp', body: 'Hi {{customer_name}} 👋, this is UrbanPulse confirming your cash-on-delivery order {{order_number}}. Can you confirm you\'ll be available to receive it? Thank you!' },
   { name: 'Order ready for pickup', channel: 'whatsapp', body: 'Hi {{customer_name}}, your order {{order_number}} is ready for pickup at our location. Please bring your order confirmation. See you soon!' },
-  { name: 'Restock alert', channel: 'whatsapp', body: 'Hi! 👋 We wanted to let you know that an item you\'ve been waiting for is back in stock. Shop now at urbanpulse.com before it sells out!' },
+  { name: 'Restock alert', channel: 'whatsapp', body: `Hi! 👋 We wanted to let you know that an item you've been waiting for is back in stock. Shop now at ${SITE_URL.replace(/^https?:\/\//, '')} before it sells out!` },
 ];
 
 const CHANNEL_STYLES = {

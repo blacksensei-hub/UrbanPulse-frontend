@@ -1,4 +1,10 @@
-export const SITE_URL = import.meta.env.VITE_APP_URL || 'https://urbanpulse.com';
+// The site's own address, for canonical links, structured data and share
+// links. VITE_APP_URL wins when set; otherwise it's wherever the site is being
+// served from. The old fallback, 'https://urbanpulse.com', is a domain the
+// store doesn't own, and with VITE_APP_URL unset on Vercel every page told
+// search engines, and every "Copy link", to use it.
+export const SITE_URL = (import.meta.env.VITE_APP_URL
+  || (typeof window !== 'undefined' ? window.location.origin : 'https://urbanpulsee.vercel.app')).replace(/\/$/, '');
 
 export function buildOrganizationSchema() {
   // No `sameAs` — no social-link data exists anywhere in settings/DB yet. Add real

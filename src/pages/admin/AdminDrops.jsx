@@ -106,7 +106,12 @@ export default function AdminDrops() {
     try {
       if (channels.sms) { try { localStorage.setItem(TEST_PHONE_KEY, testPhone); } catch { /* private window */ } }
       const r = await adminService.drops.test({ ...draft, test_phone: testPhone });
-      toast.success(`Test sent to ${r.sent_to.join(' and ')}`);
+      if (r.sent_to?.length) toast.success(`Test sent to ${r.sent_to.join(' and ')}`);
+      // A channel with no provider set up only writes to the server log; say so
+      // rather than claiming it was sent.
+      if (r.logged_only?.length) {
+        toast.error(`Not sent to ${r.logged_only.join(' and ')}: that channel isn’t set up on the server, so it was only logged.`, { duration: 7000 });
+      }
     } catch (err) {
       toast.error(err?.response?.data?.error ?? 'The test didn’t send.');
     } finally {
@@ -116,11 +121,17 @@ export default function AdminDrops() {
 
   async function run(id, total) {
     setProgress({ id, total, sent: 0, failed: 0, remaining: total });
+    let done = -1;
     for (;;) {
       try {
         const r = await adminService.drops.sendBatch(id);
         setProgress(r);
         if (r.remaining === 0) break;
+        // Nothing moved: the rest are held by a batch that was cut off (the
+        // server frees them after 5 minutes). Wait instead of asking again at
+        // once, which would hit the admin rate limit and pause the send.
+        if (r.sent + r.failed === done) await new Promise((ok) => setTimeout(ok, 5000));
+        done = r.sent + r.failed;
       } catch (err) {
         setProgress((p) => ({ ...p, error: err?.response?.data?.error ?? 'Connection lost.' }));
         break;

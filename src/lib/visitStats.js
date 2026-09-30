@@ -18,6 +18,8 @@ export function recordPageView(pathname, { optedOut = false } = {}) {
   // /d/… only redirects (see pages/DropLink.jsx); the page it lands on is the
   // visit, with its tracking tags.
   if (pathname === '/d' || pathname.startsWith('/d/')) return;
+  // Unsubscribe links carry a private code; count them all as one page.
+  if (pathname.startsWith('/stop/')) pathname = '/stop';
   const landing = !landed;
   landed = true;
   const q = landing ? new URLSearchParams(window.location.search) : null;

@@ -11,8 +11,8 @@ import ProductCard from '../components/product/ProductCard.jsx';
 import RecentlyViewed from '../components/product/RecentlyViewed.jsx';
 import ProductImage from '../components/ui/ProductImage.jsx';
 import WhatsAppAsk from '../components/product/WhatsAppAsk.jsx';
+import { SITE_URL } from '../lib/seoSchema.js';
 
-const SITE_URL = import.meta.env.VITE_APP_URL || 'https://urbanpulse.com';
 
 const EDITORIAL_META = {
   'pulse-hoodie-bone-white': {
