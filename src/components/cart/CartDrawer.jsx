@@ -1,5 +1,5 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence, useReducedMotion, useMotionValue, useTransform, animate } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence, useReducedMotion, useMotionValue, animate } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { X, Minus, Plus, Trash2, ShoppingBag, Lock, Truck } from 'lucide-react';
 import { useCartStore } from '../../stores/cartStore.js';
@@ -11,8 +11,8 @@ import { formatCurrency, formatDate } from '../../utils/format.js';
 import { showUndoToast } from '../../utils/undoToast.jsx';
 import { useDebouncedCartQuantity } from '../../hooks/useDebouncedCartQuantity.js';
 import { useSwipe } from '../../hooks/useSwipe.js';
-import { decide } from '../../lib/gesture.js';
 import { spring, springFlick } from '../../lib/motion.js';
+import SideDrawer from '../ui/SideDrawer.jsx';
 import FreeShippingBar from './FreeShippingBar.jsx';
 import BundleOffer from './BundleOffer.jsx';
 
@@ -140,56 +140,6 @@ function SwipeItem({ it, onRemove, getQuantity, setQuantity, closeDrawer, prefer
   );
 }
 
-// The drawer enters from the right and leaves to the right, including when
-// it's thrown: swipe it right and it follows the finger, the page behind
-// brightens with it, and on release it carries the throw's speed out.
-function DrawerPanel({ x, widthRef, prefersReduced, onClose, children }) {
-  const ref = useRef(null);
-
-  useLayoutEffect(() => {
-    const w = ref.current?.offsetWidth || window.innerWidth;
-    widthRef.current = w;
-    // jump(), not set(): placing it with set() right before animating would
-    // hand the spring a huge phantom velocity.
-    if (prefersReduced) { x.jump(0); return undefined; }
-    x.jump(w);
-    const a = animate(x, 0, spring);
-    return () => a.stop();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const swipe = useSwipe({
-    axis: 'x',
-    value: x,
-    min: 0,                         // pulling left past open rubber-bands
-    dimension: 240,
-    enabled: !prefersReduced,
-    commitDirection: 1,
-    onRelease: ({ projected, velocity }) => {
-      const w = widthRef.current;
-      if (decide({ projected, velocity, threshold: w / 2, direction: 1 })) {
-        animate(x, w, { ...springFlick, velocity }).then(onClose);
-      } else {
-        animate(x, 0, { ...springFlick, velocity });
-      }
-    },
-  });
-
-  return (
-    <motion.aside
-      ref={ref}
-      role="dialog" aria-modal="true" aria-label="Shopping cart"
-      {...swipe}
-      style={{ ...swipe.style, x }}
-      initial={prefersReduced ? { opacity: 0 } : false}
-      animate={prefersReduced ? { opacity: 1 } : undefined}
-      exit={prefersReduced ? { opacity: 0 } : { x: widthRef.current, transition: spring }}
-      className="material-thick fixed top-0 right-0 z-[100] h-full w-full sm:w-[400px] md:w-[480px] xl:w-[560px] flex flex-col border-l border-border/60"
-    >
-      {children}
-    </motion.aside>
-  );
-}
-
 export default function CartDrawer() {
   const { cart, drawerOpen, closeDrawer, update, remove, add } = useCartStore();
   const isEmpty         = !cart.items?.length;
@@ -197,13 +147,6 @@ export default function CartDrawer() {
   const displaySubtotal = useCountUp(Number(cart.subtotal) || 0);
   const { getQuantity, setQuantity } = useDebouncedCartQuantity(update);
   const freeShipThreshold = useSetting('free_shipping_threshold_ghs', '1000');
-
-  const x = useMotionValue(0);
-  const panelWidth = useRef(480);
-  const scrim = useTransform(x, (v) => {
-    const px = typeof v === 'number' ? v : (parseFloat(v) / 100) * panelWidth.current;
-    return Math.max(0, Math.min(1, 1 - px / panelWidth.current));
-  });
 
   // `swiped`: the row already left by the swipe, so the list shouldn't
   // animate it out a second time.
@@ -217,28 +160,13 @@ export default function CartDrawer() {
     });
   }
 
-  useEffect(() => {
-    if (!drawerOpen) return;
-    function onKey(e) { if (e.key === 'Escape') closeDrawer(); }
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [drawerOpen, closeDrawer]);
-
   return (
-    <AnimatePresence>
-      {drawerOpen && (
-        <motion.div
-          key="scrim"
-          className="fixed inset-0 z-[90]"
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          onClick={closeDrawer}
-        >
-          <motion.div className="sheet-scrim absolute inset-0 backdrop-blur-sm" style={{ opacity: scrim }} />
-        </motion.div>
-      )}
-      {drawerOpen && (
-        <DrawerPanel key="panel" x={x} widthRef={panelWidth} prefersReduced={prefersReduced} onClose={closeDrawer}>
+    <SideDrawer
+      open={drawerOpen}
+      onClose={closeDrawer}
+      label="Shopping cart"
+      className="w-full sm:w-[400px] md:w-[480px] xl:w-[560px]"
+    >
             {/* Header */}
             <div className="flex items-center justify-between border-b border-border/70 p-5">
               <div>
@@ -363,8 +291,6 @@ export default function CartDrawer() {
                 </button>
               </div>
             )}
-        </DrawerPanel>
-      )}
-    </AnimatePresence>
+    </SideDrawer>
   );
 }

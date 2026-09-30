@@ -3,7 +3,6 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { Home, Store, Search, ShoppingBag, User } from 'lucide-react';
 import { useCartStore } from '../../stores/cartStore.js';
 import { cn } from '../../utils/format.js';
-import { springSnappy } from '../../lib/motion.js';
 
 const TABS = [
   { to: '/', icon: Home, label: 'Home', exact: true },
@@ -23,7 +22,7 @@ export default function MobileBottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 inset-x-0 z-40 lg:hidden glass-strong"
+      className="tab-bar material-regular fixed bottom-0 inset-x-0 z-40 lg:hidden"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       aria-label="Mobile navigation"
     >
@@ -35,7 +34,7 @@ export default function MobileBottomNav() {
           return (
             <motion.div
               key={to}
-              whileTap={prefersReduced ? undefined : { scale: 0.88 }}
+              whileTap={prefersReduced ? undefined : { scale: 0.94, opacity: 0.7 }}
               className="flex flex-1"
             >
               <NavLink
@@ -46,12 +45,7 @@ export default function MobileBottomNav() {
                 )}
                 aria-label={label}
               >
-                <motion.span
-                  animate={prefersReduced ? {} : { scale: isActive ? 1.15 : 1 }}
-                  transition={springSnappy}
-                >
-                  <Icon size={20} />
-                </motion.span>
+                <Icon size={21} strokeWidth={isActive ? 2.4 : 1.8} />
                 <span>{label}</span>
               </NavLink>
             </motion.div>
@@ -61,12 +55,12 @@ export default function MobileBottomNav() {
         {/* Cart · opens drawer */}
         <motion.button
           onClick={openDrawer}
-          whileTap={prefersReduced ? undefined : { scale: 0.88 }}
+          whileTap={prefersReduced ? undefined : { scale: 0.94, opacity: 0.7 }}
           aria-label={`Cart, ${itemCount} item${itemCount !== 1 ? 's' : ''}`}
           className="flex flex-1 flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-semibold text-muted hover:text-text transition-colors"
         >
           <span className="relative">
-            <ShoppingBag size={20} />
+            <ShoppingBag size={21} strokeWidth={1.8} />
             {itemCount > 0 && (
               <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-0.5 rounded-full bg-accent text-on-accent text-[10px] font-bold flex items-center justify-center">
                 {itemCount > 9 ? '9+' : itemCount}

@@ -99,6 +99,7 @@ export default function ScrollScrubHero({
   children,
 }) {
   const heroRef = useRef(null);
+  const staticRef = useRef(null);
   const stageRef = useRef(null);
   const videoRef = useRef(null);
   const ringRef = useRef(null);
@@ -122,6 +123,21 @@ export default function ScrollScrubHero({
         m.removeEventListener ? m.removeEventListener('change', apply) : m.removeListener(apply)
       );
   }, [slowLink]);
+
+  // The site's scroll-edge blur steps aside while the hero sits under the
+  // bar: the film (and the phone hero photo) stays untouched, and the
+  // captions' measured contrast isn't softened by a tint over the frame.
+  useEffect(() => {
+    const el = useStatic ? staticRef.current : heroRef.current;
+    if (!el) return undefined;
+    const root = document.documentElement;
+    const io = new IntersectionObserver(
+      ([e]) => { root.dataset.heroUnderBar = e.isIntersecting ? 'true' : 'false'; },
+      { rootMargin: '0px 0px -85% 0px' },   // the top 15% of the viewport
+    );
+    io.observe(el);
+    return () => { io.disconnect(); root.dataset.heroUnderBar = 'false'; };
+  }, [useStatic]);
 
   useEffect(() => {
     if (useStatic) return undefined;
@@ -314,7 +330,7 @@ export default function ScrollScrubHero({
   // ── the static hero: a designed layout, not a fallback apology ─────────
   if (useStatic) {
     return (
-      <header className="ssh-static" style={{ backgroundImage: `url(${staticSrc})` }}>
+      <header ref={staticRef} className="ssh-static" style={{ backgroundImage: `url(${staticSrc})` }}>
         <div className="ssh-scrim-static" aria-hidden />
         <div className="container-site relative z-10 flex min-h-[calc(100svh-5rem-var(--hud-h))] flex-col justify-end pb-24 md:pb-20">
           {staticHero}

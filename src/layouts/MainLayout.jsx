@@ -44,6 +44,7 @@ export default function MainLayout() {
         </div>
       )}
       <TopHud />
+      <div className="scroll-edge-top" aria-hidden="true" />
       <Navbar />
       <div aria-hidden className="h-[calc(5rem+var(--hud-h))] sm:h-[calc(6rem+var(--hud-h))]" />
       <PageTransition id="main-content" className="above-harmattan flex-1">

@@ -93,6 +93,8 @@ export default function ProductCard({ product }) {
     <motion.article
       variants={fadeInUp}
       whileHover={prefersReduced ? {} : cardHover}
+      // Feedback the instant a finger lands, not when it lifts.
+      whileTap={prefersReduced ? {} : { scale: 0.98, transition: { duration: 0.1, ease: 'easeOut' } }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       {...longPressHandlers}

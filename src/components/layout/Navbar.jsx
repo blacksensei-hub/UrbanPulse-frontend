@@ -7,6 +7,7 @@ import { productService } from '../../services/index.js';
 import { useCartStore } from '../../stores/cartStore.js';
 import { useAuthStore } from '../../stores/authStore.js';
 import { easeOut, spring, springSnappy } from '../../lib/motion.js';
+import SideDrawer from '../ui/SideDrawer.jsx';
 import { pluralize } from '../../utils/format.js';
 import { imageUrl } from '../../utils/image.js';
 import { CATEGORIES } from '../../lib/categories.js';
@@ -73,6 +74,13 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // Drives the scroll-edge blur under the bar (.scroll-edge-top): content
+  // softens as it passes beneath floating chrome, and only once it actually
+  // does, rather than a hard line under the header all the time.
+  useEffect(() => {
+    document.documentElement.dataset.scrolled = scrolled ? 'true' : 'false';
+  }, [scrolled]);
+
   useEffect(() => {
     if (mobileOpen || searchOpen) document.body.style.overflow = 'hidden';
     else document.body.style.overflow = '';
@@ -129,10 +137,12 @@ export default function Navbar() {
             borderRadius: scrolled ? 999 : 16,
             paddingTop: scrolled ? 9 : 14,
             paddingBottom: scrolled ? 9 : 14,
-            boxShadow: scrolled ? 'var(--shadow-float)' : '0 0 0 rgba(0,0,0,0)',
           }}
           transition={springTransition}
-          className="mx-auto w-full pointer-events-auto glass-strong"
+          // The floating shadow lives in CSS (.nav-bar[data-scrolled]) so it
+          // stacks with the material's lit top edge instead of replacing it.
+          data-scrolled={scrolled ? 'true' : 'false'}
+          className="mx-auto w-full pointer-events-auto material-regular nav-bar"
         >
           <div className="px-4 sm:px-6 flex items-center justify-between gap-3">
 
@@ -193,7 +203,7 @@ export default function Navbar() {
                               animate={{ opacity: 1, y: 0 }}
                               exit={{ opacity: 0, y: -8 }}
                               transition={reducedMotion ? { duration: 0 } : easeOut}
-                              className="absolute left-0 top-full mt-4 w-[400px] glass-strong rounded-xl p-5 shadow-lg z-10"
+                              className="absolute left-0 top-full mt-4 w-[400px] material-regular rounded-2xl p-5 z-10"
                             >
                               <p className="eyebrow mb-4">Browse categories</p>
                               <div className="grid grid-cols-5 gap-2">
@@ -313,21 +323,15 @@ export default function Navbar() {
         </motion.nav>
       </div>
 
-      {/* Mobile drawer · z-[60]/[70] clears z-50 nav */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <>
-            <motion.div
-              className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm"
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setMobileOpen(false)}
-            />
-            <motion.aside
-              role="dialog" aria-modal="true" aria-label="Navigation menu"
-              className="fixed top-0 right-0 z-[70] h-full w-[88vw] max-w-sm glass-strong p-6 flex flex-col"
-              initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
-              transition={spring}
-            >
+      {/* Mobile menu: the shared right-edge drawer (swipe right to close,
+          it follows the finger and carries the throw). z 60/70 clears the z-50 nav. */}
+      <SideDrawer
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        label="Navigation menu"
+        zIndex={70}
+        className="w-[88vw] max-w-sm p-6"
+      >
               <div className="flex items-center justify-between mb-8">
                 <span className="font-display text-xl font-bold">Menu</span>
                 <button
@@ -380,10 +384,7 @@ export default function Navbar() {
                   </Link>
                 ))}
               </div>
-            </motion.aside>
-          </>
-        )}
-      </AnimatePresence>
+      </SideDrawer>
 
       {/* Search overlay · z-[80] above everything */}
       <AnimatePresence>

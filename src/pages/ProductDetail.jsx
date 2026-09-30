@@ -16,6 +16,7 @@ import { titleCase, formatCurrency, formatDate, formatRelativeDate, cn } from '.
 import { imageUrl, imageProps } from '../utils/image.js';
 import { fadeIn, morph, spring, springSnappy, staggerContainer } from '../lib/motion.js';
 import SwipeGallery from '../components/product/SwipeGallery.jsx';
+import SegmentedControl from '../components/ui/SegmentedControl.jsx';
 import { useMediaQuery } from '../hooks/useMediaQuery.js';
 import FlashSaleTimer from '../components/product/FlashSaleTimer.jsx';
 import { swatchColor } from '../components/product/QuickView.jsx';
@@ -781,33 +782,18 @@ export default function ProductDetail() {
 
       {/* Tabs · Description / Size Guide / Reviews */}
       <section className="mt-16 border-t border-border pt-10">
-        <div role="tablist" className="flex gap-6 border-b border-border">
-          {[
+        <SegmentedControl
+          ariaLabel="Product details"
+          value={activeTab}
+          onChange={setActiveTab}
+          itemRef={(id) => (id === 'reviews' ? (el) => { reviewsRef.current = el; } : undefined)}
+          className="scroll-mt-24"
+          items={[
             { id: 'description', label: 'Description' },
             { id: 'size-guide',  label: 'Size guide' },
             { id: 'reviews',     label: `Reviews (${product.reviews?.length ?? 0})` },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              role="tab"
-              aria-selected={activeTab === tab.id}
-              ref={tab.id === 'reviews' ? reviewsRef : undefined}
-              onClick={() => setActiveTab(tab.id)}
-              className={cn(
-                'relative scroll-mt-20 pb-3 text-sm font-medium transition-colors sm:scroll-mt-24',
-                activeTab === tab.id ? 'text-text' : 'text-muted hover:text-text',
-              )}
-            >
-              {tab.label}
-              {activeTab === tab.id && !prefersReduced && (
-                <motion.span
-                  layoutId="product-detail-tab"
-                  className="absolute inset-x-0 -bottom-px h-[2px] bg-accent rounded-full"
-                />
-              )}
-            </button>
-          ))}
-        </div>
+          ]}
+        />
 
         <AnimatePresence mode="wait">
           <motion.div

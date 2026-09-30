@@ -159,9 +159,12 @@ html.dark {
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Clash Display', ui-sans-serif, system-ui, sans-serif;
     font-weight: 600;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.018em;
     line-height: 1.15;
   }
+  h4, h5, h6 { letter-spacing: -0.008em; }   /* smaller heads, less tightening */
+
+  body { font-optical-sizing: auto; }
 
   a { color: inherit; text-decoration: none; }
 
@@ -249,11 +252,53 @@ html.dark {
   .press { transition: transform 100ms ease-out; -webkit-tap-highlight-color: transparent; }
   .press:active { transform: scale(0.96); }
 
-  /* Type scale */
-  .text-display { font-size: clamp(3rem, 10vw, 5.5rem); line-height: 1.02; letter-spacing: -0.02em; }
-  .text-h1      { font-size: clamp(2rem, 6vw, 3rem);    line-height: 1.08; letter-spacing: -0.015em; }
-  .text-h2      { font-size: clamp(1.6rem, 5vw, 2.25rem); line-height: 1.15; }
-  .text-h3      { font-size: clamp(1.25rem, 3vw, 1.5rem); line-height: 1.25; }
+  /* The floating nav bar: a regular material that lifts off the page once
+     content starts passing beneath it. */
+  .nav-bar {
+    border: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
+    box-shadow: inset 0 1px 0 var(--mat-edge), 0 0 0 rgba(0, 0, 0, 0);
+    transition: box-shadow 300ms var(--easing-out);
+  }
+  .nav-bar[data-scrolled="true"] { box-shadow: inset 0 1px 0 var(--mat-edge), var(--shadow-float); }
+
+  /* The tab bar: a hairline edge instead of a heavy border or shadow. */
+  .tab-bar {
+    border-top: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent);
+    box-shadow: inset 0 1px 0 var(--mat-edge);
+  }
+
+  /* Scroll edge effect: where content meets the floating chrome at the top,
+     it softens into a blur rather than cutting off at a hard line, and only
+     once there is content under it. */
+  .scroll-edge-top {
+    position: fixed; inset-inline: 0; top: 0; z-index: 45;
+    height: calc(var(--hud-h) + 104px);
+    pointer-events: none;
+    background: rgba(var(--color-bg-rgb), 0.35);
+    backdrop-filter: blur(10px) saturate(140%);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    -webkit-mask-image: linear-gradient(to bottom, #000 45%, transparent);
+            mask-image: linear-gradient(to bottom, #000 45%, transparent);
+    opacity: 0;
+    transition: opacity 250ms var(--easing-out);
+  }
+  html[data-scrolled="true"] .scroll-edge-top { opacity: 1; }
+  html[data-hero-under-bar="true"] .scroll-edge-top { opacity: 0; }
+
+  /* Segmented control: a recessed track and a raised thumb. */
+  .segmented { background: color-mix(in srgb, var(--color-text) 8%, transparent); }
+  .segmented-thumb {
+    background: var(--color-surface);
+    box-shadow: inset 0 1px 0 var(--mat-edge), 0 1px 2px rgba(0, 0, 0, 0.12), 0 4px 10px -4px rgba(0, 0, 0, 0.18);
+  }
+  html.dark .segmented-thumb { background: color-mix(in srgb, var(--color-text) 14%, var(--color-surface)); }
+
+  /* Type scale: tracking and leading tighten as size grows (mirrors the
+     fontSize scale in tailwind.config.js, which wins where both apply). */
+  .text-display { font-size: clamp(3rem, 10vw, 5.5rem); line-height: 1;    letter-spacing: -0.03em; }
+  .text-h1      { font-size: clamp(2rem, 6vw, 3rem);    line-height: 1.05; letter-spacing: -0.025em; }
+  .text-h2      { font-size: clamp(1.6rem, 5vw, 2.25rem); line-height: 1.1; letter-spacing: -0.02em; }
+  .text-h3      { font-size: clamp(1.25rem, 3vw, 1.5rem); line-height: 1.2; letter-spacing: -0.012em; }
 
   /* Buttons */
   .btn {
@@ -418,6 +463,7 @@ html.dark {
     -webkit-backdrop-filter: none !important;
   }
   .sheet-scrim { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+  .scroll-edge-top { display: none; }
 }
 
 /* Increased contrast: near-solid surfaces with a defined edge. */

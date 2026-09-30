@@ -42,14 +42,20 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <CookieConsentProvider>
                 <App />
               </CookieConsentProvider>
+              {/* Notifications arrive as a banner from the top, in a regular
+                  material with a lit edge, the way iOS presents them. */}
               <Toaster
-                position="top-right"
+                position="top-center"
                 toastOptions={{
                   style: {
-                    background: 'var(--color-surface)',
+                    background: 'rgba(var(--color-bg-rgb), 0.78)',
+                    backdropFilter: 'blur(22px) saturate(170%)',
+                    WebkitBackdropFilter: 'blur(22px) saturate(170%)',
                     color: 'var(--color-text)',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: '12px',
+                    border: '1px solid color-mix(in srgb, var(--color-border) 55%, transparent)',
+                    boxShadow: 'inset 0 1px 0 var(--mat-edge), var(--shadow-float)',
+                    borderRadius: '18px',
+                    fontWeight: 500,
                   },
                 }}
               >

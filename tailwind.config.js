@@ -41,15 +41,18 @@ export default {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
+      // Apple's type discipline: tracking and leading are size-specific.
+      // The bigger the type, the tighter both get (large letters read as too
+      // far apart); body sits near zero; small text opens up slightly.
       fontSize: {
-        hero:    'clamp(2.5rem, 8vw, 4rem)',
-        display: ['clamp(3rem, 10vw, 5.5rem)',    { lineHeight: '1.02', letterSpacing: '-0.02em' }],
-        h1:      ['clamp(2rem, 6vw, 3rem)',        { lineHeight: '1.08', letterSpacing: '-0.015em' }],
-        h2:      ['clamp(1.6rem, 5vw, 2.25rem)',   { lineHeight: '1.15' }],
-        h3:      ['clamp(1.25rem, 3vw, 1.5rem)',   { lineHeight: '1.25' }],
-        body:    ['1rem',                           { lineHeight: '1.5' }],
-        small:   ['0.875rem',                       { lineHeight: '1.45' }],
-        eyebrow: ['0.75rem',                        { letterSpacing: '0.14em' }],
+        hero:    ['clamp(2.5rem, 8vw, 4rem)',      { lineHeight: '1.02', letterSpacing: '-0.03em' }],
+        display: ['clamp(3rem, 10vw, 5.5rem)',     { lineHeight: '1',    letterSpacing: '-0.03em' }],
+        h1:      ['clamp(2rem, 6vw, 3rem)',        { lineHeight: '1.05', letterSpacing: '-0.025em' }],
+        h2:      ['clamp(1.6rem, 5vw, 2.25rem)',   { lineHeight: '1.1',  letterSpacing: '-0.02em' }],
+        h3:      ['clamp(1.25rem, 3vw, 1.5rem)',   { lineHeight: '1.2',  letterSpacing: '-0.012em' }],
+        body:    ['1rem',                          { lineHeight: '1.55' }],
+        small:   ['0.875rem',                      { lineHeight: '1.45', letterSpacing: '0.004em' }],
+        eyebrow: ['0.75rem',                       { letterSpacing: '0.14em' }],
       },
       borderRadius: {
         sm:   'var(--radius-sm)',
