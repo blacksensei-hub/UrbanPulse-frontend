@@ -2,10 +2,9 @@ import { Link } from 'react-router-dom';
 import { Label, MetaRow } from '../ui/Instrument.jsx';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Instagram, Twitter, Youtube } from 'lucide-react';
-import { Button } from '../ui/index.jsx';
+import { ChevronDown } from 'lucide-react';
 import { useCookieConsent } from '../../lib/CookieConsentContext.jsx';
-import toast from 'react-hot-toast';
+import DropSignup, { useDropOffer } from '../DropSignup.jsx';
 
 const COLUMNS = [
   {
@@ -73,6 +72,7 @@ function MobileColumn({ col }) {
 
 export default function Footer() {
   const { openCustomize } = useCookieConsent();
+  const dropOffer = useDropOffer();
   return (
     <footer className="above-harmattan relative mt-24 border-t border-border bg-surface">
       <div className="container-site">
@@ -86,33 +86,12 @@ export default function Footer() {
             <Label className="mb-3 block">Stay in the loop</Label>
             <h3 className="text-h2 font-display mb-3">Get first dibs on drops.</h3>
             <p className="text-muted mb-6 max-w-md text-small">
-              First access to new releases, restocks, and members-only essays. No spam, ever.
+              {dropOffer
+                ? `Be first to hear about new drops and restocks, and get ${dropOffer.label.replace(/^Free/, 'free')} when you join.`
+                : 'Be first to hear about new drops and restocks. No spam, ever.'}
             </p>
-            <form
-              className="flex gap-2 max-w-md"
-              onSubmit={(e) => { e.preventDefault(); toast.success('Subscribed'); }}
-            >
-              <input
-                type="email"
-                required
-                autoComplete="email"
-                inputMode="email"
-                placeholder="your@email.com"
-                className="input flex-1"
-              />
-              <Button type="submit">Subscribe</Button>
-            </form>
-            <div className="flex gap-3 mt-6">
-              <a href="#" aria-label="Instagram" className="w-10 h-10 rounded-full border border-border flex items-center justify-center hover:bg-highlight hover:border-accent transition-colors">
-                <Instagram size={16} />
-              </a>
-              <a href="#" aria-label="Twitter / X" className="w-10 h-10 rounded-full border border-border flex items-center justify-center hover:bg-highlight hover:border-accent transition-colors">
-                <Twitter size={16} />
-              </a>
-              <a href="#" aria-label="YouTube" className="w-10 h-10 rounded-full border border-border flex items-center justify-center hover:bg-highlight hover:border-accent transition-colors">
-                <Youtube size={16} />
-              </a>
-            </div>
+            {/* Social icons are hidden until the accounts exist; they linked to "#". */}
+            <DropSignup source="footer" className="max-w-md" />
           </div>
 
           {/* Desktop columns */}

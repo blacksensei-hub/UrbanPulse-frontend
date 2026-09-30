@@ -313,6 +313,24 @@ html.dark {
   }
   html.dark .segmented-thumb { background: color-mix(in srgb, var(--color-text) 14%, var(--color-surface)); }
 
+  /* Tints of theme colours. Tailwind's `/10` opacity shorthand produces
+     nothing for these CSS-variable colours, so these mix explicitly.
+     inverse-*: on an inverted panel (bg-text), e.g. the homepage drop band. */
+  .inverse-track { background: color-mix(in srgb, var(--color-bg) 15%, transparent); }
+  .inverse-fill  { background: color-mix(in srgb, var(--color-bg) 10%, transparent); }
+  .inverse-muted { color: color-mix(in srgb, var(--color-bg) 70%, transparent); }
+  .inverse-input {
+    background: color-mix(in srgb, var(--color-bg) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-bg) 24%, transparent);
+    color: var(--color-bg);
+  }
+  .inverse-input::placeholder { color: color-mix(in srgb, var(--color-bg) 50%, transparent); }
+  .tint-accent  { background: color-mix(in srgb, var(--color-accent) 10%, transparent); }
+  .tint-warning {
+    background: color-mix(in srgb, var(--color-warning) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-warning) 40%, transparent);
+  }
+
   /* Type scale: tracking and leading tighten as size grows (mirrors the
      fontSize scale in tailwind.config.js, which wins where both apply). */
   .text-display { font-size: clamp(3rem, 10vw, 5.5rem); line-height: 1;    letter-spacing: -0.03em; }

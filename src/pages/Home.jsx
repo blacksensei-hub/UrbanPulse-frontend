@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Truck, ShieldCheck, RotateCcw, Sparkles } from 'lucide-react';
-import toast from 'react-hot-toast';
+import DropSignup, { useDropOffer } from '../components/DropSignup.jsx';
 
 import ProductCard from '../components/product/ProductCard.jsx';
 import Divider from '../components/ui/Divider.jsx';
@@ -188,7 +188,7 @@ export default function Home() {
   const [fetchFailed, setFetchFailed] = useState(false);
   const [slowLoad, setSlowLoad] = useState(false);
   const [retryToken, setRetryToken] = useState(0);
-  const [email, setEmail] = useState('');
+  const dropOffer = useDropOffer();
   const [referrerName, setReferrerName] = useState(null);
   const user = useAuthStore((s) => s.user);
   const freeShipThreshold = useSetting('free_shipping_threshold_ghs', '1000');
@@ -221,12 +221,6 @@ export default function Home() {
     }).catch(() => {});
   }, [user]);
 
-  function subscribe(e) {
-    e.preventDefault();
-    if (!email) return;
-    toast.success("You're in. Watch your inbox.");
-    setEmail('');
-  }
 
   return (
     <>
@@ -568,7 +562,7 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: 0.1 }}
                 className="eyebrow text-bg/50"
               >
-                Get first dibs
+                The drop list
               </motion.p>
               <motion.h2
                 initial={prefersReduced ? false : { opacity: 0, y: 16 }}
@@ -577,9 +571,9 @@ export default function Home() {
                 transition={{ duration: 0.55, delay: 0.18 }}
                 className="mt-3 font-display text-hero font-bold leading-[1.05] tracking-tight"
               >
-                10% off your
-                <br />
-                first order.
+                {/* Only promise an offer that exists: the label comes from the
+                    coupon chosen in Admin → Drop list. */}
+                {dropOffer ? `${dropOffer.label}.` : 'First dibs on every drop.'}
               </motion.h2>
               <motion.p
                 initial={prefersReduced ? false : { opacity: 0, y: 12 }}
@@ -588,32 +582,20 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: 0.26 }}
                 className="mt-4 max-w-sm text-bg/65 leading-relaxed"
               >
-                Early access to drops, restocks, and the occasional behind-the-scenes essay.
-                No spam. Ever.
+                {dropOffer
+                  ? 'Join the drop list for your code, then hear about new drops and restocks first, by email or SMS.'
+                  : 'Hear about new drops and restocks first, by email or SMS. No spam.'}
               </motion.p>
             </div>
-            <motion.form
+            <motion.div
               initial={prefersReduced ? false : { opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.32 }}
-              onSubmit={subscribe}
-              className="flex w-full flex-col gap-3 sm:flex-row md:w-80 md:flex-col"
+              className="w-full md:w-96"
             >
-              <input
-                type="email"
-                required
-                autoComplete="email"
-                inputMode="email"
-                placeholder="you@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 rounded-xl border border-bg/20 bg-bg/10 px-4 py-3.5 text-bg placeholder:text-bg/45 focus:border-accent focus:outline-none transition-colors"
-              />
-              <Button type="submit" size="lg" className="bg-accent hover:bg-accent-hover text-on-accent shrink-0">
-                Subscribe
-              </Button>
-            </motion.form>
+              <DropSignup source="home" tone="inverse" />
+            </motion.div>
           </div>
         </motion.div>
       </section>

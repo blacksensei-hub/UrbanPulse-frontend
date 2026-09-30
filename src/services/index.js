@@ -12,6 +12,15 @@ export const productService = {
   stockAlert: (productId, payload) => api.post(`/products/${productId}/stock-alerts`, payload).then(r => r.data),
 };
 
+// Drop list: sign-up, welcome offer, unsubscribe (/stop/:token).
+export const dropService = {
+  offer:     ()        => api.get('/drops/offer').then(r => r.data.offer),
+  subscribe: (payload) => api.post('/drops/subscribe', payload).then(r => r.data),
+  stopInfo:  (token)   => api.get(`/drops/stop/${encodeURIComponent(token)}`).then(r => r.data),
+  stop:      (token)   => api.post(`/drops/stop/${encodeURIComponent(token)}`).then(r => r.data),
+  undoStop:  (token)   => api.post(`/drops/stop/${encodeURIComponent(token)}/undo`).then(r => r.data),
+};
+
 export const contentService = {
   get: (slug) => api.get(`/content/${slug}`).then(r => r.data),
 };
@@ -184,6 +193,16 @@ export const adminService = {
   visitors:       (days = 30) => api.get('/admin/visitors', { params: { days } }).then(r => r.data),
   stockAlerts:    (productId) => api.get(`/admin/products/${productId}/stock-alerts`).then(r => r.data),
   loyaltyOverview: () => api.get('/admin/loyalty/overview').then(r => r.data),
+
+  drops: {
+    overview:   ()         => api.get('/admin/drops').then(r => r.data),
+    setWelcome: (code)     => api.put('/admin/drops/welcome', { code }).then(r => r.data),
+    test:       (b)        => api.post('/admin/drops/test', b).then(r => r.data),
+    start:      (b)        => api.post('/admin/drops/broadcasts', b).then(r => r.data),
+    sendBatch:  (id)       => api.post(`/admin/drops/broadcasts/${id}/send`).then(r => r.data),
+    retry:      (id)       => api.post(`/admin/drops/broadcasts/${id}/retry`).then(r => r.data),
+    remove:     (id)       => api.post(`/admin/drops/subscribers/${id}/remove`).then(r => r.data),
+  },
 
   logs: (params) => api.get('/admin/logs', { params }).then(r => r.data),
 

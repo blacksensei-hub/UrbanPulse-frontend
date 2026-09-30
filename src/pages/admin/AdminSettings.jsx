@@ -168,7 +168,8 @@ export default function AdminSettings() {
         <div className="grid gap-4 sm:grid-cols-2">
           <Input label="Store name" floating value={storeName} onChange={e => setStoreName(e.target.value)} />
           <Input label="Support email" floating type="email" value={supportEmail} onChange={e => setSupportEmail(e.target.value)} />
-          <Input label="WhatsApp number" floating value={supportWhatsapp} onChange={e => setSupportWhatsapp(e.target.value)} />
+          <Input label="WhatsApp number" floating value={supportWhatsapp} onChange={e => setSupportWhatsapp(e.target.value)}
+            hint="e.g. 024 123 4567. Adds a “Chat on WhatsApp” button to product pages and order tracking, and a WhatsApp link to Contact and emails." />
           <Input label="Business address" floating value={businessAddress} onChange={e => setBusinessAddress(e.target.value)} />
         </div>
         <div className="flex justify-end mt-4">

@@ -15,6 +15,9 @@ function deviceType() {
 
 export function recordPageView(pathname, { optedOut = false } = {}) {
   if (optedOut || pathname.startsWith('/admin')) return;
+  // /d/… only redirects (see pages/DropLink.jsx); the page it lands on is the
+  // visit, with its tracking tags.
+  if (pathname === '/d' || pathname.startsWith('/d/')) return;
   const landing = !landed;
   landed = true;
   const q = landing ? new URLSearchParams(window.location.search) : null;

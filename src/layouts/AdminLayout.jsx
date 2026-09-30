@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Package, ShoppingBag, Users, TicketPercent,
   BarChart3, ScrollText, Settings, Menu, X, LogOut, Store,
-  RotateCcw, UserCog, ChevronLeft, ChevronRight, Search, Activity, Award, FileText,
+  RotateCcw, UserCog, ChevronLeft, ChevronRight, Search, Activity, Award, FileText, Megaphone,
 } from 'lucide-react';
 import { adminService } from '../services/index.js';
 import AdminThemeToggle from '../components/admin/AdminThemeToggle.jsx';
@@ -23,6 +23,7 @@ const PAGE_TITLES = {
   '/admin/returns': 'Returns',
   '/admin/users': 'Customers',
   '/admin/coupons': 'Coupons',
+  '/admin/drops': 'Drop list',
   '/admin/analytics': 'Analytics',
   '/admin/loyalty': 'Loyalty',
   '/admin/logs': 'Logs',
@@ -68,6 +69,7 @@ const NAV_GROUPS = [
     label: 'People',
     items: [
       { to: '/admin/users',     label: 'Customers', icon: Users },
+      { to: '/admin/drops',     label: 'Drop list', icon: Megaphone },
       { to: '#', label: 'Staff', icon: UserCog, disabled: true, soon: true },
     ],
   },

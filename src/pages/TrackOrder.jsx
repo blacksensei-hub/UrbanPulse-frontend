@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { Check, Package, Truck, Home as HomeIcon, ClipboardCheck, CircleDot, ExternalLink } from 'lucide-react';
+import { Check, Package, Truck, Home as HomeIcon, ClipboardCheck, CircleDot, ExternalLink, MessageCircle } from 'lucide-react';
+import { useWhatsAppLink } from '../lib/whatsapp.js';
 import SEO from '../components/SEO.jsx';
 import { Button } from '../components/ui/index.jsx';
 import { Label } from '../components/ui/Instrument.jsx';
@@ -31,6 +32,21 @@ const HEADLINE = {
   cancelled: 'Cancelled',
   refunded: 'Refunded',
 };
+
+// "Questions about this order?" with the order number already in the chat.
+// Nothing shows until a WhatsApp number is set in Admin → Settings.
+function OrderWhatsApp({ orderNumber }) {
+  const href = useWhatsAppLink(`Hi UrbanPulse, I have a question about my order ${orderNumber}.`);
+  if (!href) return null;
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer" className="press mt-6 flex items-center gap-3 rounded-2xl border border-border px-4 py-3 transition-colors hover:border-text">
+      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#25D366] text-white" aria-hidden="true">
+        <MessageCircle className="h-[18px] w-[18px]" />
+      </span>
+      <span className="flex-1 text-sm font-semibold">Questions about this order? Chat on WhatsApp</span>
+    </a>
+  );
+}
 
 function stageDate(result, key) {
   if (key === 'placed') return result.placed_at;
@@ -202,6 +218,7 @@ export default function TrackOrder() {
               {(result.city || result.region) && (
                 <p className="mt-4 px-1 text-xs text-muted">Delivering to {[result.city, result.region].filter(Boolean).join(', ')}.</p>
               )}
+              <OrderWhatsApp orderNumber={result.order_number} />
             </motion.section>
           )}
         </AnimatePresence>

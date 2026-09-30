@@ -10,8 +10,11 @@ import { cn } from '../../utils/format.js';
  *
  * items: [{ id, label }]   value: id   onChange(id)
  * itemRef(id): optional ref callback per segment (e.g. to scroll to one).
+ * tone: 'inverse' on an inverted panel (bg-text), where the usual track and
+ *       muted labels would vanish.
  */
-export default function SegmentedControl({ items, value, onChange, ariaLabel, itemRef, className }) {
+export default function SegmentedControl({ items, value, onChange, ariaLabel, itemRef, className, tone }) {
+  const inverse = tone === 'inverse';
   const reduced = useReducedMotion();
   const thumbId = useId();
   const refs = useRef({});
@@ -35,7 +38,11 @@ export default function SegmentedControl({ items, value, onChange, ariaLabel, it
       role="tablist"
       aria-label={ariaLabel}
       onKeyDown={onKeyDown}
-      className={cn('segmented relative inline-flex w-full max-w-md rounded-full p-1 sm:w-auto', className)}
+      className={cn(
+        'relative inline-flex w-full max-w-md rounded-full p-1 sm:w-auto',
+        inverse ? 'inverse-track' : 'segmented',
+        className,
+      )}
     >
       {items.map((it) => {
         const active = it.id === value;
@@ -50,7 +57,7 @@ export default function SegmentedControl({ items, value, onChange, ariaLabel, it
             onClick={() => onChange(it.id)}
             className={cn(
               'press relative flex-1 whitespace-nowrap rounded-full px-4 py-2 text-[13px] font-semibold tracking-[0.005em] transition-colors sm:flex-none',
-              active ? 'text-text' : 'text-muted hover:text-text',
+              active ? 'text-text' : inverse ? 'inverse-muted hover:text-bg' : 'text-muted hover:text-text',
             )}
           >
             {active && (

@@ -10,6 +10,7 @@ import { swatchColor } from '../components/product/QuickView.jsx';
 import ProductCard from '../components/product/ProductCard.jsx';
 import RecentlyViewed from '../components/product/RecentlyViewed.jsx';
 import ProductImage from '../components/ui/ProductImage.jsx';
+import WhatsAppAsk from '../components/product/WhatsAppAsk.jsx';
 
 const SITE_URL = import.meta.env.VITE_APP_URL || 'https://urbanpulse.com';
 
@@ -248,6 +249,8 @@ export default function ProductDetailEditorial({
         {wishlisted ? 'Saved' : 'Save to wishlist'}
       </button>
       )}
+
+      <WhatsAppAsk product={product} size={selectedSize} />
 
       <ul className="space-y-2 border-t border-border pt-4">
         <li className="flex items-center gap-2 text-xs text-muted">

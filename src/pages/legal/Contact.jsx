@@ -4,6 +4,7 @@ import { Mail, MessageSquare, MapPin, CheckCircle } from 'lucide-react';
 import { Button } from '../../components/ui/index.jsx';
 import SEO from '../../components/SEO.jsx';
 import { useSetting } from '../../stores/settingsStore.js';
+import { whatsappDigits } from '../../lib/whatsapp.js';
 
 const SUBJECTS = [
   'Order question',
@@ -18,7 +19,7 @@ const FALLBACK_EMAIL = 'noreply.urbanpulse0@gmail.com';
 
 export default function Contact() {
   const supportEmail = useSetting('support_email', FALLBACK_EMAIL) || FALLBACK_EMAIL;
-  const whatsapp = String(useSetting('support_whatsapp', '') || '').replace(/[^\d]/g, '');
+  const whatsapp = whatsappDigits(useSetting('support_whatsapp', ''));
   const [form, setForm] = useState({ name: '', email: '', subject: SUBJECTS[0], message: '' });
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});

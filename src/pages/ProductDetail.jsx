@@ -33,6 +33,7 @@ import ProductCard from '../components/product/ProductCard.jsx';
 import ProductDetailEditorial from './ProductDetailEditorial.jsx';
 import SEO from '../components/SEO.jsx';
 import ShareButtons from '../components/product/ShareButtons.jsx';
+import WhatsAppAsk from '../components/product/WhatsAppAsk.jsx';
 import { SITE_URL, buildProductSchema, buildBreadcrumbSchema } from '../lib/seoSchema.js';
 
 
@@ -770,6 +771,8 @@ export default function ProductDetail() {
               Only {variant.stock} left in this size/color
             </motion.p>
           )}
+
+          <WhatsAppAsk product={product} size={selectedSize} className="mt-6" />
 
           {/* Perks */}
           <ul className="mt-8 grid grid-cols-1 gap-3 border-t border-border pt-6 sm:grid-cols-3">

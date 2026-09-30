@@ -19,6 +19,7 @@ import { storeRefCode } from './utils/referral.js';
 import { authService } from './services/index.js';
 import { hasSessionHint, setSessionHint } from './utils/sessionHint.js';
 import { recordPageView } from './lib/visitStats.js';
+import DropLink from './pages/DropLink.jsx';
 import { readConsent } from './utils/cookieConsent.js';
 
 const Home           = lazy(() => import('./pages/Home.jsx'));
@@ -31,6 +32,7 @@ const SearchResults  = lazy(() => import('./pages/SearchResults.jsx'));
 const Account        = lazy(() => import('./pages/Account.jsx'));
 const FAQ            = lazy(() => import('./pages/FAQ.jsx'));
 const TrackOrder     = lazy(() => import('./pages/TrackOrder.jsx'));
+const StopDrops      = lazy(() => import('./pages/StopDrops.jsx'));
 const Login          = lazy(() => import('./pages/Login.jsx'));
 const Register       = lazy(() => import('./pages/Register.jsx'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword.jsx'));
@@ -63,6 +65,7 @@ const AdminOrderDetail    = lazy(() => import('./pages/admin/AdminOrderDetail.js
 const AdminTemplates      = lazy(() => import('./pages/admin/AdminTemplates.jsx'));
 const AdminPages          = lazy(() => import('./pages/admin/AdminPages.jsx'));
 const AdminPageEdit       = lazy(() => import('./pages/admin/AdminPageEdit.jsx'));
+const AdminDrops          = lazy(() => import('./pages/admin/AdminDrops.jsx'));
 
 function PageSkeleton() {
   return (
@@ -210,6 +213,10 @@ export default function App() {
             correctly detect when its exit finished — the old page's content stayed
             mounted (sometimes forever) under the new URL until a hard reload. */}
         <Routes location={location}>
+          {/* Short links in drop texts: straight redirects, no layout. */}
+          <Route path="d" element={<DropLink />} />
+          <Route path="d/:slug" element={<DropLink />} />
+
           {/* Customer */}
           <Route element={<MainLayout />}>
             <Route index element={<Home />} />
@@ -221,6 +228,7 @@ export default function App() {
             <Route path="search" element={<SearchResults />} />
             <Route path="faq" element={<FAQ />} />
             <Route path="track" element={<TrackOrder />} />
+            <Route path="stop/:token" element={<StopDrops />} />
             <Route path="about"          element={<About />} />
             <Route path="privacy"        element={<PrivacyPolicy />} />
             <Route path="terms"          element={<Terms />} />
@@ -254,6 +262,7 @@ export default function App() {
             <Route path="customers/:id" element={<AdminCustomerDetail />} />
             <Route path="users" element={<AdminUsers />} />
             <Route path="coupons" element={<AdminCoupons />} />
+            <Route path="drops" element={<AdminDrops />} />
             <Route path="analytics" element={<AdminAnalytics />} />
             <Route path="loyalty" element={<AdminLoyalty />} />
             <Route path="logs" element={<AdminLogs />} />
