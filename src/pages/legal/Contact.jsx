@@ -20,6 +20,8 @@ const FALLBACK_EMAIL = 'noreply.urbanpulse0@gmail.com';
 export default function Contact() {
   const supportEmail = useSetting('support_email', FALLBACK_EMAIL) || FALLBACK_EMAIL;
   const whatsapp = whatsappDigits(useSetting('support_whatsapp', ''));
+  // Admin → Settings → Business address; "Accra, Ghana" until one is set.
+  const address = String(useSetting('business_address', '') || '').trim() || 'Accra, Ghana';
   const [form, setForm] = useState({ name: '', email: '', subject: SUBJECTS[0], message: '' });
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
@@ -113,11 +115,7 @@ ${form.email}`;
             {/* Address */}
             <div className="mt-8 flex items-start gap-3">
               <MapPin className="h-4 w-4 text-accent-text mt-0.5 shrink-0" />
-              <div>
-                <p className="text-sm font-medium">Accra, Ghana</p>
-                {/* TODO: Add physical address when confirmed */}
-                <p className="text-xs text-muted mt-0.5">Physical address coming soon</p>
-              </div>
+              <p className="text-sm font-medium whitespace-pre-line">{address}</p>
             </div>
           </div>
 

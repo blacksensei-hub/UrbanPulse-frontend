@@ -17,6 +17,7 @@ import { getErrorMessage } from '../utils/errors.js';
 import { fadeInUp } from '../lib/motion.js';
 import { useFeature, useSetting, useSettingsStore } from '../stores/settingsStore.js';
 import { shippingFor, bundleDiscount, GHANA_REGIONS } from '../lib/pricing.js';
+import { useWhatsApp } from '../lib/whatsapp.js';
 
 const STEPS = ['Information', 'Shipping', 'Payment'];
 
@@ -33,6 +34,7 @@ export default function Checkout() {
   const settings   = useSettingsStore((s) => s.settings);
   const freeThresh = Number(useSetting('free_shipping_threshold_ghs', '1000'));
   const taxPct     = Number(useSetting('tax_rate_percent', '12.5'));
+  const whatsapp   = useWhatsApp('Hi UrbanPulse, I have a question before I place my order.');
 
   const [step, setStep]                 = useState(0);
   const [justCompleted, setJustCompleted] = useState(null);
@@ -623,10 +625,13 @@ export default function Checkout() {
                     <span className="flex items-center gap-1.5">
                       <Truck size={11} /> Free shipping on {formatCurrency(freeThresh)}+
                     </span>
-                    <span className="flex items-center gap-1.5">
-                      {/* TODO: add real WhatsApp number */}
-                      <Phone size={11} /> WhatsApp +233 XX XXX XXXX
-                    </span>
+                    {/* The real number from Admin → Settings; hidden until one is set
+                        (this used to show a "+233 XX XXX XXXX" placeholder). */}
+                    {whatsapp && (
+                      <a href={whatsapp.href} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-text">
+                        <Phone size={11} /> WhatsApp {whatsapp.number}
+                      </a>
+                    )}
                   </div>
                   <Button size="lg" onClick={placeOrder} loading={submitting} className="w-full">
                     {pendingOrder ? 'Retry payment' : 'Place order'} · <span className="font-mono tabular-nums">{formatCurrency(pendingOrder ? pendingOrder.total : total)}</span>

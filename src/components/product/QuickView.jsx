@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import Modal from '../ui/Modal.jsx';
 import { Button } from '../ui/index.jsx';
 import ProductImage from '../ui/ProductImage.jsx';
+import NotifyMeSheet from './NotifyMeSheet.jsx';
 import { productService } from '../../services/index.js';
 import { useCartStore } from '../../stores/cartStore.js';
 import { formatCurrency, cn } from '../../utils/format.js';
@@ -34,10 +35,15 @@ export default function QuickView({ slug, open, onClose }) {
   const [selectedSize, setSelectedSize] = useState(null);
   const [qty, setQty] = useState(1);
   const [adding, setAdding] = useState(false);
+  // A sold-out size hands over to the same "tell me when it's back" sheet as
+  // the product page (this used to show a "coming soon" toast). The quick
+  // view steps aside while it's open, so only one sheet is ever on screen.
+  const [notifyVariant, setNotifyVariant] = useState(null);
   const add = useCartStore((s) => s.add);
 
   useEffect(() => {
     if (!open || !slug) return;
+    setNotifyVariant(null);
     setLoading(true);
     setProduct(null);
     setActiveImage(0);
@@ -92,7 +98,8 @@ export default function QuickView({ slug, open, onClose }) {
     : ['/media/detail-tee.jpg'];
 
   return (
-    <Modal open={open} onClose={onClose} maxWidth="700px">
+    <>
+    <Modal open={open && !notifyVariant} onClose={onClose} maxWidth="700px">
       {loading && (
         <div className="grid sm:grid-cols-2 gap-6 p-6">
           <div className="skeleton aspect-[4/5] rounded-xl" />
@@ -247,7 +254,7 @@ export default function QuickView({ slug, open, onClose }) {
                         key={s}
                         onClick={() => {
                           if (oos) {
-                            toast('Notify me when back in stock, coming soon', { icon: '🔔' });
+                            if (v && !product.is_preorder) setNotifyVariant(v);
                             return;
                           }
                           setSelectedSize(s);
@@ -291,14 +298,20 @@ export default function QuickView({ slug, open, onClose }) {
               </div>
             </div>
 
-            <Button
-              size="lg"
-              onClick={handleAdd}
-              loading={adding}
-              disabled={!variant || variant.stock <= 0}
-            >
-              {variant && variant.stock <= 0 ? 'Out of stock' : 'Add to cart'}
-            </Button>
+            {variant && variant.stock <= 0 && !product.is_preorder ? (
+              <Button size="lg" variant="outline" onClick={() => setNotifyVariant(variant)}>
+                Sold out · Notify me
+              </Button>
+            ) : (
+              <Button
+                size="lg"
+                onClick={handleAdd}
+                loading={adding}
+                disabled={!variant || variant.stock <= 0}
+              >
+                {variant && variant.stock <= 0 ? 'Out of stock' : 'Add to cart'}
+              </Button>
+            )}
 
             <Link
               to={`/products/${product.slug}`}
@@ -311,5 +324,14 @@ export default function QuickView({ slug, open, onClose }) {
         </div>
       )}
     </Modal>
+    {product && (
+      <NotifyMeSheet
+        open={!!notifyVariant}
+        onClose={() => { setNotifyVariant(null); onClose(); }}
+        product={product}
+        variant={notifyVariant}
+      />
+    )}
+    </>
   );
 }

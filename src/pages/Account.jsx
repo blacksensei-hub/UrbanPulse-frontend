@@ -50,12 +50,15 @@ const TIER_COLORS = {
   gold:     'bg-yellow-500/15 text-yellow-700 dark:text-yellow-400',
   platinum: 'bg-cyan-500/15 text-cyan-700 dark:text-cyan-400',
 };
-// TODO: real tier benefits beyond points still need to be designed · these are aspirational copy for now.
+// Only what tiers actually do today: they mark lifetime points, and points
+// earn and redeem the same at every tier (utils/loyalty.js). The old copy
+// promised priority support, early access and first pick, none of which
+// exists. Add a perk here only once it's real.
 const TIER_BENEFITS = {
   bronze:   'Earn points on every order, right from your first purchase.',
-  silver:   'Everything in Bronze, plus priority customer support.',
-  gold:     'Everything in Silver, plus early access to new drops.',
-  platinum: 'Everything in Gold, plus first pick on limited releases.',
+  silver:   'Silver shows how much you’ve shopped with us. Points earn and redeem the same at every tier.',
+  gold:     'Gold shows how much you’ve shopped with us. Points earn and redeem the same at every tier.',
+  platinum: 'Platinum shows how much you’ve shopped with us. Points earn and redeem the same at every tier.',
 };
 
 function isEligibleForReturn(order) {

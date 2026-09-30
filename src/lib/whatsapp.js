@@ -13,7 +13,16 @@ export function whatsappDigits(raw) {
 // The store's WhatsApp chat link with a message filled in, or null when no
 // number is set (then nothing WhatsApp-related should show).
 export function useWhatsAppLink(text) {
+  return useWhatsApp(text)?.href ?? null;
+}
+
+// { href, number } for showing the number itself ("+233 24 123 4567"), or
+// null when none is set in Admin → Settings.
+export function useWhatsApp(text) {
   const digits = whatsappDigits(useSetting('support_whatsapp', ''));
   if (digits.length < 9) return null;
-  return `https://wa.me/${digits}${text ? `?text=${encodeURIComponent(text)}` : ''}`;
+  const number = /^233\d{9}$/.test(digits)
+    ? `+233 ${digits.slice(3, 5)} ${digits.slice(5, 8)} ${digits.slice(8)}`
+    : `+${digits}`;
+  return { href: `https://wa.me/${digits}${text ? `?text=${encodeURIComponent(text)}` : ''}`, number };
 }
