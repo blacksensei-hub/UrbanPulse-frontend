@@ -3,6 +3,8 @@ import toast from 'react-hot-toast';
 import { Button, Input } from '../../components/ui/index.jsx';
 import AdminPageHeader from '../../components/admin/AdminPageHeader.jsx';
 import { settingsService } from '../../services/index.js';
+import DeliveryRegionsCard from '../../components/admin/DeliveryRegionsCard.jsx';
+import BundlesCard from '../../components/admin/BundlesCard.jsx';
 
 function SectionLabel({ children }) {
   return (
@@ -202,6 +204,9 @@ export default function AdminSettings() {
           ], 'Commerce')}>Save</Button>
         </div>
       </section>
+
+      <DeliveryRegionsCard settings={settings} />
+      <BundlesCard settings={settings} />
 
       {/* ── Loyalty ── */}
       <section className="card p-6">

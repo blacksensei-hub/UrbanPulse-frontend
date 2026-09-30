@@ -18,6 +18,8 @@ import { useLoadingStore } from './stores/loadingStore.js';
 import { storeRefCode } from './utils/referral.js';
 import { authService } from './services/index.js';
 import { hasSessionHint, setSessionHint } from './utils/sessionHint.js';
+import { recordPageView } from './lib/visitStats.js';
+import { readConsent } from './utils/cookieConsent.js';
 
 const Home           = lazy(() => import('./pages/Home.jsx'));
 const Shop           = lazy(() => import('./pages/Shop.jsx'));
@@ -28,6 +30,7 @@ const OrderSuccess   = lazy(() => import('./pages/OrderSuccess.jsx'));
 const SearchResults  = lazy(() => import('./pages/SearchResults.jsx'));
 const Account        = lazy(() => import('./pages/Account.jsx'));
 const FAQ            = lazy(() => import('./pages/FAQ.jsx'));
+const TrackOrder     = lazy(() => import('./pages/TrackOrder.jsx'));
 const Login          = lazy(() => import('./pages/Login.jsx'));
 const Register       = lazy(() => import('./pages/Register.jsx'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword.jsx'));
@@ -181,6 +184,17 @@ export default function App() {
     startLoading();
   }, [location.pathname, startLoading]);
 
+  // Anonymous page-view count (lib/visitStats.js). Waits until we know who's
+  // signed in, so a shopper who rejected analytics is never counted.
+  const authLoading = useAuthStore((s) => s.loading);
+  useEffect(() => {
+    if (authLoading) return;
+    const c = readConsent();
+    const optedOut = !!user && !!c && (c.user_id == null || c.user_id === user.id) && c.analytics === false;
+    recordPageView(location.pathname, { optedOut });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname, authLoading]);
+
   return (
     <>
     <ScrollRestoration />
@@ -206,6 +220,7 @@ export default function App() {
             <Route path="order-success" element={<OrderSuccess />} />
             <Route path="search" element={<SearchResults />} />
             <Route path="faq" element={<FAQ />} />
+            <Route path="track" element={<TrackOrder />} />
             <Route path="about"          element={<About />} />
             <Route path="privacy"        element={<PrivacyPolicy />} />
             <Route path="terms"          element={<Terms />} />

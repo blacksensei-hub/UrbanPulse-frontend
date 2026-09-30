@@ -234,9 +234,16 @@ export default function OrderSuccess() {
             <Link to="/shop">
               <Button variant="outline">Continue shopping</Button>
             </Link>
-            {id && (
+            {/* Guests have no account page to go to; they get tracking instead,
+                with their order number already filled in. */}
+            {id && user && (
               <Link to="/account/orders">
                 <Button>View your orders</Button>
+              </Link>
+            )}
+            {id && !user && order?.order_number && (
+              <Link to={`/track?order=${encodeURIComponent(order.order_number)}`}>
+                <Button>Track this order</Button>
               </Link>
             )}
           </div>

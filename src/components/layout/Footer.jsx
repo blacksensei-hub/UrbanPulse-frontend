@@ -20,6 +20,7 @@ const COLUMNS = [
   {
     title: 'Support',
     links: [
+      { to: '/track',          label: 'Track an order' },
       { to: '/faq',            label: 'FAQ' },
       { to: '/shipping',       label: 'Shipping info' },
       { to: '/returns-policy', label: 'Returns' },

@@ -14,6 +14,7 @@ import { TrendingUp } from 'lucide-react';
 import { adminService } from '../../services/index.js';
 import { formatCurrency } from '../../utils/format.js';
 import AdminPageHeader from '../../components/admin/AdminPageHeader.jsx';
+import VisitorsPanel from '../../components/admin/VisitorsPanel.jsx';
 
 export default function AdminAnalytics() {
   const [sales, setSales] = useState([]);
@@ -37,8 +38,10 @@ export default function AdminAnalytics() {
     <div className="space-y-6">
       <AdminPageHeader
         title="Analytics"
-        subtitle="Sales performance and customer insights."
+        subtitle="Sales performance, customer insights and where visitors come from."
       />
+
+      <VisitorsPanel />
 
       <div className="card min-w-0 p-6">
         <h2 className="font-display text-lg font-semibold">Daily sales (last 30 days)</h2>

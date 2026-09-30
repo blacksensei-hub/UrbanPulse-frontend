@@ -285,6 +285,26 @@ html.dark {
   html[data-scrolled="true"] .scroll-edge-top { opacity: 1; }
   html[data-hero-under-bar="true"] .scroll-edge-top { opacity: 0; }
 
+  /* Grouped inset list (iOS Settings): one rounded surface, rows divided by
+     hairlines that start where the text does, not at the card's edge. */
+  .inset-group {
+    background: var(--color-surface);
+    border: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
+    border-radius: 18px;
+    overflow: hidden;
+  }
+  .inset-row { position: relative; padding: 14px 16px; }
+  .inset-row + .inset-row::before {
+    content: ""; position: absolute; top: 0; left: 16px; right: 0; height: 1px;
+    background: color-mix(in srgb, var(--color-border) 75%, transparent);
+  }
+  .inset-field {
+    width: 100%; background: transparent; border: 0; outline: none;
+    font-size: 16px; color: var(--color-text); padding: 2px 0 0;
+  }
+  .inset-field::placeholder { color: var(--color-muted); opacity: .8; }
+  .inset-row:focus-within { background: color-mix(in srgb, var(--color-accent) 5%, transparent); }
+
   /* Segmented control: a recessed track and a raised thumb. */
   .segmented { background: color-mix(in srgb, var(--color-text) 8%, transparent); }
   .segmented-thumb {

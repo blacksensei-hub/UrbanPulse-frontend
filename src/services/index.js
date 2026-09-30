@@ -8,6 +8,8 @@ export const productService = {
   social:  (slug)          => api.get(`/products/${slug}/social`).then(r => r.data),
   related: (slug)          => api.get(`/products/${slug}/related`).then(r => r.data),
   byIds:   (ids)           => api.get('/products/by-ids', { params: { ids: ids.join(',') } }).then(r => r.data),
+  // "Tell me when this size is back": { variant_id, email?, phone? }
+  stockAlert: (productId, payload) => api.post(`/products/${productId}/stock-alerts`, payload).then(r => r.data),
 };
 
 export const contentService = {
@@ -29,6 +31,8 @@ export const orderService = {
   verify:   (reference) => api.get(`/checkout/verify/${encodeURIComponent(reference)}`).then(r => r.data),
   history:  (id) => api.get(`/orders/${id}/history`).then(r => r.data),
   previewCoupon: (payload) => api.post('/orders/preview', payload).then(r => r.data),
+  // Order status without an account: { order_number, contact (email or phone) }
+  track: (payload) => api.post('/orders/track', payload).then(r => r.data),
   downloadReceipt: async (orderId, orderNumber) => {
     const response = await api.get(`/orders/${orderId}/receipt.pdf`, { responseType: 'blob' });
     const url = URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
@@ -177,6 +181,8 @@ export const adminService = {
   salesAnalytics: () => api.get('/admin/analytics/sales').then(r => r.data),
   topProducts:    () => api.get('/admin/analytics/top-products').then(r => r.data),
   customerLTV:    () => api.get('/admin/analytics/customer-ltv').then(r => r.data),
+  visitors:       (days = 30) => api.get('/admin/visitors', { params: { days } }).then(r => r.data),
+  stockAlerts:    (productId) => api.get(`/admin/products/${productId}/stock-alerts`).then(r => r.data),
   loyaltyOverview: () => api.get('/admin/loyalty/overview').then(r => r.data),
 
   logs: (params) => api.get('/admin/logs', { params }).then(r => r.data),

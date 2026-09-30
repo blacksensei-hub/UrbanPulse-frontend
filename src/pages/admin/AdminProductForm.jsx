@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 
 import { Button, Input } from '../../components/ui/index.jsx';
 import Modal from '../../components/ui/Modal.jsx';
+import SizeChartEditor from '../../components/admin/SizeChartEditor.jsx';
 import { adminService } from '../../services/index.js';
 import AdminPageHeader from '../../components/admin/AdminPageHeader.jsx';
 import { formatDate } from '../../utils/format.js';
@@ -60,6 +61,8 @@ export default function AdminProductForm() {
 
   // Adjustment history (all variants)
   const [adjHistory, setAdjHistory] = useState([]);
+  // People waiting on a sold-out size: { variant_id: count }
+  const [waiting, setWaiting] = useState({});
   const requestIdRef = useRef(0);
 
   useEffect(() => {
@@ -71,6 +74,7 @@ export default function AdminProductForm() {
         if (!p || thisRequestId !== requestIdRef.current) return;
         const variants = p.variants?.length ? p.variants : [emptyVariant()];
         setForm({ ...p, images: p.images?.length ? p.images : [''], variants });
+        adminService.stockAlerts(id).then(setWaiting).catch(() => {});
         const savedVariants = variants.filter(v => v.id);
         if (savedVariants.length) {
           const histories = await Promise.all(
@@ -426,9 +430,26 @@ export default function AdminProductForm() {
                       <SlidersHorizontal className="h-4 w-4 pointer-events-none" />
                     </button>
                   ) : <div />}
+                  {v.id && waiting[v.id] > 0 && (
+                    <p className="sm:col-span-7 text-xs text-accent-text">
+                      {waiting[v.id]} {waiting[v.id] === 1 ? 'person is' : 'people are'} waiting for this size. They'll be told automatically when you restock it.
+                    </p>
+                  )}
                 </motion.div>
               ))}
             </div>
+          </section>
+
+          {/* Size chart */}
+          <section id="section-size-chart" className="card p-6">
+            <SectionLabel>Size chart</SectionLabel>
+            <SizeChartEditor
+              chart={form.size_chart ?? null}
+              onChange={(chart) => set('size_chart', chart)}
+              fitNote={form.fit_note ?? ''}
+              onFitNoteChange={(v) => set('fit_note', v)}
+              variantSizes={form.variants.map((v) => v.size)}
+            />
           </section>
 
           {/* Adjustment History */}

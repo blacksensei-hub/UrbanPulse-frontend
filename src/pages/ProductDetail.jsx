@@ -17,6 +17,9 @@ import { imageUrl, imageProps } from '../utils/image.js';
 import { fadeIn, morph, spring, springSnappy, staggerContainer } from '../lib/motion.js';
 import SwipeGallery from '../components/product/SwipeGallery.jsx';
 import SegmentedControl from '../components/ui/SegmentedControl.jsx';
+import Sheet from '../components/ui/Sheet.jsx';
+import NotifyMeSheet from '../components/product/NotifyMeSheet.jsx';
+import SizeChart from '../components/product/SizeChart.jsx';
 import { useMediaQuery } from '../hooks/useMediaQuery.js';
 import FlashSaleTimer from '../components/product/FlashSaleTimer.jsx';
 import { swatchColor } from '../components/product/QuickView.jsx';
@@ -75,6 +78,9 @@ export default function ProductDetail() {
   const [zoomStyle, setZoomStyle] = useState({});
   const [showStickyATC, setShowStickyATC] = useState(false);
   const [activeTab, setActiveTab] = useState('description');
+  // A sold-out size someone wants to hear about, and the size-guide sheet.
+  const [notifyVariant, setNotifyVariant] = useState(null);
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const [social, setSocial] = useState(null);
   const [related, setRelated] = useState([]);
   const [flyState, setFlyState] = useState(null);
@@ -627,7 +633,7 @@ export default function ProductDetail() {
             <div className="mt-6">
               <div className="mb-2 flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wider">Size</span>
-                <button className="text-xs text-muted underline hover:text-text">Size guide</button>
+                <button type="button" onClick={() => setSizeGuideOpen(true)} className="press text-xs text-muted underline underline-offset-2 hover:text-text">Size guide</button>
               </div>
               <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
                 {sizes.map((s) => {
@@ -640,7 +646,8 @@ export default function ProductDetail() {
                       key={s}
                       onClick={() => {
                         if (oos) {
-                          toast('Notify me when back in stock, coming soon', { icon: '🔔' });
+                          // Sold out: offer to tell them when it's back.
+                          if (v && !isPreorder) setNotifyVariant(v);
                           return;
                         }
                         setSelectedSize(s);
@@ -697,15 +704,21 @@ export default function ProductDetail() {
                 Pre-order
               </Button>
             ) : (
-              <Button
-                size="lg"
-                className="flex-1 min-w-[160px]"
-                onClick={handleAdd}
-                loading={adding}
-                disabled={!variant || variant.stock <= 0}
-              >
-                {variant && variant.stock <= 0 ? 'Out of stock' : 'Add to cart'}
-              </Button>
+              variant && variant.stock <= 0 ? (
+                <Button size="lg" variant="outline" className="flex-1 min-w-[160px]" onClick={() => setNotifyVariant(variant)}>
+                  Sold out · Notify me
+                </Button>
+              ) : (
+                <Button
+                  size="lg"
+                  className="flex-1 min-w-[160px]"
+                  onClick={handleAdd}
+                  loading={adding}
+                  disabled={!variant}
+                >
+                  Add to cart
+                </Button>
+              )
             )}
             {wishlistEnabled && (
             <button
@@ -780,6 +793,16 @@ export default function ProductDetail() {
         </motion.div>
       </div>
 
+      <NotifyMeSheet
+        open={!!notifyVariant}
+        onClose={() => setNotifyVariant(null)}
+        product={product}
+        variant={notifyVariant}
+      />
+      <Sheet open={sizeGuideOpen} onClose={() => setSizeGuideOpen(false)} title="Size guide" maxWidth="560px">
+        <SizeChart product={product} highlight={selectedSize} />
+      </Sheet>
+
       {/* Tabs · Description / Size Guide / Reviews */}
       <section className="mt-16 border-t border-border pt-10">
         <SegmentedControl
@@ -815,36 +838,7 @@ export default function ProductDetail() {
 
             {activeTab === 'size-guide' && (
               <div className="max-w-lg">
-                {/* TODO: replace with real per-category size chart data */}
-                <p className="eyebrow mb-4">General sizing</p>
-                <table className="w-full text-sm border-collapse">
-                  <thead>
-                    <tr className="border-b border-border">
-                      <th className="py-2 text-left font-semibold">Size</th>
-                      <th className="py-2 text-left font-semibold">Chest (cm)</th>
-                      <th className="py-2 text-left font-semibold">Waist (cm)</th>
-                      <th className="py-2 text-left font-semibold">Hip (cm)</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border text-muted">
-                    {[
-                      ['XS',  '82–86',   '68–72',   '88–92'],
-                      ['S',   '86–90',   '72–76',   '92–96'],
-                      ['M',   '90–96',   '76–82',   '96–102'],
-                      ['L',   '96–104',  '82–90',   '102–110'],
-                      ['XL',  '104–112', '90–98',   '110–118'],
-                      ['XXL', '112–120', '98–106',  '118–126'],
-                    ].map(([s, ...m]) => (
-                      <tr key={s}>
-                        <td className="py-2 font-medium text-text">{s}</td>
-                        {m.map((v, i) => <td key={i} className="py-2">{v}</td>)}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <p className="mt-4 text-xs text-muted">
-                  Measurements are approximate. When between sizes, size up for a relaxed fit.
-                </p>
+                <SizeChart product={product} highlight={selectedSize} />
               </div>
             )}
 

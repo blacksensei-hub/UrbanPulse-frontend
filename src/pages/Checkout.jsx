@@ -15,7 +15,8 @@ import { formatCurrency, cn, sanitizePhone } from '../utils/format.js';
 import { imageUrl } from '../utils/image.js';
 import { getErrorMessage } from '../utils/errors.js';
 import { fadeInUp } from '../lib/motion.js';
-import { useFeature, useSetting } from '../stores/settingsStore.js';
+import { useFeature, useSetting, useSettingsStore } from '../stores/settingsStore.js';
+import { shippingFor, bundleDiscount, GHANA_REGIONS } from '../lib/pricing.js';
 
 const STEPS = ['Information', 'Shipping', 'Payment'];
 
@@ -29,8 +30,7 @@ export default function Checkout() {
   const codEnabled      = useFeature('cod');
   const paystackEnabled = useFeature('paystack');
   const loyaltyEnabled  = useFeature('loyalty');
-  const stdRate    = Number(useSetting('shipping_standard_ghs', '30'));
-  const expRate    = Number(useSetting('shipping_express_ghs', '80'));
+  const settings   = useSettingsStore((s) => s.settings);
   const freeThresh = Number(useSetting('free_shipping_threshold_ghs', '1000'));
   const taxPct     = Number(useSetting('tax_rate_percent', '12.5'));
 
@@ -74,11 +74,16 @@ export default function Checkout() {
   // the shipping cost) · the shipping term itself is never zeroed, or the benefit
   // would be counted twice and the display would undershoot the stored total.
   const subtotal         = items.reduce((sum, i) => sum + Number(i.price) * i.quantity, 0);
-  const shippingCost     = form.shipping === 'express' ? expRate : subtotal >= freeThresh ? 0 : stdRate;
+  // Delivery and bundle rules come from lib/pricing.js, the mirror of the
+  // server's utils/pricing.js, so the total shown is the total charged.
+  const shippingCost     = shippingFor({ subtotal, method: form.shipping, region: form.state, settings });
+  const standardFee      = shippingFor({ subtotal, method: 'standard', region: form.state, settings });
+  const expressFee       = shippingFor({ subtotal, method: 'express', region: form.state, settings });
   const tax              = +(subtotal * taxPct / 100).toFixed(2);
+  const bundle           = bundleDiscount(items, settings);
   const discount         = couponPreview?.discount ?? 0;
   const availableCredit  = Number(user?.store_credit_ghs ?? 0);
-  const preCreditTotal   = subtotal + shippingCost + tax - discount;
+  const preCreditTotal   = subtotal + shippingCost + tax - bundle.discount - discount;
   const creditUsed       = applyCredit
     ? Math.min(creditInput || availableCredit, availableCredit, preCreditTotal)
     : 0;
@@ -127,7 +132,7 @@ export default function Checkout() {
     if (!code) { setCouponPreview(null); setCouponError(''); return; }
     setCouponLoading(true); setCouponError('');
     try {
-      const result = await orderService.previewCoupon({ coupon_code: code, subtotal, shipping_method: form.shipping });
+      const result = await orderService.previewCoupon({ coupon_code: code, subtotal, shipping_method: form.shipping, region: form.state });
       setCouponPreview(result); setCouponError('');
     } catch (err) {
       setCouponPreview(null);
@@ -378,8 +383,24 @@ export default function Checkout() {
                       onChange={(e) => setField('apartment', e.target.value)} />
                     <div className="grid gap-4 sm:grid-cols-3">
                       <Input floating label="City"  value={form.city}  autoComplete="address-level2" onChange={(e) => setField('city',  e.target.value)} />
-                      <Input floating label="State" value={form.state} autoComplete="address-level1" onChange={(e) => setField('state', e.target.value)} />
-                      <Input floating label="ZIP"   value={form.zip}   autoComplete="postal-code"     onChange={(e) => setField('zip',   e.target.value)} />
+                      {/* Ghana's 16 regions (delivery can be priced by region), and the
+                          GhanaPost GPS digital address couriers use, in place of the
+                          US-style State and ZIP fields that were here. */}
+                      <label className="relative block">
+                        <span className="sr-only">Region</span>
+                        <select
+                          value={form.state}
+                          autoComplete="address-level1"
+                          onChange={(e) => setField('state', e.target.value)}
+                          className={cn('input h-full min-h-[52px] w-full appearance-none pr-9', !form.state && 'text-muted')}
+                        >
+                          <option value="">Region</option>
+                          {GHANA_REGIONS.map((r) => <option key={r} value={r}>{r}</option>)}
+                          {form.state && !GHANA_REGIONS.includes(form.state) && <option value={form.state}>{form.state}</option>}
+                        </select>
+                        <span aria-hidden className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted">▾</span>
+                      </label>
+                      <Input floating label="GhanaPost GPS (optional)" value={form.zip} autoComplete="off" onChange={(e) => setField('zip', e.target.value.toUpperCase())} />
                     </div>
                     <Input floating label="Phone" value={form.phone} ref={phoneRef}
                       autoComplete="tel" inputMode="tel"
@@ -392,8 +413,8 @@ export default function Checkout() {
                   <div className="space-y-4">
                     <h2 className="font-display text-h3 font-bold">Shipping method</h2>
                     {[
-                      { id: 'standard', title: 'Standard', meta: '5–7 business days', cost: subtotal >= freeThresh ? 'Free' : formatCurrency(stdRate) },
-                      { id: 'express',  title: 'Express',  meta: '2–3 business days', cost: formatCurrency(expRate) },
+                      { id: 'standard', title: 'Standard', meta: 'Our regular delivery across Ghana', cost: standardFee === 0 ? 'Free' : formatCurrency(standardFee) },
+                      { id: 'express',  title: 'Express',  meta: 'Faster, where we can', cost: formatCurrency(expressFee) },
                     ].map((opt) => (
                       <label
                         key={opt.id}
@@ -655,6 +676,12 @@ export default function Checkout() {
                   <dt><Label>VAT ({taxPct}%)</Label></dt>
                   <dd className="font-mono tabular-nums">{formatCurrency(tax)}</dd>
                 </div>
+                {bundle.discount > 0 && (
+                  <div className="flex justify-between text-success">
+                    <dt><Label>Bundle · {bundle.note}</Label></dt>
+                    <dd className="font-mono font-medium tabular-nums">− {formatCurrency(bundle.discount)}</dd>
+                  </div>
+                )}
                 {couponPreview && couponPreview.type !== 'free_shipping' && (
                   <div className="flex justify-between text-success">
                     <dt><Label>Discount</Label></dt>
