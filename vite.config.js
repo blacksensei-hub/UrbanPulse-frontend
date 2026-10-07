@@ -92,12 +92,23 @@ export default defineConfig({
   },
   build: {
     sourcemap: false,
-    rollupOptions: {
+    // Vite 5's default, kept on purpose: Vite 8 would build for Safari 16.4+
+    // and Chrome 111+ only, and the store still serves older phones (an
+    // iPhone 7 stops at iOS 15). Also the CSS target, via cssTarget's default.
+    target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
+    rolldownOptions: {
       output: {
-        manualChunks: {
-          react:  ['react', 'react-dom', 'react-router-dom'],
-          motion: ['framer-motion'],
-          charts: ['recharts'],
+        // Long-lived libraries in their own chunks, cached across deploys. A
+        // group also takes the modules its library depends on, so React goes
+        // first: otherwise charts, which only admin pages load, could claim
+        // React and be preloaded on every page. The names matter: the PWA
+        // precache above skips charts-*.js by name.
+        codeSplitting: {
+          groups: [
+            { name: 'react',  priority: 30, test: /node_modules[\\/](react|react-dom|react-router|react-router-dom|scheduler)[\\/]/ },
+            { name: 'motion', priority: 20, test: /node_modules[\\/](framer-motion|motion-dom|motion-utils)[\\/]/ },
+            { name: 'charts', priority: 10, test: /node_modules[\\/](recharts|victory-vendor|d3-[a-z-]+)[\\/]/ },
+          ],
         },
       },
     },
