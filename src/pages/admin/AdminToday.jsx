@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { forwardRef, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
@@ -100,7 +100,7 @@ function QueueSkeleton({ rows = 3 }) {
 
 // ── COD Queue ────────────────────────────────────────────────────
 
-function CodRow({ item, onDone }) {
+function CodRowInner({ item, onDone }, ref) {
   const [confirming, setConfirming] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [actionsOpen, setActionsOpen] = useState(false);
@@ -129,7 +129,7 @@ function CodRow({ item, onDone }) {
   }
 
   return (
-    <motion.div layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={rowExit} transition={{ duration: 0.22 }}
+    <motion.div ref={ref} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={rowExit} transition={{ duration: 0.22 }}
       className="px-5 py-4"
     >
       {/* Desktop */}
@@ -214,7 +214,7 @@ function CodRow({ item, onDone }) {
 
 // ── Ship Queue ───────────────────────────────────────────────────
 
-function ShipRow({ item, onDone }) {
+function ShipRowInner({ item, onDone }, ref) {
   const [showForm, setShowForm] = useState(false);
   const [tracking, setTracking] = useState('');
   const [shipping, setShipping] = useState(false);
@@ -231,7 +231,7 @@ function ShipRow({ item, onDone }) {
   }
 
   return (
-    <motion.div layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={rowExit} transition={{ duration: 0.22 }}
+    <motion.div ref={ref} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={rowExit} transition={{ duration: 0.22 }}
       className="px-5 py-4"
     >
       <div className="flex items-start gap-4">
@@ -282,7 +282,7 @@ function ShipRow({ item, onDone }) {
 
 // ── Returns Approve Queue ─────────────────────────────────────────
 
-function ReturnApproveRow({ item, onDone }) {
+function ReturnApproveRowInner({ item, onDone }, ref) {
   const [approving, setApproving] = useState(false);
   const [showReject, setShowReject] = useState(false);
   const [rejectNote, setRejectNote] = useState('');
@@ -312,7 +312,7 @@ function ReturnApproveRow({ item, onDone }) {
   }
 
   return (
-    <motion.div layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={rowExit} transition={{ duration: 0.22 }}
+    <motion.div ref={ref} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={rowExit} transition={{ duration: 0.22 }}
       className="px-5 py-4"
     >
       <div className="flex items-start justify-between gap-4">
@@ -360,7 +360,7 @@ function ReturnApproveRow({ item, onDone }) {
 
 // ── Returns Refund Queue ──────────────────────────────────────────
 
-function ReturnRefundRow({ item, onDone }) {
+function ReturnRefundRowInner({ item, onDone }, ref) {
   const [modalOpen, setModalOpen] = useState(false);
   const [amount, setAmount] = useState('');
   const [restock, setRestock] = useState(true);
@@ -386,7 +386,7 @@ function ReturnRefundRow({ item, onDone }) {
   const resolutionLabel = { refund: 'Refund', store_credit: 'Store credit', exchange: 'Exchange' }[item.resolution] ?? item.resolution;
 
   return (
-    <motion.div layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={rowExit} transition={{ duration: 0.22 }}
+    <motion.div ref={ref} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={rowExit} transition={{ duration: 0.22 }}
       className="px-5 py-4"
     >
       <div className="flex items-center justify-between gap-4">
@@ -429,7 +429,7 @@ function ReturnRefundRow({ item, onDone }) {
 
 // ── Stock Queue ───────────────────────────────────────────────────
 
-function StockRow({ item }) {
+function StockRowInner({ item }, ref) {
   const [stock, setStock] = useState(item.stock);
   const [saving, setSaving] = useState(false);
 
@@ -447,7 +447,7 @@ function StockRow({ item }) {
   }
 
   return (
-    <motion.div layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={rowExit} transition={{ duration: 0.22 }}
+    <motion.div ref={ref} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={rowExit} transition={{ duration: 0.22 }}
       className="flex items-center justify-between gap-4 px-5 py-4"
     >
       <div className="min-w-0 flex-1">
@@ -491,12 +491,12 @@ function StockRow({ item }) {
 
 // ── Pre-order Queue ───────────────────────────────────────────────
 
-function PreorderRow({ item }) {
+function PreorderRowInner({ item }, ref) {
   const navigate = useNavigate();
   const daysUntil = Math.ceil((new Date(item.preorder_ships_at) - new Date()) / (1000 * 60 * 60 * 24));
 
   return (
-    <motion.div layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={rowExit} transition={{ duration: 0.22 }}
+    <motion.div ref={ref} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={rowExit} transition={{ duration: 0.22 }}
       className="flex items-center justify-between gap-4 px-5 py-4"
     >
       <div className="min-w-0 flex-1">
@@ -538,6 +538,15 @@ function StatTile({ label, value, sub, to, onClick }) {
 }
 
 // ── Main Page ─────────────────────────────────────────────────────
+
+// The queues animate rows out with AnimatePresence mode="popLayout", which
+// measures each row through a ref, so every row passes it to its outer element.
+const CodRow = forwardRef(CodRowInner);
+const ShipRow = forwardRef(ShipRowInner);
+const ReturnApproveRow = forwardRef(ReturnApproveRowInner);
+const ReturnRefundRow = forwardRef(ReturnRefundRowInner);
+const StockRow = forwardRef(StockRowInner);
+const PreorderRow = forwardRef(PreorderRowInner);
 
 export default function AdminToday() {
   const prefersReduced = useReducedMotion();
