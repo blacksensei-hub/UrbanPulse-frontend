@@ -77,6 +77,8 @@ function ReturnRequestModal({ orderId, onClose }) {
   const [customerNote, setCustomerNote] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [rma, setRma] = useState(null);
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; });
 
   useEffect(() => {
     orderService.get(orderId).then((o) => {
@@ -87,7 +89,7 @@ function ReturnRequestModal({ orderId, onClose }) {
       });
       setSelections(init);
       setLoading(false);
-    }).catch(() => { toast.error('Could not load order'); onClose(); });
+    }).catch(() => { toast.error('Could not load order'); onCloseRef.current(); });
   }, [orderId]);
 
   function toggleItem(id) {

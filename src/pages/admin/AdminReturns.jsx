@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowLeft, CheckCircle, RotateCcw, XCircle } from 'lucide-react';
@@ -65,12 +65,11 @@ function ReturnDetail({ returnId, onBack }) {
     return () => { cancelled = true; };
   }, [returnId]);
 
-  // Pre-fill refund amount with sum of item prices
+  // Pre-fill refund amount with sum of item prices, unless one was typed.
   useEffect(() => {
-    if (ret?.items?.length && !refundAmount) {
-      const total = ret.items.reduce((s, i) => s + Number(i.unit_price) * i.quantity, 0);
-      setRefundAmount(total.toFixed(2));
-    }
+    if (!ret?.items?.length) return;
+    const total = ret.items.reduce((s, i) => s + Number(i.unit_price) * i.quantity, 0);
+    setRefundAmount((typed) => typed || total.toFixed(2));
   }, [ret]);
 
   async function act(fn, successMsg) {
@@ -381,16 +380,16 @@ export default function AdminReturns() {
     if (routeId) setSelectedId(Number(routeId));
   }, [routeId]);
 
-  function loadList() {
+  const loadList = useCallback(() => {
     setLoading(true);
     const params = statusFilter !== 'all' ? { status: statusFilter } : {};
     adminService.returns(params)
       .then(setReturns)
       .catch(() => {})
       .finally(() => setLoading(false));
-  }
+  }, [statusFilter]);
 
-  useEffect(() => { loadList(); }, [statusFilter]);
+  useEffect(() => { loadList(); }, [loadList]);
 
   const requestedCount = returns.filter((r) => r.status === 'requested').length;
 
@@ -422,7 +421,10 @@ export default function AdminReturns() {
   if (selectedId) {
     return (
       <div className="space-y-6">
+        {/* Keyed by return: going straight from one return to another starts a
+            fresh panel, so a refund amount can't carry over between them. */}
         <ReturnDetail
+          key={selectedId}
           returnId={selectedId}
           onBack={() => { setSelectedId(null); navigate('/admin/returns'); loadList(); }}
         />

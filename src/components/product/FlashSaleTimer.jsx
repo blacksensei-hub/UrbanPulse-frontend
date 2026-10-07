@@ -15,8 +15,11 @@ function getTimeLeft(endsAt) {
 export default function FlashSaleTimer({ endsAt, onExpire, className = '' }) {
   const [timeLeft, setTimeLeft] = useState(() => getTimeLeft(endsAt));
 
+  // Counts from the current end time, so a changed end time restarts it.
   useEffect(() => {
-    if (!timeLeft) return;
+    const now = getTimeLeft(endsAt);
+    setTimeLeft(now);
+    if (!now) return;
     const id = setInterval(() => {
       const next = getTimeLeft(endsAt);
       setTimeLeft(next);
