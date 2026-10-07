@@ -10,12 +10,13 @@ import GoogleSignInButton from '../components/auth/GoogleSignInButton.jsx';
 import { useAuthStore } from '../stores/authStore.js';
 import { authService } from '../services/index.js';
 import { setSessionHint } from '../utils/sessionHint.js';
+import { sameSitePath } from '../utils/sameSitePath.js';
 import { fadeInUp } from '../lib/motion.js';
 
 export default function Login() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const next = searchParams.get('next');
+  const next = sameSitePath(searchParams.get('next'));
   const notice = searchParams.get('notice');
   const { setUser, login, loginWithGoogle } = useAuthStore();
 
