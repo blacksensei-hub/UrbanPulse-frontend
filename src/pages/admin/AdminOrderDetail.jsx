@@ -108,6 +108,9 @@ export default function AdminOrderDetail() {
     if (mountedForRef.current === id) return;
     mountedForRef.current = id;
     loadOrder();
+    // On a new order only. loadOrder reads the current id and is also called
+    // after each edit; listing it would reload on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   function enterEditMode() {

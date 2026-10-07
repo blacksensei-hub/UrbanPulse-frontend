@@ -185,13 +185,14 @@ export default function Checkout() {
   }, [step, pendingPhoneFocus]);
 
   useEffect(() => {
-    if (!paystackEnabled && (form.paymentMethod === 'mobile_money' || form.paymentMethod === 'card')) {
-      setField('paymentMethod', codEnabled ? 'cod' : '');
+    const method = form.paymentMethod;
+    if (!paystackEnabled && (method === 'mobile_money' || method === 'card')) {
+      setForm((f) => ({ ...f, paymentMethod: codEnabled ? 'cod' : '' }));
     }
-    if (!codEnabled && form.paymentMethod === 'cod') {
-      setField('paymentMethod', paystackEnabled ? 'mobile_money' : '');
+    if (!codEnabled && method === 'cod') {
+      setForm((f) => ({ ...f, paymentMethod: paystackEnabled ? 'mobile_money' : '' }));
     }
-  }, [paystackEnabled, codEnabled]);
+  }, [paystackEnabled, codEnabled, form.paymentMethod]);
 
   async function placeOrder() {
     if (isViewAs) return toast.error('Checkout is disabled in view-as mode.');

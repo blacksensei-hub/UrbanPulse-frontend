@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -305,14 +305,14 @@ function NotesPanel({ customerId }) {
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState('');
 
-  async function loadNotes() {
+  const loadNotes = useCallback(async () => {
     setLoading(true);
     try { setNotes(await adminService.customer.notes(customerId)); }
     catch { setNotes([]); }
     finally { setLoading(false); }
-  }
+  }, [customerId]);
 
-  useEffect(() => { loadNotes(); }, [customerId]);
+  useEffect(() => { loadNotes(); }, [loadNotes]);
 
   async function addNote() {
     if (!draft.trim()) return;
@@ -519,6 +519,9 @@ export default function AdminCustomerDetail() {
     loadProfile();
     loadFlags();
     loadTab('orders', true);
+    // On a new customer only. The loaders read the current id; loadTab also
+    // reads tabData, so listing them would reload every time a tab loads.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   // Close desktop actions dropdown on outside click

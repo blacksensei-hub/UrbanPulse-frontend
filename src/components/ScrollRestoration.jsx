@@ -93,18 +93,20 @@ export default function ScrollRestoration() {
     };
   }, []);
 
+  // The history entry this render belongs to (its key, or the path on first load).
+  const currentKey = entryKey(location);
+
   // Save the outgoing entry's offset on tab close/refresh too.
   useEffect(() => {
-    const key = entryKey(location);
-    const onHide = () => persist(key, window.scrollY);
+    const onHide = () => persist(currentKey, window.scrollY);
     window.addEventListener('pagehide', onHide);
     return () => window.removeEventListener('pagehide', onHide);
-  }, [location.key, location.pathname]);
+  }, [currentKey]);
 
   // Before paint, so the new page never flashes at the old page's offset.
   const prevKey = useRef(null);
   useLayoutEffect(() => {
-    const key = entryKey(location);
+    const key = currentKey;
     const isFirstRender = prevKey.current === null;
     if (!isFirstRender && prevKey.current !== key) persist(prevKey.current, lastY);
     prevKey.current = key;
@@ -114,7 +116,7 @@ export default function ScrollRestoration() {
     const mayRestore = navigationType === 'POP' && (!isFirstRender || isReloadOrHistoryLoad());
     const saved = readPositions()[key];
     scrollToTarget(mayRestore && saved != null ? saved : 0);
-  }, [location.key, location.pathname, navigationType]);
+  }, [currentKey, navigationType]);
 
   return null;
 }

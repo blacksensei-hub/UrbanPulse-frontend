@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
@@ -68,11 +68,11 @@ export default function CommandPalette({ open, onClose }) {
   const [recent, setRecent] = useState([]);
 
   // Flatten all selectable items for keyboard nav
-  const flatItems = q.trim().length >= 2
+  const flatItems = useMemo(() => (q.trim().length >= 2
     ? results
     : q.trim().length === 0
       ? [...QUICK_ACTIONS, ...recent.map(r => ({ ...r, isRecent: true }))]
-      : [];
+      : []), [q, results, recent]);
 
   const handleSelect = useCallback((item) => {
     if (!item.href) return;

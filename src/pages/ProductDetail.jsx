@@ -128,14 +128,16 @@ export default function ProductDetail() {
     return () => { cancelled = true; clearTimeout(slowTimer); };
   }, [slug, retryToken]);
 
+  const productId = product?.id;
+  const productSlug = product?.slug;
   useEffect(() => {
-    if (!product) return;
-    recordView(product.id, product.slug);
-    productService.social(product.slug).then(setSocial).catch(() => {});
-    productService.related(product.slug)
+    if (!productId) return;
+    recordView(productId, productSlug);
+    productService.social(productSlug).then(setSocial).catch(() => {});
+    productService.related(productSlug)
       .then((d) => setRelated(d.items ?? []))
       .catch(() => {});
-  }, [product?.id]);
+  }, [productId, productSlug]);
 
   useEffect(() => {
     if (!atcRef.current) return;
