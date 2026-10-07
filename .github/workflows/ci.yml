@@ -1,5 +1,7 @@
-# Lints and builds the storefront on every pull request and every push to
-# master. Nothing here deploys; Vercel deploys master as before.
+# Lints, tests and builds the storefront on every pull request and every
+# push to master, and once a day: the test checks src/lib/pricing.js still
+# matches the backend's, which can change without a storefront pull request.
+# Nothing here deploys; Vercel deploys master as before.
 name: ci
 
 on:
@@ -7,6 +9,9 @@ on:
     branches: [master]
   pull_request:
     types: [opened, synchronize, reopened]
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -28,4 +33,5 @@ jobs:
       # Windows, which can leave out optional packages Linux needs.
       - run: npm install --no-audit --no-fund
       - run: npm run lint
+      - run: npm test
       - run: npm run build

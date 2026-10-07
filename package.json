@@ -8,7 +8,8 @@
     "prebuild": "node scripts/fetch-clash.mjs",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "node --test \"test/**/*.test.js\""
   },
   "dependencies": {
     "@sentry/react": "^10.54.0",
