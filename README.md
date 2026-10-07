@@ -61,4 +61,8 @@ Two scripts rebuild assets by hand:
 
 ## Checks
 
-GitHub Actions runs the production build on every pull request (`.github/workflows/ci.yml`). ESLint is listed in `package.json` but has no config yet, so `npm run lint` doesn't work.
+```bash
+npm run lint       # ESLint: recommended rules, React's rules of hooks (eslint.config.js)
+```
+
+GitHub Actions runs lint and the production build on every pull request (`.github/workflows/ci.yml`).

@@ -39,12 +39,6 @@ function isFlagOn(v) {
   return v !== 'false' && v !== false;
 }
 
-function useSettingField(settings, key, transform = v => v) {
-  const [val, setVal] = useState(transform(settings[key] ?? ''));
-  useEffect(() => { setVal(transform(settings[key] ?? '')); }, [settings, key]);
-  return [val, setVal];
-}
-
 export default function AdminSettings() {
   const [settings, setSettings] = useState({});
   const [loading, setLoading] = useState(true);

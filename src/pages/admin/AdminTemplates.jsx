@@ -5,7 +5,6 @@ import AdminPageHeader from '../../components/admin/AdminPageHeader.jsx';
 import Modal from '../../components/ui/Modal.jsx';
 import { Button, Input } from '../../components/ui/index.jsx';
 import { adminService } from '../../services/index.js';
-import { formatRelativeDate } from '../../utils/format.js';
 import { SITE_URL } from '../../lib/seoSchema.js';
 
 const CHANNELS = ['email', 'sms', 'whatsapp'];

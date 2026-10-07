@@ -1,7 +1,5 @@
-# Builds the storefront on every pull request and every push to master.
-# Nothing here deploys; Vercel deploys master as before.
-#
-# Lint isn't run: ESLint is installed but has no config yet.
+# Lints and builds the storefront on every pull request and every push to
+# master. Nothing here deploys; Vercel deploys master as before.
 name: ci
 
 on:
@@ -29,4 +27,5 @@ jobs:
       # npm install, as Vercel does, not npm ci: the lockfile is written on
       # Windows, which can leave out optional packages Linux needs.
       - run: npm install --no-audit --no-fund
+      - run: npm run lint
       - run: npm run build

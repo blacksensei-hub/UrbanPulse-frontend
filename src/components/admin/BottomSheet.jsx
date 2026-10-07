@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { bottomSheetVariants, spring } from '../../lib/motion.js';
+import { bottomSheetVariants } from '../../lib/motion.js';
 
 export default function BottomSheet({ open, onClose, title, children }) {
   const prefersReduced = useReducedMotion();

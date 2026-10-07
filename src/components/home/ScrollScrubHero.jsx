@@ -269,7 +269,6 @@ export default function ScrollScrubHero({
           let got = 0;
           let lastRing = 0;
           for (;;) {
-            // eslint-disable-next-line no-await-in-loop
             const { done, value } = await reader.read();
             if (done) break;
             clearTimeout(watchdog);

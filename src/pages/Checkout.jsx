@@ -165,7 +165,6 @@ export default function Checkout() {
       const def = list.find((a) => a.is_default) ?? list[0];
       if (def) applySavedAddress(def);
     }).catch(() => {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   useEffect(() => {

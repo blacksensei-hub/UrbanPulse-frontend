@@ -3,7 +3,7 @@ import { Link, NavLink, Outlet, Route, Routes, useNavigate, useParams } from 're
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   User, Package, MapPin, LogOut, ShieldCheck, ChevronDown, Heart,
-  Gift, Copy, Check, RotateCcw, X, Lock, Smartphone, AlertTriangle,
+  Gift, Copy, Check, RotateCcw, Lock, Smartphone, AlertTriangle,
   Download, Loader2, KeyRound, Award, Fingerprint, Plus, Pencil, Trash2,
 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';

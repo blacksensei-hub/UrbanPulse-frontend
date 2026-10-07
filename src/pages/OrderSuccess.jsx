@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Check, Package, Download, Loader2 } from 'lucide-react';
+import { Check, Package, Download } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Button } from '../components/ui/index.jsx';
 import SEO from '../components/SEO.jsx';

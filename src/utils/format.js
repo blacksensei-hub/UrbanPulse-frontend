@@ -1,4 +1,4 @@
-export const formatCurrency = (amount, currency = 'GHS') => {
+export const formatCurrency = (amount) => {
   const value = Number(amount) || 0;
   // Use a custom symbol since some browsers render "GHS" instead of the ₵ glyph.
   try {

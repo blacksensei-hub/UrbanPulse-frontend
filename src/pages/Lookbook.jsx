@@ -3,7 +3,6 @@ import { Link, useParams } from 'react-router-dom';
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
 
-import ProductCard from '../components/product/ProductCard.jsx';
 import Divider from '../components/ui/Divider.jsx';
 import SEO from '../components/SEO.jsx';
 import { buildArticleSchema, SITE_URL } from '../lib/seoSchema.js';

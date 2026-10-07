@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-import { Button, Input } from '../../components/ui/index.jsx';
+import { Button } from '../../components/ui/index.jsx';
 import Modal from '../../components/ui/Modal.jsx';
 import AdminPageHeader from '../../components/admin/AdminPageHeader.jsx';
 import CustomerLink from '../../components/admin/CustomerLink.jsx';

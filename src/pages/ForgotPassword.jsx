@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
-import toast from 'react-hot-toast';
 
 import { Button, Input } from '../components/ui/index.jsx';
 import { authService } from '../services/index.js';

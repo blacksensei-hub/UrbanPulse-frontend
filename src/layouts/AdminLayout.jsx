@@ -3,7 +3,7 @@ import { Outlet, NavLink, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Package, ShoppingBag, Users, TicketPercent,
-  BarChart3, ScrollText, Settings, Menu, X, LogOut, Store,
+  BarChart3, ScrollText, Settings, Menu, LogOut, Store,
   RotateCcw, UserCog, ChevronLeft, ChevronRight, Search, Activity, Award, FileText, Megaphone,
 } from 'lucide-react';
 import { adminService } from '../services/index.js';

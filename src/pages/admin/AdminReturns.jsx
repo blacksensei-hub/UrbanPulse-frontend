@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
-import { ArrowLeft, CheckCircle, RotateCcw, Check, X, XCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle, RotateCcw, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 import { Button } from '../../components/ui/index.jsx';
