@@ -16,7 +16,7 @@ import { imageUrl } from '../utils/image.js';
 import { getErrorMessage } from '../utils/errors.js';
 import { fadeInUp } from '../lib/motion.js';
 import { useFeature, useSetting, useSettingsStore } from '../stores/settingsStore.js';
-import { shippingFor, bundleDiscount, GHANA_REGIONS } from '../lib/pricing.js';
+import { shippingFor, bundleDiscount, orderTotals, GHANA_REGIONS } from '../lib/pricing.js';
 import { useWhatsApp } from '../lib/whatsapp.js';
 
 const STEPS = ['Information', 'Shipping', 'Payment'];
@@ -81,25 +81,26 @@ export default function Checkout() {
   const shippingCost     = shippingFor({ subtotal, method: form.shipping, region: form.state, settings });
   const standardFee      = shippingFor({ subtotal, method: 'standard', region: form.state, settings });
   const expressFee       = shippingFor({ subtotal, method: 'express', region: form.state, settings });
-  const tax              = +(subtotal * taxPct / 100).toFixed(2);
   const bundle           = bundleDiscount(items, settings);
   const discount         = couponPreview?.discount ?? 0;
   const availableCredit  = Number(user?.store_credit_ghs ?? 0);
-  const preCreditTotal   = subtotal + shippingCost + tax - bundle.discount - discount;
-  const creditUsed       = applyCredit
-    ? Math.min(creditInput || availableCredit, availableCredit, preCreditTotal)
-    : 0;
-  // Stacking precedence: coupon → store credit → loyalty points (points applied last).
-  const preLoyaltyTotal  = preCreditTotal - creditUsed;
   const redeemRate       = Number(loyalty?.redeem_rate_ghs ?? 0.1);
   const minRedeemPoints  = Number(loyalty?.min_redeem_points ?? 100);
   const pointsBalance    = Number(loyalty?.balance ?? 0);
-  const maxEligiblePoints = Math.max(0, Math.min(pointsBalance, Math.floor(preLoyaltyTotal / redeemRate)));
-  const pointsUsed        = applyPoints
-    ? Math.min(pointsInput || maxEligiblePoints, maxEligiblePoints)
-    : 0;
-  const pointsCediUsed    = +(pointsUsed * redeemRate).toFixed(2);
-  const total = preLoyaltyTotal - pointsCediUsed;
+  // Tax, store credit, points and the total come from orderTotals, the same
+  // function the server charges with (lib/pricing.js mirrors the backend's;
+  // test/pricing-parity.test.js checks they match). Applied coupon → store
+  // credit → points; fewer points than the minimum redeem nothing.
+  const priced = (pointsRequested) => orderTotals({
+    subtotal, shipping: shippingCost,
+    bundleDiscount: bundle.discount, couponDiscount: discount, taxRatePercent: taxPct,
+    creditRequested: applyCredit ? (creditInput || availableCredit) : 0,
+    creditAvailable: availableCredit,
+    pointsRequested, pointsBalance, minRedeemPoints, redeemRateGhs: redeemRate,
+  });
+  const maxEligiblePoints = priced(0).maxPoints;
+  const totals = priced(loyaltyEnabled && applyPoints ? (pointsInput || maxEligiblePoints) : 0);
+  const { tax, credit: creditUsed, points: pointsUsed, pointsGhs: pointsCediUsed, total } = totals;
 
   function setField(k, v) { setForm((f) => ({ ...f, [k]: v })); }
 
@@ -576,7 +577,9 @@ export default function Checkout() {
                                   />
                                 </div>
                                 <p className="mt-1.5 text-xs text-muted">
-                                  Use {pointsUsed} points → {formatCurrency(pointsCediUsed)} off
+                                  {pointsUsed > 0
+                                    ? <>Use {pointsUsed} points → {formatCurrency(pointsCediUsed)} off</>
+                                    : <>Points are used {minRedeemPoints} or more at a time{maxEligiblePoints < minRedeemPoints ? `; this order can take ${maxEligiblePoints}` : ''}.</>}
                                 </p>
                               </>
                             )}
