@@ -14,7 +14,7 @@ const CHANNELS = [
 
 export default function MessageComposer({
   open, onClose, onSent,
-  customerId, customerName, customerEmail, customerPhone,
+  customerId, customerEmail, customerPhone,
   orderId, orderNumber, orderTotal, orders,
 }) {
   const [channel, setChannel]             = useState('email');

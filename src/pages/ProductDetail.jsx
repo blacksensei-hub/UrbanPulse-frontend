@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { Minus, Plus, ChevronRight, Star, Heart, Truck, RotateCcw, ShieldCheck, Lock } from 'lucide-react';
+import { Minus, Plus, Star, Heart, Truck, RotateCcw, ShieldCheck, Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 import { Button, Input, Spinner } from '../components/ui/index.jsx';

@@ -3,8 +3,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   MoreVertical, Ban, Shield, Mail, Phone, Pin, Pencil, Trash2,
-  ShoppingBag, RotateCcw, Star, Heart, CreditCard, Plus, Check,
-  X, ChevronRight, Eye, Flag, Send, RefreshCw, Key, MessageSquare, Award,
+  ShoppingBag, RotateCcw, Star, Heart, CreditCard, Plus,
+  X, Eye, Flag, Send, RefreshCw, Key, MessageSquare, Award,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -12,8 +12,6 @@ import { adminService, orderService } from '../../services/index.js';
 import { formatCurrency, formatDate, formatRelativeDate, cn } from '../../utils/format.js';
 import { Button, Input } from '../../components/ui/index.jsx';
 import Modal from '../../components/ui/Modal.jsx';
-import AdminPageHeader from '../../components/admin/AdminPageHeader.jsx';
-import BottomSheet from '../../components/admin/BottomSheet.jsx';
 import MessageComposer from '../../components/admin/MessageComposer.jsx';
 import { invalidateFlags } from '../../stores/customerFlagStore.js';
 
@@ -244,7 +242,7 @@ function AdjustLoyaltyModal({ open, onClose, customerId, currentBalance, onSucce
 
 // ── Apology + Credit Modal ───────────────────────────────────────
 
-function ApologyModal({ open, onClose, customerId, customerEmail, customerName, currentBalance, onSuccess }) {
+function ApologyModal({ open, onClose, customerId, customerEmail, customerName, onSuccess }) {
   const [amount, setAmount]   = useState('');
   const [reason, setReason]   = useState('');
   const [sending, setSending] = useState(false);

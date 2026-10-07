@@ -287,7 +287,7 @@ export default function AdminOrders() {
     { label: 'Export CSV',     icon: Download,      onClick: exportOrdersCsv },
   ];
 
-  const { isPulling, isRefreshing, pullY } = usePullToRefresh(load);
+  const { isPulling, isRefreshing } = usePullToRefresh(load);
 
   return (
     <div className="space-y-6">

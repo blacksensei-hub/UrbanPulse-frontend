@@ -5,7 +5,6 @@ import { Button, Input } from '../components/ui/index.jsx';
 import { cn, formatCurrency, formatDate, formatRelativeDate } from '../utils/format.js';
 import { useSetting } from '../stores/settingsStore.js';
 import { Label } from '../components/ui/Instrument.jsx';
-import { spring } from '../lib/motion.js';
 import { swatchColor } from '../components/product/QuickView.jsx';
 import ProductCard from '../components/product/ProductCard.jsx';
 import RecentlyViewed from '../components/product/RecentlyViewed.jsx';

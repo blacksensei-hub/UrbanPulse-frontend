@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Truck, ShieldCheck, RotateCcw, Sparkles } from 'lucide-react';
@@ -287,7 +287,7 @@ export default function Home() {
       {/* ─── PERKS BAR ───────────────────────────────────────────────────── */}
       <section className="border-b border-border bg-surface">
         <div className="container-site grid grid-cols-2 gap-x-4 gap-y-3 py-4 md:grid-cols-4">
-          {PERKS.map(({ icon: Icon, key, label }, i) => (
+          {PERKS.map(({ icon: Icon, key, label }) => (
             <div key={key ?? label} className="flex items-center gap-2.5">
               <Icon aria-hidden className="h-3.5 w-3.5 shrink-0 text-accent-text" />
               <Label className="truncate">

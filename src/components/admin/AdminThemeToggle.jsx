@@ -3,7 +3,7 @@ import { Sun, Moon } from 'lucide-react';
 import { useAdminTheme } from '../../lib/AdminThemeContext.jsx';
 
 export default function AdminThemeToggle({ className = '' }) {
-  const { adminTheme, toggleAdminTheme, isAdminDark } = useAdminTheme();
+  const { toggleAdminTheme, isAdminDark } = useAdminTheme();
   const prefersReduced = useReducedMotion();
 
   const iconVariants = prefersReduced
