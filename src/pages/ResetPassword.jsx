@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { Button, Input } from '../components/ui/index.jsx';
 import { authService } from '../services/index.js';
 import { fadeInUp } from '../lib/motion.js';
+import { getServerMessage } from '../utils/errors.js';
 
 export default function ResetPassword() {
   const [params] = useSearchParams();
@@ -24,7 +25,7 @@ export default function ResetPassword() {
       toast.success('Password reset \u2014 sign in with your new password.');
       navigate('/login');
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Reset failed');
+      toast.error(getServerMessage(err, 'Reset failed'));
     } finally {
       setSubmitting(false);
     }

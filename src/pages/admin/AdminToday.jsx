@@ -15,6 +15,7 @@ import { Button } from '../../components/ui/index.jsx';
 import Modal from '../../components/ui/Modal.jsx';
 import BottomSheet from '../../components/admin/BottomSheet.jsx';
 import { staggerContainer, fadeInUp } from '../../lib/motion.js';
+import { getServerMessage } from '../../utils/errors.js';
 
 // ── Greeting ─────────────────────────────────────────────────────
 
@@ -112,7 +113,7 @@ function CodRowInner({ item, onDone }, ref) {
       toast.success(`${item.order_number} confirmed`);
       onDone();
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Could not confirm');
+      toast.error(getServerMessage(err, 'Could not confirm'));
     } finally { setConfirming(false); }
   }
 
@@ -124,7 +125,7 @@ function CodRowInner({ item, onDone }, ref) {
       toast.success(`${item.order_number} cancelled`);
       onDone();
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Could not cancel');
+      toast.error(getServerMessage(err, 'Could not cancel'));
     } finally { setCancelling(false); }
   }
 
@@ -226,7 +227,7 @@ function ShipRowInner({ item, onDone }, ref) {
       toast.success(`${item.order_number} marked as shipped`);
       onDone();
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Could not update');
+      toast.error(getServerMessage(err, 'Could not update'));
     } finally { setShipping(false); }
   }
 
@@ -296,7 +297,7 @@ function ReturnApproveRowInner({ item, onDone }, ref) {
       toast.success(`${item.rma_number} approved`);
       onDone();
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Could not approve');
+      toast.error(getServerMessage(err, 'Could not approve'));
     } finally { setApproving(false); }
   }
 
@@ -307,7 +308,7 @@ function ReturnApproveRowInner({ item, onDone }, ref) {
       toast.success(`${item.rma_number} rejected`);
       onDone();
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Could not reject');
+      toast.error(getServerMessage(err, 'Could not reject'));
     } finally { setRejecting(false); }
   }
 
@@ -379,7 +380,7 @@ function ReturnRefundRowInner({ item, onDone }, ref) {
       setModalOpen(false);
       onDone();
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Refund failed');
+      toast.error(getServerMessage(err, 'Refund failed'));
     } finally { setProcessing(false); }
   }
 

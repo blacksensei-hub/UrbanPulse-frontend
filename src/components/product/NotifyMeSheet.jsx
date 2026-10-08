@@ -6,6 +6,7 @@ import { Button } from '../ui/index.jsx';
 import { productService } from '../../services/index.js';
 import { useAuthStore } from '../../stores/authStore.js';
 import { spring } from '../../lib/motion.js';
+import { getServerMessage } from '../../utils/errors.js';
 
 /**
  * "Tell me when it's back" for a sold-out size. One message when that exact
@@ -42,7 +43,7 @@ export default function NotifyMeSheet({ open, onClose, product, variant }) {
       if (r?.in_stock) { setError('Good news: this size is in stock right now. Close this and add it to your bag.'); setState('idle'); return; }
       setState('done');
     } catch (err) {
-      setError(err?.response?.data?.error ?? err?.response?.data?.message ?? 'That didn’t go through. Try again in a moment.');
+      setError(getServerMessage(err, 'That didn’t go through. Try again in a moment.'));
       setState('idle');
     }
   }

@@ -8,6 +8,7 @@ import { dropService } from '../services/index.js';
 import { useAuthStore } from '../stores/authStore.js';
 import { spring } from '../lib/motion.js';
 import { cn } from '../utils/format.js';
+import { getServerMessage } from '../utils/errors.js';
 
 // The welcome offer ("10% off your first order"), fetched once per page load
 // and shared by every form on the page. null when none is set.
@@ -65,7 +66,7 @@ export default function DropSignup({ source, tone = 'plain', className }) {
       setWelcome(r.welcome ?? null);
       setState('done');
     } catch (err) {
-      setError(err?.response?.data?.error ?? err?.response?.data?.message ?? 'That didn’t go through. Try again in a moment.');
+      setError(getServerMessage(err, 'That didn’t go through. Try again in a moment.'));
       setState('idle');
       inputRef.current?.focus();
     }

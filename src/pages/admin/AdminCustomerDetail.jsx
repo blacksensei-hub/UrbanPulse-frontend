@@ -14,6 +14,7 @@ import { Button, Input } from '../../components/ui/index.jsx';
 import Modal from '../../components/ui/Modal.jsx';
 import MessageComposer from '../../components/admin/MessageComposer.jsx';
 import { invalidateFlags } from '../../stores/customerFlagStore.js';
+import { getServerMessage } from '../../utils/errors.js';
 
 const ORDER_STATUS_STYLES = {
   pending:               'bg-warning/15 text-warning',
@@ -77,7 +78,7 @@ function AdjustCreditModal({ open, onClose, customerId, currentBalance, onSucces
       onClose();
       setAmount(''); setNote('');
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Adjustment failed');
+      toast.error(getServerMessage(err, 'Adjustment failed'));
     } finally {
       setSaving(false);
     }
@@ -170,7 +171,7 @@ function AdjustLoyaltyModal({ open, onClose, customerId, currentBalance, onSucce
       onClose();
       setAmount(''); setNote('');
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Adjustment failed');
+      toast.error(getServerMessage(err, 'Adjustment failed'));
     } finally {
       setSaving(false);
     }

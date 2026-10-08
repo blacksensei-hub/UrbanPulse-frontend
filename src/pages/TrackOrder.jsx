@@ -10,6 +10,7 @@ import ProductImage from '../components/ui/ProductImage.jsx';
 import { orderService } from '../services/index.js';
 import { formatDate } from '../utils/format.js';
 import { spring } from '../lib/motion.js';
+import { getServerMessage } from '../utils/errors.js';
 
 // The five stages a customer cares about, and which order statuses mean
 // each one has been reached.
@@ -76,7 +77,7 @@ export default function TrackOrder() {
       setResult(await orderService.track({ order_number: orderNumber.trim(), contact: contact.trim() }));
     } catch (err) {
       setResult(null);
-      setError(err?.response?.data?.error ?? err?.response?.data?.message ?? "Something went wrong. Try again in a moment.");
+      setError(getServerMessage(err, "Something went wrong. Try again in a moment."));
     } finally {
       setLoading(false);
     }

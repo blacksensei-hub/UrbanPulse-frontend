@@ -13,7 +13,7 @@ import { useViewAs } from '../hooks/useViewAs.js';
 import { Label } from '../components/ui/Instrument.jsx';
 import { formatCurrency, cn, sanitizePhone } from '../utils/format.js';
 import { imageUrl } from '../utils/image.js';
-import { getErrorMessage } from '../utils/errors.js';
+import { getErrorMessage, getServerMessage } from '../utils/errors.js';
 import { fadeInUp } from '../lib/motion.js';
 import { useFeature, useSetting, useSettingsStore } from '../stores/settingsStore.js';
 import { shippingFor, bundleDiscount, orderTotals, GHANA_REGIONS } from '../lib/pricing.js';
@@ -139,7 +139,7 @@ export default function Checkout() {
       setCouponPreview(result); setCouponError('');
     } catch (err) {
       setCouponPreview(null);
-      setCouponError(err?.response?.data?.message ?? 'Invalid coupon code');
+      setCouponError(getServerMessage(err, 'Invalid coupon code'));
     } finally { setCouponLoading(false); }
   }
 
@@ -248,7 +248,7 @@ export default function Checkout() {
     } catch (err) {
       // Never let a raw server message swallow the crucial context: the order
       // exists · only the payment init failed.
-      const detail = err?.response?.data?.message;
+      const detail = getServerMessage(err);
       toast.error(`Your order is saved, but payment couldn't start${detail ? `: ${detail}` : ''}. Use "Retry payment" when ready.`);
       setSubmitting(false);
     }

@@ -12,6 +12,7 @@ import { productService } from '../../services/index.js';
 import { useCartStore } from '../../stores/cartStore.js';
 import { formatCurrency, cn } from '../../utils/format.js';
 import { vibrate } from '../../utils/haptic.js';
+import { getServerMessage } from '../../utils/errors.js';
 
 const COLOR_MAP = {
   black: '#1a1a1a', 'jet black': '#1a1a1a',
@@ -87,7 +88,7 @@ export default function QuickView({ slug, open, onClose }) {
       vibrate(10);
       onClose();
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Could not add to cart');
+      toast.error(getServerMessage(err, 'Could not add to cart'));
     } finally {
       setAdding(false);
     }

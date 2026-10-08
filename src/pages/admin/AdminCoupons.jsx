@@ -13,6 +13,7 @@ import { usePullToRefresh } from '../../hooks/usePullToRefresh.js';
 import { useLongPress } from '../../hooks/useLongPress.js';
 import { useTableSelection } from '../../hooks/useTableSelection.js';
 import BulkSelectionBar from '../../components/admin/BulkSelectionBar.jsx';
+import { getServerMessage } from '../../utils/errors.js';
 
 const empty = {
   code: '',
@@ -141,7 +142,7 @@ export default function AdminCoupons() {
       setOpen(false);
       load();
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Save failed');
+      toast.error(getServerMessage(err, 'Save failed'));
     }
   }
 
