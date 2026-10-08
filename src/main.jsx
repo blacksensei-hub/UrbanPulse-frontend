@@ -38,7 +38,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <HelmetProvider>
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
-            <BrowserRouter>
+            {/* No startTransition around navigations (React Router 7's default):
+                the route bar starts when the location changes, and inside a
+                transition that only happens once a page's code has loaded, so
+                the first visit to a page would show nothing until then. */}
+            <BrowserRouter useTransitions={false}>
               <CookieConsentProvider>
                 <App />
               </CookieConsentProvider>

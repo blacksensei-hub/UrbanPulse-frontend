@@ -349,17 +349,20 @@ function AccountLayout() {
 
   const loyaltyEnabled = useFeature('loyalty');
 
+  // Full paths: the account pages sit under the "account/*" route, and React
+  // Router 7 resolves a relative link there from the whole address, so on
+  // /account/orders a link to "orders" would lead to /account/orders/orders.
   const NAV = [
-    { to: '', label: 'Dashboard', icon: User, end: true },
-    { to: 'orders', label: 'Orders', icon: Package },
-    { to: 'wishlist', label: 'Wishlist', icon: Heart },
-    { to: 'referrals', label: 'Referrals', icon: Gift },
-    ...(loyaltyEnabled ? [{ to: 'rewards', label: 'Rewards', icon: Award }] : []),
-    { to: 'returns', label: 'Returns', icon: RotateCcw },
-    { to: 'security', label: 'Security', icon: Lock },
-    { to: 'profile', label: 'Profile', icon: ShieldCheck },
-    { to: 'addresses', label: 'Addresses', icon: MapPin },
-    { to: 'privacy', label: 'Privacy', icon: Fingerprint },
+    { to: '/account', label: 'Dashboard', icon: User, end: true },
+    { to: '/account/orders', label: 'Orders', icon: Package },
+    { to: '/account/wishlist', label: 'Wishlist', icon: Heart },
+    { to: '/account/referrals', label: 'Referrals', icon: Gift },
+    ...(loyaltyEnabled ? [{ to: '/account/rewards', label: 'Rewards', icon: Award }] : []),
+    { to: '/account/returns', label: 'Returns', icon: RotateCcw },
+    { to: '/account/security', label: 'Security', icon: Lock },
+    { to: '/account/profile', label: 'Profile', icon: ShieldCheck },
+    { to: '/account/addresses', label: 'Addresses', icon: MapPin },
+    { to: '/account/privacy', label: 'Privacy', icon: Fingerprint },
   ];
 
   return (
@@ -481,7 +484,7 @@ function Dashboard() {
           </div>
         </div>
         {loyaltyEnabled && (
-          <Link to="rewards" className="card p-5 transition-colors hover:border-accent">
+          <Link to="/account/rewards" className="card p-5 transition-colors hover:border-accent">
             <p className="eyebrow">Loyalty points</p>
             <div className="mt-2 font-mono text-2xl font-bold">{user?.loyalty_points ?? 0}</div>
           </Link>
@@ -495,10 +498,10 @@ function Dashboard() {
       {/* Quick-link cards to sub-pages */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          { to: 'orders',   icon: Package,   label: 'My orders' },
-          { to: 'wishlist', icon: Heart,     label: 'Wishlist' },
-          { to: 'returns',  icon: RotateCcw, label: 'Returns' },
-          { to: 'profile',  icon: User,      label: 'Profile' },
+          { to: '/account/orders',   icon: Package,   label: 'My orders' },
+          { to: '/account/wishlist', icon: Heart,     label: 'Wishlist' },
+          { to: '/account/returns',  icon: RotateCcw, label: 'Returns' },
+          { to: '/account/profile',  icon: User,      label: 'Profile' },
         ].map(({ to, icon: Icon, label }) => (
           <Link
             key={to}
@@ -516,7 +519,7 @@ function Dashboard() {
       <div className="card p-6">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-lg font-semibold">Recent orders</h2>
-          <Link to="orders" className="text-sm text-accent-text">View all</Link>
+          <Link to="/account/orders" className="text-sm text-accent-text">View all</Link>
         </div>
         {orders.length === 0 ? (
           <p className="mt-4 text-sm text-muted">No orders yet.</p>
