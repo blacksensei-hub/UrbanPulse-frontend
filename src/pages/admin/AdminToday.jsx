@@ -427,6 +427,78 @@ function ReturnRefundRowInner({ item, onDone }, ref) {
   );
 }
 
+// ── Payments to refund ────────────────────────────────────────────
+// A payment for a cancelled order that Paystack wouldn't refund. Retry it,
+// or refund the customer some other way and mark it done.
+
+function PaymentRefundRowInner({ item, onDone, onRetryFailed }, ref) {
+  const [retrying, setRetrying] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [marking, setMarking] = useState(false);
+  const navigate = useNavigate();
+
+  async function retry() {
+    setRetrying(true);
+    try {
+      await adminService.retryRefund(item.id);
+      toast.success(`${item.order_number} refunded`);
+      onDone();
+    } catch (err) {
+      toast.error(err?.response?.data?.error ?? 'Could not retry the refund');
+      onRetryFailed();
+    } finally { setRetrying(false); }
+  }
+
+  async function markDone() {
+    setMarking(true);
+    try {
+      await adminService.markRefundDone(item.id);
+      toast.success(`${item.order_number} marked refunded`);
+      setConfirmOpen(false);
+      onDone();
+    } catch (err) {
+      toast.error(err?.response?.data?.error ?? 'Could not mark it refunded');
+    } finally { setMarking(false); }
+  }
+
+  return (
+    <motion.div ref={ref} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={rowExit} transition={{ duration: 0.22 }}
+      className="flex flex-col gap-3 px-5 py-4 md:flex-row md:items-center md:justify-between md:gap-4"
+    >
+      <button onClick={() => navigate(`/admin/orders/${item.id}`)} className="min-w-0 flex-1 text-left">
+        <div className="flex flex-col md:flex-row md:items-center md:gap-2">
+          <span className="font-mono text-sm font-semibold">{item.order_number}</span>
+          <span className="hidden md:inline text-sm text-muted">·</span>
+          <span className="text-sm font-medium break-all md:break-normal">{item.customer_name}</span>
+        </div>
+        <div className="mt-0.5 text-xs text-muted">
+          <span className="tabular-nums font-display font-bold text-text">{formatCurrency(item.amount_ghs)}</span>
+          {' · '}Failed {formatRelativeDate(item.failed_at)}
+        </div>
+        {item.error && <div className="mt-1 text-xs text-error">Paystack: {item.error}</div>}
+      </button>
+      <div className="flex gap-2 shrink-0">
+        <Button size="sm-dense" className="flex-1 md:flex-none" onClick={retry} loading={retrying} disabled={marking}>Retry refund</Button>
+        <Button size="sm-dense" variant="ghost" onClick={() => setConfirmOpen(true)} disabled={retrying}>Refunded by hand</Button>
+      </div>
+
+      <Modal open={confirmOpen} onClose={() => !marking && setConfirmOpen(false)} title={`Refunded by hand · ${item.order_number}`}>
+        <div className="space-y-4">
+          <p className="text-sm text-muted">
+            Only mark this once you've sent <strong className="text-text">{formatCurrency(item.amount_ghs)}</strong> back
+            to {item.customer_name}{item.customer_email && item.customer_email !== item.customer_name ? ` (${item.customer_email})` : ''} yourself,
+            for example by mobile money or bank transfer. The store won't try Paystack again.
+          </p>
+          <div className="flex justify-end gap-2 pt-1">
+            <Button variant="ghost" onClick={() => setConfirmOpen(false)} disabled={marking}>Cancel</Button>
+            <Button onClick={markDone} loading={marking}>Mark refunded</Button>
+          </div>
+        </div>
+      </Modal>
+    </motion.div>
+  );
+}
+
 // ── Stock Queue ───────────────────────────────────────────────────
 
 function StockRowInner({ item }, ref) {
@@ -545,6 +617,7 @@ const CodRow = forwardRef(CodRowInner);
 const ShipRow = forwardRef(ShipRowInner);
 const ReturnApproveRow = forwardRef(ReturnApproveRowInner);
 const ReturnRefundRow = forwardRef(ReturnRefundRowInner);
+const PaymentRefundRow = forwardRef(PaymentRefundRowInner);
 const StockRow = forwardRef(StockRowInner);
 const PreorderRow = forwardRef(PreorderRowInner);
 
@@ -565,11 +638,12 @@ export default function AdminToday() {
     ship: new Set(),
     approve: new Set(),
     refund: new Set(),
+    payment: new Set(),
   });
 
   // Reset removed sets when fresh data arrives (items gone from server won't reappear)
   useEffect(() => {
-    if (data) setRemoved({ cod: new Set(), ship: new Set(), approve: new Set(), refund: new Set() });
+    if (data) setRemoved({ cod: new Set(), ship: new Set(), approve: new Set(), refund: new Set(), payment: new Set() });
   }, [data]);
 
   function removeItem(queue, id) {
@@ -584,12 +658,14 @@ export default function AdminToday() {
   const shipItems   = (q.orders_to_ship ?? []).filter(o => !removed.ship.has(o.id));
   const approveItems = (q.returns_awaiting_approval ?? []).filter(r => !removed.approve.has(r.id));
   const refundItems = (q.returns_awaiting_refund ?? []).filter(r => !removed.refund.has(r.id));
+  const paymentItems = (q.payments_to_refund ?? []).filter(o => !removed.payment.has(o.id));
 
   // Adjusted counts (local)
   const codCount    = Math.max(0, (q.cod_count ?? 0) - removed.cod.size);
   const shipCount   = Math.max(0, (q.orders_to_ship_count ?? 0) - removed.ship.size);
   const approveCount = Math.max(0, (q.returns_awaiting_approval_count ?? 0) - removed.approve.size);
   const refundCount = Math.max(0, (q.returns_awaiting_refund_count ?? 0) - removed.refund.size);
+  const paymentCount = Math.max(0, (q.payments_to_refund_count ?? 0) - removed.payment.size);
 
   const stockCount  = (q.out_of_stock_count ?? 0) + (q.low_stock_count ?? 0);
 
@@ -663,6 +739,23 @@ export default function AdminToday() {
           to="/admin/analytics"
         />
       </motion.div>
+
+      {/* Payments to refund: only shown when one is waiting, and first, since a
+          customer is owed money. The oldest 10 are listed; there's no "View all",
+          as the orders list can't filter by payment status. */}
+      {(q.payments_to_refund_count ?? 0) > 0 && (
+        <QueueSection
+          title="Payments to refund"
+          subtitle="Paid after their order was cancelled, and Paystack refused the refund."
+          count={paymentItems.length}
+          totalCount={paymentCount}
+          emptyLabel="Every payment has been refunded."
+        >
+          {paymentItems.map(o => (
+            <PaymentRefundRow key={o.id} item={o} onDone={() => removeItem('payment', o.id)} onRetryFailed={() => refetch()} />
+          ))}
+        </QueueSection>
+      )}
 
       {/* Queue 1 · COD */}
       <QueueSection

@@ -170,6 +170,8 @@ export const adminService = {
   confirmCOD:          (id) => api.post(`/admin/orders/${id}/confirm-cod`).then(r => r.data),
   markCashCollected:   (id) => api.post(`/admin/orders/${id}/mark-paid`).then(r => r.data),
   cancelCOD:           (id) => api.post(`/admin/orders/${id}/cancel-cod`).then(r => r.data),
+  retryRefund:         (id) => api.post(`/admin/orders/${id}/retry-refund`).then(r => r.data),
+  markRefundDone:      (id) => api.post(`/admin/orders/${id}/refund-done`).then(r => r.data),
 
   orders: (params) => api.get('/admin/orders', { params }).then(r => r.data),
   updateOrderStatus: (id, status, { note, tracking_number } = {}) => api.put(`/admin/orders/${id}/status`, {
