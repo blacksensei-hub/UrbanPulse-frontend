@@ -1190,6 +1190,7 @@ const LOYALTY_REASON_LABELS = {
   earned_purchase:   'Earned from order',
   redeemed_credit:   'Redeemed on order',
   refund_clawback:   'Refund adjustment',
+  points_returned:   'Returned with a cancelled or refunded order',
   expired:           'Expired',
   manual_adjustment: 'Manual adjustment',
 };
@@ -1238,7 +1239,7 @@ function LoyaltyTab({ entries, user, onAdjust }) {
                   <td className="px-5 py-3 text-xs text-muted">{formatDate(e.created_at)}</td>
                   <td className="px-5 py-3 text-muted">
                     {LOYALTY_REASON_LABELS[e.reason] ?? e.reason}
-                    {e.related_id && ['earned_purchase', 'redeemed_credit', 'refund_clawback'].includes(e.reason) && (
+                    {e.related_id && ['earned_purchase', 'redeemed_credit', 'refund_clawback', 'points_returned'].includes(e.reason) && (
                       <span className="text-xs"> · order #{e.related_id}</span>
                     )}
                   </td>
