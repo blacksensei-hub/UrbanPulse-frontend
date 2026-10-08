@@ -21,6 +21,7 @@ import { swatchColor } from './QuickView.jsx';
 import { triggerWishlistConfetti } from '../../utils/confetti.js';
 import { vibrate } from '../../utils/haptic.js';
 import { useLongPress } from '../../hooks/useLongPress.js';
+import { getServerMessage } from '../../utils/errors.js';
 
 export default function ProductCard({ product }) {
   const { user } = useAuthStore();
@@ -75,8 +76,8 @@ export default function ProductCard({ product }) {
         vibrate(10);
         triggerWishlistConfetti(heartRef.current, prefersReduced);
       }
-    } catch {
-      toast.error('Could not update wishlist');
+    } catch (err) {
+      toast.error(getServerMessage(err, 'Could not update wishlist'));
     } finally {
       setToggling(false);
     }

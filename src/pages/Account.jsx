@@ -1257,7 +1257,7 @@ function Profile() {
     e.preventDefault();
     setSaving(true);
     try { await authService.updateMe(form); toast.success('Profile updated'); }
-    catch { toast.error('Could not save changes'); }
+    catch (err) { toast.error(getServerMessage(err, 'Could not save changes')); }
     finally { setSaving(false); }
   }
   return (
@@ -1554,8 +1554,8 @@ function Privacy() {
     try {
       const { url } = await authService.unsubscribeLink();
       window.open(url, '_blank');
-    } catch {
-      toast.error('Could not generate an unsubscribe link');
+    } catch (err) {
+      toast.error(getServerMessage(err, 'Could not generate an unsubscribe link'));
     } finally {
       setUnsubscribing(false);
     }
@@ -1704,7 +1704,7 @@ function Wishlist() {
     if (!inStock) return toast.error('No variants in stock');
     setAddingId(item.id);
     try { await addToCart(inStock.id, 1); }
-    catch { toast.error('Could not add to cart'); }
+    catch (err) { toast.error(getServerMessage(err, 'Could not add to cart')); }
     finally { setAddingId(null); }
   }
 
@@ -1892,7 +1892,7 @@ function Security() {
       await authService.revokeSession(id);
       setSessions((s) => s.filter((x) => x.id !== id));
       toast.success('Session signed out');
-    } catch { toast.error('Could not revoke session'); }
+    } catch (err) { toast.error(getServerMessage(err, 'Could not revoke session')); }
   }
 
   async function revokeAll() {
@@ -1900,7 +1900,7 @@ function Security() {
       await authService.revokeAllOthers();
       setSessions((s) => s.filter((x) => x.is_current));
       toast.success('All other sessions signed out');
-    } catch { toast.error('Could not revoke sessions'); }
+    } catch (err) { toast.error(getServerMessage(err, 'Could not revoke sessions')); }
   }
 
   const totpEnabled = user?.totp_enabled;

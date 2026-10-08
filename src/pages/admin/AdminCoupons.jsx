@@ -152,8 +152,8 @@ export default function AdminCoupons() {
       await adminService.deleteCoupon(id);
       toast.success('Coupon deleted');
       load();
-    } catch {
-      toast.error('Could not delete');
+    } catch (err) {
+      toast.error(getServerMessage(err, 'Could not delete'));
     }
   }
 

@@ -209,8 +209,8 @@ export default function ProductDetail() {
         vibrate(10);
         triggerWishlistConfetti(wishlistBtnRef.current, prefersReduced);
       }
-    } catch {
-      toast.error('Could not update wishlist');
+    } catch (err) {
+      toast.error(getServerMessage(err, 'Could not update wishlist'));
     } finally {
       setWishlistToggling(false);
     }

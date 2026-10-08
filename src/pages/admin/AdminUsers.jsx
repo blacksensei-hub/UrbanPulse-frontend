@@ -15,6 +15,7 @@ import { useLongPress } from '../../hooks/useLongPress.js';
 import { useTableSelection } from '../../hooks/useTableSelection.js';
 import BulkSelectionBar from '../../components/admin/BulkSelectionBar.jsx';
 import { exportCsv } from '../../utils/exportCsv.js';
+import { getServerMessage } from '../../utils/errors.js';
 
 function MobileUserCard({ u, onSetRole, onToggleBlock, onNavigate, onLongPress, isSelected }) {
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -101,8 +102,8 @@ export default function AdminUsers() {
       await adminService.updateUserRole(id, role);
       toast.success('Role updated');
       load();
-    } catch {
-      toast.error('Could not update');
+    } catch (err) {
+      toast.error(getServerMessage(err, 'Could not update'));
     }
   }
 
@@ -113,8 +114,8 @@ export default function AdminUsers() {
       await adminService.blockUser(u.id, next);
       toast.success(next ? 'User blocked' : 'User unblocked');
       load();
-    } catch {
-      toast.error('Could not update');
+    } catch (err) {
+      toast.error(getServerMessage(err, 'Could not update'));
     }
   }
 

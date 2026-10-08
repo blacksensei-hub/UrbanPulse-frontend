@@ -187,8 +187,8 @@ export default function AdminOrders() {
       await adminService.updateOrderStatus(id, next);
       toast.success(`Marked as ${next}`);
       load();
-    } catch {
-      toast.error('Could not update');
+    } catch (err) {
+      toast.error(getServerMessage(err, 'Could not update'));
     }
   }
 

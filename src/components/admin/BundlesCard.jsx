@@ -4,6 +4,7 @@ import { Plus, Trash2 } from 'lucide-react';
 import { Button } from '../ui/index.jsx';
 import { adminService, settingsService } from '../../services/index.js';
 import { formatCurrency } from '../../utils/format.js';
+import { getServerMessage } from '../../utils/errors.js';
 
 const newId = () => `b${Date.now().toString(36)}`;
 
@@ -50,8 +51,8 @@ export default function BundlesCard({ settings }) {
       await settingsService.put('bundles', JSON.stringify(clean));
       setBundles(clean);
       toast.success('Bundles saved');
-    } catch {
-      toast.error('Could not save bundles');
+    } catch (err) {
+      toast.error(getServerMessage(err, 'Could not save bundles'));
     } finally {
       setSaving(false);
     }

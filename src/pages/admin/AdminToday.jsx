@@ -513,8 +513,8 @@ function StockRowInner({ item }, ref) {
     setSaving(true);
     try {
       await adminService.updateVariant(item.variant_id, { stock: newStock });
-    } catch {
-      toast.error('Could not update stock');
+    } catch (err) {
+      toast.error(getServerMessage(err, 'Could not update stock'));
       setStock(prev);
     } finally { setSaving(false); }
   }

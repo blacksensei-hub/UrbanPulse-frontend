@@ -10,6 +10,7 @@ import { adminService } from '../../services/index.js';
 import { formatDate } from '../../utils/format.js';
 import { spring } from '../../lib/motion.js';
 import { cn } from '../../utils/format.js';
+import { getServerMessage } from '../../utils/errors.js';
 
 // ── SMS length, the way the network counts it ────────────────────────────
 // Plain GSM characters fit 160 per text (153 each once split); a single
@@ -166,12 +167,12 @@ export default function AdminDrops() {
   async function remove(sub) {
     if (!window.confirm(`Take ${sub.channel === 'sms' ? `+${sub.address}` : sub.address} off the drop list?`)) return;
     try { await adminService.drops.remove(sub.id); load(); }
-    catch { toast.error('Couldn’t remove them.'); }
+    catch (err) { toast.error(getServerMessage(err, 'Couldn’t remove them.')); }
   }
 
   async function retry(b) {
     try { await adminService.drops.retry(b.id); await run(b.id, b.total); }
-    catch { toast.error('Couldn’t retry.'); }
+    catch (err) { toast.error(getServerMessage(err, 'Couldn’t retry.')); }
   }
 
   if (!data) return <div className="space-y-6"><AdminPageHeader title="Drop list" /><p className="text-sm text-muted">Loading…</p></div>;

@@ -136,8 +136,8 @@ export default function AdminProducts() {
       await adminService.deleteProduct(id);
       toast.success('Product deleted');
       load();
-    } catch {
-      toast.error('Could not delete');
+    } catch (err) {
+      toast.error(getServerMessage(err, 'Could not delete'));
     }
   }
 
