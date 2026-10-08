@@ -15,6 +15,7 @@ import { useLongPress } from '../../hooks/useLongPress.js';
 import { useTableSelection } from '../../hooks/useTableSelection.js';
 import BulkSelectionBar from '../../components/admin/BulkSelectionBar.jsx';
 import { CATEGORIES } from '../../lib/categories.js';
+import { getServerMessage } from '../../utils/errors.js';
 
 function MobileProductCard({ p, onEdit, onRemove, onLongPress, isSelected }) {
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -135,8 +136,8 @@ export default function AdminProducts() {
       await adminService.deleteProduct(id);
       toast.success('Product deleted');
       load();
-    } catch {
-      toast.error('Could not delete');
+    } catch (err) {
+      toast.error(getServerMessage(err, 'Could not delete'));
     }
   }
 
@@ -166,7 +167,7 @@ export default function AdminProducts() {
       setImportResult(result);
       load();
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Import failed');
+      toast.error(getServerMessage(err, 'Import failed'));
     } finally {
       setImporting(false);
     }

@@ -35,6 +35,7 @@ import SEO from '../components/SEO.jsx';
 import ShareButtons from '../components/product/ShareButtons.jsx';
 import WhatsAppAsk from '../components/product/WhatsAppAsk.jsx';
 import { SITE_URL, buildProductSchema, buildBreadcrumbSchema } from '../lib/seoSchema.js';
+import { getServerMessage } from '../utils/errors.js';
 
 
 export default function ProductDetail() {
@@ -186,7 +187,7 @@ export default function ProductDetail() {
         });
       }
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Could not add to cart');
+      toast.error(getServerMessage(err, 'Could not add to cart'));
     } finally {
       setAdding(false);
     }
@@ -208,8 +209,8 @@ export default function ProductDetail() {
         vibrate(10);
         triggerWishlistConfetti(wishlistBtnRef.current, prefersReduced);
       }
-    } catch {
-      toast.error('Could not update wishlist');
+    } catch (err) {
+      toast.error(getServerMessage(err, 'Could not update wishlist'));
     } finally {
       setWishlistToggling(false);
     }
@@ -234,7 +235,7 @@ export default function ProductDetail() {
       }));
       toast.success('Review submitted');
     } catch (err) {
-      const msg = err?.response?.data?.message ?? 'Could not submit review';
+      const msg = getServerMessage(err, 'Could not submit review');
       setReviewError(msg);
     } finally {
       setSubmittingReview(false);

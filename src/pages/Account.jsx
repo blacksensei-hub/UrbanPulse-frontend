@@ -26,6 +26,7 @@ import { clearSessionHint } from '../utils/sessionHint.js';
 import { fadeInUp, spring, staggerContainer } from '../lib/motion.js';
 import { usePullToRefresh } from '../hooks/usePullToRefresh.js';
 import PullToRefreshIndicator from '../components/ui/PullToRefreshIndicator.jsx';
+import { getServerMessage } from '../utils/errors.js';
 
 const REASON_OPTIONS = [
   { value: 'damaged',          label: 'Damaged or defective' },
@@ -124,7 +125,7 @@ function ReturnRequestModal({ orderId, onClose }) {
       });
       setRma(result.rma_number);
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Could not submit return request');
+      toast.error(getServerMessage(err, 'Could not submit return request'));
     } finally {
       setSubmitting(false);
     }
@@ -294,7 +295,7 @@ function WriteReviewModal({ item, onClose, onSubmitted }) {
       onSubmitted(item.id);
       onClose();
     } catch (err) {
-      setError(err?.response?.data?.message ?? 'Could not submit review');
+      setError(getServerMessage(err, 'Could not submit review'));
     } finally {
       setSubmitting(false);
     }
@@ -1256,7 +1257,7 @@ function Profile() {
     e.preventDefault();
     setSaving(true);
     try { await authService.updateMe(form); toast.success('Profile updated'); }
-    catch { toast.error('Could not save changes'); }
+    catch (err) { toast.error(getServerMessage(err, 'Could not save changes')); }
     finally { setSaving(false); }
   }
   return (
@@ -1301,7 +1302,7 @@ function AddressFormModal({ address, onClose, onSaved }) {
       onSaved(saved);
       onClose();
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Could not save address');
+      toast.error(getServerMessage(err, 'Could not save address'));
     } finally {
       setSaving(false);
     }
@@ -1366,7 +1367,7 @@ function Addresses() {
       setAddresses((prev) => prev.filter((a) => a.id !== id));
       toast.success('Address deleted');
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Could not delete address');
+      toast.error(getServerMessage(err, 'Could not delete address'));
     } finally {
       setBusyId(null);
     }
@@ -1379,7 +1380,7 @@ function Addresses() {
       setAddresses((prev) => sortAddresses(prev.map((a) => ({ ...a, is_default: a.id === id }))));
       toast.success('Default address updated');
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Could not update default address');
+      toast.error(getServerMessage(err, 'Could not update default address'));
     } finally {
       setBusyId(null);
     }
@@ -1535,7 +1536,7 @@ function Privacy() {
       navigate('/');
       toast.success('Your account has been deleted.');
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Could not delete account');
+      toast.error(getServerMessage(err, 'Could not delete account'));
     } finally {
       setDeleting(false);
     }
@@ -1553,8 +1554,8 @@ function Privacy() {
     try {
       const { url } = await authService.unsubscribeLink();
       window.open(url, '_blank');
-    } catch {
-      toast.error('Could not generate an unsubscribe link');
+    } catch (err) {
+      toast.error(getServerMessage(err, 'Could not generate an unsubscribe link'));
     } finally {
       setUnsubscribing(false);
     }
@@ -1703,7 +1704,7 @@ function Wishlist() {
     if (!inStock) return toast.error('No variants in stock');
     setAddingId(item.id);
     try { await addToCart(inStock.id, 1); }
-    catch { toast.error('Could not add to cart'); }
+    catch (err) { toast.error(getServerMessage(err, 'Could not add to cart')); }
     finally { setAddingId(null); }
   }
 
@@ -1820,7 +1821,7 @@ function Security() {
       const data = await authService.totpSetup();
       setSetupData(data);
       setSetupStep('scan');
-    } catch (err) { toast.error(err?.response?.data?.message ?? 'Setup failed'); }
+    } catch (err) { toast.error(getServerMessage(err, 'Setup failed')); }
     finally { setActing(false); }
   }
 
@@ -1831,7 +1832,7 @@ function Security() {
       setSetupStep('codes');
       setUser({ ...user, totp_enabled: true });
       toast.success('Two-factor authentication enabled');
-    } catch (err) { toast.error(err?.response?.data?.message ?? 'Invalid code'); }
+    } catch (err) { toast.error(getServerMessage(err, 'Invalid code')); }
     finally { setActing(false); setVerifyCode(''); }
   }
 
@@ -1843,7 +1844,7 @@ function Security() {
       setDisableModal(false);
       setDisablePassword('');
       toast.success('Two-factor authentication disabled');
-    } catch (err) { toast.error(err?.response?.data?.message ?? 'Incorrect password'); }
+    } catch (err) { toast.error(getServerMessage(err, 'Incorrect password')); }
     finally { setActing(false); }
   }
 
@@ -1853,7 +1854,7 @@ function Security() {
       toast.success('Google account linked');
       await reloadUser();
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Could not link Google account');
+      toast.error(getServerMessage(err, 'Could not link Google account'));
     }
   }
 
@@ -1866,7 +1867,7 @@ function Security() {
       setUnlinkPassword('');
       await reloadUser();
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Could not remove Google sign-in');
+      toast.error(getServerMessage(err, 'Could not remove Google sign-in'));
     } finally { setActing(false); }
   }
 
@@ -1882,7 +1883,7 @@ function Security() {
       setConfirmPassword('');
       await reloadUser();
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Could not set password');
+      toast.error(getServerMessage(err, 'Could not set password'));
     } finally { setActing(false); }
   }
 
@@ -1891,7 +1892,7 @@ function Security() {
       await authService.revokeSession(id);
       setSessions((s) => s.filter((x) => x.id !== id));
       toast.success('Session signed out');
-    } catch { toast.error('Could not revoke session'); }
+    } catch (err) { toast.error(getServerMessage(err, 'Could not revoke session')); }
   }
 
   async function revokeAll() {
@@ -1899,7 +1900,7 @@ function Security() {
       await authService.revokeAllOthers();
       setSessions((s) => s.filter((x) => x.is_current));
       toast.success('All other sessions signed out');
-    } catch { toast.error('Could not revoke sessions'); }
+    } catch (err) { toast.error(getServerMessage(err, 'Could not revoke sessions')); }
   }
 
   const totpEnabled = user?.totp_enabled;

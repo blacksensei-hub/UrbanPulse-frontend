@@ -16,6 +16,7 @@ import { usePullToRefresh } from '../../hooks/usePullToRefresh.js';
 import { useLongPress } from '../../hooks/useLongPress.js';
 import { useTableSelection } from '../../hooks/useTableSelection.js';
 import BulkSelectionBar from '../../components/admin/BulkSelectionBar.jsx';
+import { getServerMessage } from '../../utils/errors.js';
 
 const STATUSES = ['all', 'requested', 'approved', 'rejected', 'received', 'refunded'];
 
@@ -79,7 +80,7 @@ function ReturnDetail({ returnId, onBack }) {
       reload();
       toast.success(successMsg);
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Action failed');
+      toast.error(getServerMessage(err, 'Action failed'));
     } finally {
       setActing(false);
     }

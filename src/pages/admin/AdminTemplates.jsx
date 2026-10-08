@@ -6,6 +6,7 @@ import Modal from '../../components/ui/Modal.jsx';
 import { Button, Input } from '../../components/ui/index.jsx';
 import { adminService } from '../../services/index.js';
 import { SITE_URL } from '../../lib/seoSchema.js';
+import { getServerMessage } from '../../utils/errors.js';
 
 const CHANNELS = ['email', 'sms', 'whatsapp'];
 
@@ -171,7 +172,7 @@ export default function AdminTemplates() {
       await adminService.deleteTemplate(id);
       toast.success('Template deactivated');
       load();
-    } catch { toast.error('Could not deactivate'); }
+    } catch (err) { toast.error(getServerMessage(err, 'Could not deactivate')); }
   }
 
   async function handleInstallStarters() {

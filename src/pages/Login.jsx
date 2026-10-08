@@ -12,6 +12,7 @@ import { authService } from '../services/index.js';
 import { setSessionHint } from '../utils/sessionHint.js';
 import { sameSitePath } from '../utils/sameSitePath.js';
 import { fadeInUp } from '../lib/motion.js';
+import { getServerMessage } from '../utils/errors.js';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -54,7 +55,7 @@ export default function Login() {
         navigate(destinationFor(data.user));
       }
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Google sign-in failed. Try again.');
+      toast.error(getServerMessage(err, 'Google sign-in failed. Try again.'));
     } finally {
       setSubmitting(false);
     }
@@ -78,7 +79,7 @@ export default function Login() {
         navigate(destinationFor(data.user));
       }
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Invalid email or password');
+      toast.error(getServerMessage(err, 'Invalid email or password'));
     } finally {
       setSubmitting(false);
     }
@@ -95,7 +96,7 @@ export default function Login() {
       toast.success('Welcome back');
       navigate(destinationFor(data.user));
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Invalid code');
+      toast.error(getServerMessage(err, 'Invalid code'));
       setTotpCode('');
       totpInputRef.current?.focus();
     } finally {

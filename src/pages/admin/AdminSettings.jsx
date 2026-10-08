@@ -5,6 +5,7 @@ import AdminPageHeader from '../../components/admin/AdminPageHeader.jsx';
 import { settingsService } from '../../services/index.js';
 import DeliveryRegionsCard from '../../components/admin/DeliveryRegionsCard.jsx';
 import BundlesCard from '../../components/admin/BundlesCard.jsx';
+import { getServerMessage } from '../../utils/errors.js';
 
 function SectionLabel({ children }) {
   return (
@@ -106,8 +107,8 @@ export default function AdminSettings() {
         await settingsService.put(k, String(v));
       }
       toast.success(`${label} saved`);
-    } catch {
-      toast.error(`Failed to save ${label}`);
+    } catch (err) {
+      toast.error(getServerMessage(err, `Failed to save ${label}`));
     } finally {
       setSaving(s => ({ ...s, [key]: false }));
     }
@@ -117,8 +118,8 @@ export default function AdminSettings() {
     setSettings(s => ({ ...s, [flagKey]: enabled ? 'true' : 'false' }));
     try {
       await settingsService.put(flagKey, enabled ? 'true' : 'false');
-    } catch {
-      toast.error('Failed to update flag');
+    } catch (err) {
+      toast.error(getServerMessage(err, 'Failed to update flag'));
       setSettings(s => ({ ...s, [flagKey]: enabled ? 'false' : 'true' }));
     }
   }

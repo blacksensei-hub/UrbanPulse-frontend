@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { Button } from '../ui/index.jsx';
 import { settingsService } from '../../services/index.js';
 import { GHANA_REGIONS } from '../../lib/pricing.js';
+import { getServerMessage } from '../../utils/errors.js';
 
 const on = (v) => v === true || v === 'true';
 
@@ -44,8 +45,8 @@ export default function DeliveryRegionsCard({ settings }) {
       await settingsService.put('delivery_regions', JSON.stringify(clean));
       await settingsService.put('delivery_regions_enabled', enabled ? 'true' : 'false');
       toast.success(enabled ? 'Delivery by region is on' : 'Region rates saved (switched off)');
-    } catch {
-      toast.error('Could not save delivery rates');
+    } catch (err) {
+      toast.error(getServerMessage(err, 'Could not save delivery rates'));
     } finally {
       setSaving(false);
     }

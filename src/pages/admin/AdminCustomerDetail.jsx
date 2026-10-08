@@ -14,6 +14,7 @@ import { Button, Input } from '../../components/ui/index.jsx';
 import Modal from '../../components/ui/Modal.jsx';
 import MessageComposer from '../../components/admin/MessageComposer.jsx';
 import { invalidateFlags } from '../../stores/customerFlagStore.js';
+import { getServerMessage } from '../../utils/errors.js';
 
 const ORDER_STATUS_STYLES = {
   pending:               'bg-warning/15 text-warning',
@@ -77,7 +78,7 @@ function AdjustCreditModal({ open, onClose, customerId, currentBalance, onSucces
       onClose();
       setAmount(''); setNote('');
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Adjustment failed');
+      toast.error(getServerMessage(err, 'Adjustment failed'));
     } finally {
       setSaving(false);
     }
@@ -170,7 +171,7 @@ function AdjustLoyaltyModal({ open, onClose, customerId, currentBalance, onSucce
       onClose();
       setAmount(''); setNote('');
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Adjustment failed');
+      toast.error(getServerMessage(err, 'Adjustment failed'));
     } finally {
       setSaving(false);
     }
@@ -321,7 +322,7 @@ function NotesPanel({ customerId }) {
       await adminService.customer.addNote(customerId, { note: draft.trim(), pinned: draftPinned });
       setDraft(''); setDraftPinned(false); setAdding(false);
       loadNotes();
-    } catch { toast.error('Could not add note'); }
+    } catch (err) { toast.error(getServerMessage(err, 'Could not add note')); }
     finally { setSaving(false); }
   }
 
@@ -329,7 +330,7 @@ function NotesPanel({ customerId }) {
     try {
       await adminService.customer.updateNote(customerId, n.id, { pinned: !n.pinned });
       loadNotes();
-    } catch { toast.error('Could not update note'); }
+    } catch (err) { toast.error(getServerMessage(err, 'Could not update note')); }
   }
 
   async function saveEdit(n) {
@@ -338,7 +339,7 @@ function NotesPanel({ customerId }) {
       await adminService.customer.updateNote(customerId, n.id, { note: editText.trim() });
       setEditingId(null);
       loadNotes();
-    } catch { toast.error('Could not update note'); }
+    } catch (err) { toast.error(getServerMessage(err, 'Could not update note')); }
   }
 
   async function deleteNote(n) {
@@ -346,7 +347,7 @@ function NotesPanel({ customerId }) {
     try {
       await adminService.customer.deleteNote(customerId, n.id);
       loadNotes();
-    } catch { toast.error('Could not delete note'); }
+    } catch (err) { toast.error(getServerMessage(err, 'Could not delete note')); }
   }
 
   const pinned = notes.filter(n => n.pinned);
@@ -572,7 +573,7 @@ export default function AdminCustomerDetail() {
       await adminService.customer.removeFlag(id, flagId);
       invalidateFlags(Number(id));
       loadFlags();
-    } catch { toast.error('Could not remove flag'); }
+    } catch (err) { toast.error(getServerMessage(err, 'Could not remove flag')); }
   }
 
   function selectTab(tab) {
@@ -589,7 +590,7 @@ export default function AdminCustomerDetail() {
       else await adminService.customer.block(id);
       toast.success(user.is_blocked ? 'Customer unblocked' : 'Customer blocked');
       loadProfile();
-    } catch { toast.error('Could not update status'); }
+    } catch (err) { toast.error(getServerMessage(err, 'Could not update status')); }
     setActionsOpen(false);
   }
 
@@ -601,7 +602,7 @@ export default function AdminCustomerDetail() {
       await adminService.customer.setRole(id, newRole);
       toast.success(`Role changed to ${newRole}`);
       loadProfile();
-    } catch { toast.error('Could not change role'); }
+    } catch (err) { toast.error(getServerMessage(err, 'Could not change role')); }
     setActionsOpen(false);
   }
 
@@ -701,8 +702,8 @@ export default function AdminCustomerDetail() {
           localStorage.setItem('urbanpulse-view-as-name', data.customer.name);
           setActionsOpen(false);
           window.open('/', '_blank');
-        } catch {
-          toast.error('Could not start view-as session');
+        } catch (err) {
+          toast.error(getServerMessage(err, 'Could not start view-as session'));
         }
       },
     },

@@ -11,6 +11,7 @@ import { adminService } from '../../services/index.js';
 import AdminPageHeader from '../../components/admin/AdminPageHeader.jsx';
 import { formatDate } from '../../utils/format.js';
 import { CATEGORIES } from '../../lib/categories.js';
+import { getServerMessage } from '../../utils/errors.js';
 
 const emptyVariant = () => ({ size: '', color: '', sku: '', stock: 0, price_adjustment: 0 });
 
@@ -138,7 +139,7 @@ export default function AdminProductForm() {
         }));
         setIsDirty(true);
       } catch (err) {
-        toast.error(err?.response?.data?.message ?? 'Upload failed');
+        toast.error(getServerMessage(err, 'Upload failed'));
       }
     }
     setUploading(false);
@@ -168,7 +169,7 @@ export default function AdminProductForm() {
       setIsDirty(false);
       navigate('/admin/products');
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Save failed');
+      toast.error(getServerMessage(err, 'Save failed'));
     } finally {
       setSaving(false);
     }
@@ -187,7 +188,7 @@ export default function AdminProductForm() {
       setReleaseQtys({});
       if (clearPreorder) set('is_preorder', false);
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Release failed');
+      toast.error(getServerMessage(err, 'Release failed'));
     } finally {
       setReleasing(false);
     }

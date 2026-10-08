@@ -14,6 +14,7 @@ import { usePullToRefresh } from '../../hooks/usePullToRefresh.js';
 import { useTableSelection } from '../../hooks/useTableSelection.js';
 import BulkSelectionBar from '../../components/admin/BulkSelectionBar.jsx';
 import { exportCsv } from '../../utils/exportCsv.js';
+import { getServerMessage } from '../../utils/errors.js';
 
 const STATUSES = ['all', 'pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'];
 
@@ -186,8 +187,8 @@ export default function AdminOrders() {
       await adminService.updateOrderStatus(id, next);
       toast.success(`Marked as ${next}`);
       load();
-    } catch {
-      toast.error('Could not update');
+    } catch (err) {
+      toast.error(getServerMessage(err, 'Could not update'));
     }
   }
 
@@ -200,7 +201,7 @@ export default function AdminOrders() {
       setRefundTarget(null);
       load();
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Refund failed');
+      toast.error(getServerMessage(err, 'Refund failed'));
     } finally {
       setRefunding(false);
     }
@@ -215,7 +216,7 @@ export default function AdminOrders() {
       setCodConfirmTarget(null);
       load();
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Could not confirm');
+      toast.error(getServerMessage(err, 'Could not confirm'));
     } finally { setCodConfirming(false); }
   }
 
@@ -228,7 +229,7 @@ export default function AdminOrders() {
       setCodCancelTarget(null);
       load();
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Could not cancel');
+      toast.error(getServerMessage(err, 'Could not cancel'));
     } finally { setCodCancelling(false); }
   }
 
@@ -248,7 +249,7 @@ export default function AdminOrders() {
       setCashTarget(null);
       load();
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Could not mark paid');
+      toast.error(getServerMessage(err, 'Could not mark paid'));
     } finally { setCashCollecting(false); }
   }
 

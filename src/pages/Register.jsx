@@ -10,6 +10,7 @@ import { useAuthStore } from '../stores/authStore.js';
 import { referralService } from '../services/index.js';
 import { getStoredRefCode, clearRefCode } from '../utils/referral.js';
 import { fadeInUp } from '../lib/motion.js';
+import { getServerMessage } from '../utils/errors.js';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -55,7 +56,7 @@ export default function Register() {
       toast.success('Welcome to UrbanPulse');
       navigate('/');
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Google sign-up failed. Try again.');
+      toast.error(getServerMessage(err, 'Google sign-up failed. Try again.'));
     }
   }
 
@@ -77,7 +78,7 @@ export default function Register() {
       toast.success('Welcome to UrbanPulse');
       navigate('/');
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Could not create account');
+      toast.error(getServerMessage(err, 'Could not create account'));
     } finally {
       setSubmitting(false);
     }
